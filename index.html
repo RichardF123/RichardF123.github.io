@@ -29,7 +29,129 @@
       switchTab();
       window.addEventListener('hashchange', switchTab, false);
   })();
-  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head><body class="is-2-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="https://avatars.githubusercontent.com/u/144225184?s=400&amp;u=f62e0f37c00d8518afb213a36c81cd8428ce0a06&amp;v=4" alt="hi，这里是我的博客" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item is-active" href="/">主页</a><a class="navbar-item" href="/archives">归档</a><a class="navbar-item" href="/categories">分类</a><a class="navbar-item" href="/tags">标签</a></div><div class="navbar-end"><a class="navbar-item search" title="搜索" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-8-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item"><time dateTime="2024-01-18T12:49:21.000Z" title="2024/1/18 20:49:21">2024-01-18</time>发表</span><span class="level-item"><time dateTime="2024-01-19T07:55:32.294Z" title="2024/1/19 15:55:32">2024-01-19</time>更新</span><span class="level-item"><a class="link-muted" href="/categories/Calculus/">Calculus</a></span><span class="level-item">8 分钟读完 (大约1251个字)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2024/01/18/MultivariableCalculus_lecture1/">MultivariableCalculus_lecture1</a></p><div class="content"><h1 id="简单介绍"><a class="markdownIt-Anchor" href="#简单介绍"></a> 简单介绍</h1>
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head><body class="is-2-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="https://avatars.githubusercontent.com/u/144225184?s=400&amp;u=f62e0f37c00d8518afb213a36c81cd8428ce0a06&amp;v=4" alt="hi，这里是我的博客" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item is-active" href="/">主页</a><a class="navbar-item" href="/archives">归档</a><a class="navbar-item" href="/categories">分类</a><a class="navbar-item" href="/tags">标签</a></div><div class="navbar-end"><a class="navbar-item search" title="搜索" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-8-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item"><time dateTime="2024-02-02T11:27:21.000Z" title="2024/2/2 19:27:21">2024-02-02</time>发表</span><span class="level-item"><time dateTime="2024-02-02T11:07:20.115Z" title="2024/2/2 19:07:20">2024-02-02</time>更新</span><span class="level-item"><a class="link-muted" href="/categories/cs/">cs</a></span><span class="level-item">4 分钟读完 (大约627个字)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2024/02/02/Pandas/">Pandas</a></p><div class="content"><h1 id="pandas"><a class="markdownIt-Anchor" href="#pandas"></a> Pandas</h1>
+<p>pandas是python中一种常用的数据分析库，对小型数据分析非常快捷方便</p>
+<h1 id="引入pandas库"><a class="markdownIt-Anchor" href="#引入pandas库"></a> 引入pandas库</h1>
+<blockquote>
+<p>使用import pandas as pd</p>
+</blockquote>
+<h1 id="简单的数组命令"><a class="markdownIt-Anchor" href="#简单的数组命令"></a> 简单的数组命令</h1>
+<p>创建数组</p>
+<blockquote>
+<p>df=pd.Series([1,2,3,4,5,6])</p>
+</blockquote>
+<p>命名index</p>
+<blockquote>
+<p>df=pd.Series([1，2，3，4，5]，index=[‘A’,‘B’,‘C’,‘D’,‘E’])<br />
+注意index中的元素数量应该和数组里的一样</p>
+</blockquote>
+<p>数组的简单指令</p>
+<blockquote>
+<p>mode ( )求众数<br />
+mean ( )求算术平均数<br />
+median ( )求中位数<br />
+min ( )求最小数<br />
+max ( )求最大数<br />
+std (ddof=0)求标准差<br />
+std (ddof=1)求样本标准差<br />
+ddof指的是自由度<br />
+sum ( )求和<br />
+var (ddof=0)求方差<br />
+var (ddof=1)求样本方差<br />
+mad ()求平均绝对离差 (描述数据离散程度)<br />
+count ()计算数据量</p>
+</blockquote>
+<p>如果数组与数组间对应的数据类型相同，且大小相同，这两个数组可以直接相加</p>
+<p>直接描述数组</p>
+<blockquote>
+<p>df.describe()</p>
+</blockquote>
+<p>数组内各数的频率</p>
+<blockquote>
+<p>df.value_counts()</p>
+</blockquote>
+<p>联立几个数组为表格</p>
+<blockquote>
+<p>df_new=pd.concat([S1,S2,S3…],axis=1)<br />
+S1，S2…name参数不能为空</p>
+</blockquote>
+<p>选取数据</p>
+<blockquote>
+<p>df[‘目标数据列’]<br />
+df.loc[num，‘’]前者是行数，后者是目标数据列的name<br />
+df=df[df[‘’]条件] 选取数据列中符合要求的数据</p>
+</blockquote>
+<p>创建新的数据列<br />
+如果新的数据列与原有数据列有代数关系<br />
+df[new]=df[old]operation<br />
+如果没有代数关系，就重新创一个Series再使用concat指令</p>
+<h1 id="csv文件相关命令"><a class="markdownIt-Anchor" href="#csv文件相关命令"></a> csv文件相关命令</h1>
+<p>导入csv文件</p>
+<blockquote>
+<p>df=pd.read_csv(“文件名”，header=，name=[ ]，idx_col(“”))</p>
+</blockquote>
+<p>保存csv</p>
+<blockquote>
+<p>df.to_csv(‘文件名’)</p>
+</blockquote>
+<p>读取txt文本</p>
+<blockquote>
+<p>df=pd.read_table(“文件名”，sep=)</p>
+</blockquote>
+<p>注意，读取的文件必须和python运行文件在同一文件包下，否则就要加上具体的地址</p>
+<p>数据处理<br />
+补充空白数据</p>
+<blockquote>
+<p>df.fillna(0)用0来填充空白数据</p>
+</blockquote>
+<p>取代错误数据</p>
+<blockquote>
+<p>df.replace(“”,0)</p>
+</blockquote>
+<h1 id="使用matplotlib库绘制图像"><a class="markdownIt-Anchor" href="#使用matplotlib库绘制图像"></a> 使用matplotlib库绘制图像</h1>
+<p>导入库</p>
+<blockquote>
+<p>import matplotlib.pyplot as plt</p>
+</blockquote>
+<p>选取目标数据列</p>
+<blockquote>
+<p>df1=df[“”]</p>
+</blockquote>
+<p>绘制柱状图</p>
+<blockquote>
+<p>plt.hist(df1)<br />
+plt.show ()</p>
+</blockquote>
+<p>绘制精确的柱状图</p>
+<blockquote>
+<p>x=df1.value_counts().index<br />
+y=df1.value_counts().value<br />
+plt.bar(x,y)</p>
+</blockquote>
+<p>绘制饼状图</p>
+<blockquote>
+<p>plt.pie(y，labels=x，autopct=“1.1f%%”)<br />
+plt.show()</p>
+</blockquote>
+<p>Data bin(不知道中文叫啥，就是把连续的变量x分成几个区间)</p>
+<blockquote>
+<p>plt.hist(df1,bins=20)<br />
+plt.hist(df1,bins=[0,20,50,100])</p>
+</blockquote>
+<p>绘制折线图</p>
+<blockquote>
+<p>plt.plot(df1)<br />
+plt.plot(x,y)<br />
+plt.xticks(rotation=30)x轴标识旋转30度<br />
+plt.xlabel(“”)x轴名字 y轴同理<br />
+plt.legend([“”,“”])折线名<br />
+plt.title()</p>
+</blockquote>
+<p>绘制散点图</p>
+<blockquote>
+<p>plt.scatter(x，y)</p>
+</blockquote>
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item"><time dateTime="2024-01-18T12:49:21.000Z" title="2024/1/18 20:49:21">2024-01-18</time>发表</span><span class="level-item"><time dateTime="2024-01-19T07:55:32.294Z" title="2024/1/19 15:55:32">2024-01-19</time>更新</span><span class="level-item"><a class="link-muted" href="/categories/Calculus/">Calculus</a></span><span class="level-item">8 分钟读完 (大约1251个字)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2024/01/18/MultivariableCalculus_lecture1/">MultivariableCalculus_lecture1</a></p><div class="content"><h1 id="简单介绍"><a class="markdownIt-Anchor" href="#简单介绍"></a> 简单介绍</h1>
 <p>AMA2702多元微积分是基于AMA1702微积分的基础上的进阶课程，教科书使用<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>D</mi><mi>o</mi><mi>n</mi><mi>S</mi><mi>h</mi><mi>i</mi><mi>m</mi><mi>a</mi><mi>m</mi><mi>o</mi><mi>t</mi><mi>o</mi></mrow><annotation encoding="application/x-tex">Don Shimamoto</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">D</span><span class="mord mathnormal">o</span><span class="mord mathnormal">n</span><span class="mord mathnormal" style="margin-right:0.05764em;">S</span><span class="mord mathnormal">h</span><span class="mord mathnormal">i</span><span class="mord mathnormal">m</span><span class="mord mathnormal">a</span><span class="mord mathnormal">m</span><span class="mord mathnormal">o</span><span class="mord mathnormal">t</span><span class="mord mathnormal">o</span></span></span></span>版本的<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>M</mi><mi>u</mi><mi>l</mi><mi>t</mi><mi>i</mi><mi>v</mi><mi>a</mi><mi>r</mi><mi>i</mi><mi>a</mi><mi>b</mi><mi>l</mi><mi>e</mi><mi>C</mi><mi>a</mi><mi>l</mi><mi>c</mi><mi>u</mi><mi>l</mi><mi>u</mi><mi>s</mi></mrow><annotation encoding="application/x-tex">Multivariable Calculus</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord mathnormal" style="margin-right:0.10903em;">M</span><span class="mord mathnormal">u</span><span class="mord mathnormal" style="margin-right:0.01968em;">l</span><span class="mord mathnormal">t</span><span class="mord mathnormal">i</span><span class="mord mathnormal" style="margin-right:0.03588em;">v</span><span class="mord mathnormal">a</span><span class="mord mathnormal" style="margin-right:0.02778em;">r</span><span class="mord mathnormal">i</span><span class="mord mathnormal">a</span><span class="mord mathnormal">b</span><span class="mord mathnormal" style="margin-right:0.01968em;">l</span><span class="mord mathnormal">e</span><span class="mord mathnormal" style="margin-right:0.07153em;">C</span><span class="mord mathnormal">a</span><span class="mord mathnormal" style="margin-right:0.01968em;">l</span><span class="mord mathnormal">c</span><span class="mord mathnormal">u</span><span class="mord mathnormal" style="margin-right:0.01968em;">l</span><span class="mord mathnormal">u</span><span class="mord mathnormal">s</span></span></span></span>，lecture1主要1介绍了向量的两种很基本的运算点积与叉积（又称内积与外积），向量的模长</p>
 <h1 id="模长norm"><a class="markdownIt-Anchor" href="#模长norm"></a> 模长（norm）</h1>
 <p>向量可以表示成一组有序数组，也代表着空间当中某一点的坐标，这里的模长就是空间当中数组所表示点到原点的长度，将勾股定理推广至n维可以得到</p>
@@ -353,128 +475,6 @@ cin &lt;&lt; a;</p>
 </blockquote>
 <h1 id="常数"><a class="markdownIt-Anchor" href="#常数"></a> 常数</h1>
 <p>我们可以定义一个常数方便运算，如果这个常数需要修改直接改就好了不需要计算的每一步都去修改，比如计算圆周面积的pi,想要精确pi值直接改 double pi 就好了</p>
-</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item"><time dateTime="2024-01-17T11:27:21.000Z" title="2024/1/17 19:27:21">2024-01-17</time>发表</span><span class="level-item"><time dateTime="2024-02-02T07:58:39.938Z" title="2024/2/2 15:58:39">2024-02-02</time>更新</span><span class="level-item"><a class="link-muted" href="/categories/cs/">cs</a></span><span class="level-item">4 分钟读完 (大约627个字)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2024/01/17/Pandas/">c++_lecture1</a></p><div class="content"><h1 id="pandas"><a class="markdownIt-Anchor" href="#pandas"></a> Pandas</h1>
-<p>pandas是python中一种常用的数据分析库，对小型数据分析非常快捷方便</p>
-<h1 id="引入pandas库"><a class="markdownIt-Anchor" href="#引入pandas库"></a> 引入pandas库</h1>
-<blockquote>
-<p>使用import pandas as pd</p>
-</blockquote>
-<h1 id="简单的数组命令"><a class="markdownIt-Anchor" href="#简单的数组命令"></a> 简单的数组命令</h1>
-<p>创建数组</p>
-<blockquote>
-<p>df=pd.Series([1,2,3,4,5,6])</p>
-</blockquote>
-<p>命名index</p>
-<blockquote>
-<p>df=pd.Series([1，2，3，4，5]，index=[‘A’,‘B’,‘C’,‘D’,‘E’])<br />
-注意index中的元素数量应该和数组里的一样</p>
-</blockquote>
-<p>数组的简单指令</p>
-<blockquote>
-<p>mode ( )求众数<br />
-mean ( )求算术平均数<br />
-median ( )求中位数<br />
-min ( )求最小数<br />
-max ( )求最大数<br />
-std (ddof=0)求标准差<br />
-std (ddof=1)求样本标准差<br />
-ddof指的是自由度<br />
-sum ( )求和<br />
-var (ddof=0)求方差<br />
-var (ddof=1)求样本方差<br />
-mad ()求平均绝对离差 (描述数据离散程度)<br />
-count ()计算数据量</p>
-</blockquote>
-<p>如果数组与数组间对应的数据类型相同，且大小相同，这两个数组可以直接相加</p>
-<p>直接描述数组</p>
-<blockquote>
-<p>df.describe()</p>
-</blockquote>
-<p>数组内各数的频率</p>
-<blockquote>
-<p>df.value_counts()</p>
-</blockquote>
-<p>联立几个数组为表格</p>
-<blockquote>
-<p>df_new=pd.concat([S1,S2,S3…],axis=1)<br />
-S1，S2…name参数不能为空</p>
-</blockquote>
-<p>选取数据</p>
-<blockquote>
-<p>df[‘目标数据列’]<br />
-df.loc[num，‘’]前者是行数，后者是目标数据列的name<br />
-df=df[df[‘’]条件] 选取数据列中符合要求的数据</p>
-</blockquote>
-<p>创建新的数据列<br />
-如果新的数据列与原有数据列有代数关系<br />
-df[new]=df[old]operation<br />
-如果没有代数关系，就重新创一个Series再使用concat指令</p>
-<h1 id="csv文件相关命令"><a class="markdownIt-Anchor" href="#csv文件相关命令"></a> csv文件相关命令</h1>
-<p>导入csv文件</p>
-<blockquote>
-<p>df=pd.read_csv(“文件名”，header=，name=[ ]，idx_col(“”))</p>
-</blockquote>
-<p>保存csv</p>
-<blockquote>
-<p>df.to_csv(‘文件名’)</p>
-</blockquote>
-<p>读取txt文本</p>
-<blockquote>
-<p>df=pd.read_table(“文件名”，sep=)</p>
-</blockquote>
-<p>注意，读取的文件必须和python运行文件在同一文件包下，否则就要加上具体的地址</p>
-<p>数据处理<br />
-补充空白数据</p>
-<blockquote>
-<p>df.fillna(0)用0来填充空白数据</p>
-</blockquote>
-<p>取代错误数据</p>
-<blockquote>
-<p>df.replace(“”,0)</p>
-</blockquote>
-<h1 id="使用matplotlib库绘制图像"><a class="markdownIt-Anchor" href="#使用matplotlib库绘制图像"></a> 使用matplotlib库绘制图像</h1>
-<p>导入库</p>
-<blockquote>
-<p>import matplotlib.pyplot as plt</p>
-</blockquote>
-<p>选取目标数据列</p>
-<blockquote>
-<p>df1=df[“”]</p>
-</blockquote>
-<p>绘制柱状图</p>
-<blockquote>
-<p>plt.hist(df1)<br />
-plt.show ()</p>
-</blockquote>
-<p>绘制精确的柱状图</p>
-<blockquote>
-<p>x=df1.value_counts().index<br />
-y=df1.value_counts().value<br />
-plt.bar(x,y)</p>
-</blockquote>
-<p>绘制饼状图</p>
-<blockquote>
-<p>plt.pie(y，labels=x，autopct=“1.1f%%”)<br />
-plt.show()</p>
-</blockquote>
-<p>Data bin(不知道中文叫啥，就是把连续的变量x分成几个区间)</p>
-<blockquote>
-<p>plt.hist(df1,bins=20)<br />
-plt.hist(df1,bins=[0,20,50,100])</p>
-</blockquote>
-<p>绘制折线图</p>
-<blockquote>
-<p>plt.plot(df1)<br />
-plt.plot(x,y)<br />
-plt.xticks(rotation=30)x轴标识旋转30度<br />
-plt.xlabel(“”)x轴名字 y轴同理<br />
-plt.legend([“”,“”])折线名<br />
-plt.title()</p>
-</blockquote>
-<p>绘制散点图</p>
-<blockquote>
-<p>plt.scatter(x，y)</p>
-</blockquote>
 </div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item"><time dateTime="2023-11-23T04:47:28.000Z" title="2023/11/23 12:47:28">2023-11-23</time>发表</span><span class="level-item"><time dateTime="2024-01-05T08:58:46.877Z" title="2024/1/5 16:58:46">2024-01-05</time>更新</span><span class="level-item"><a class="link-muted" href="/categories/%E7%BA%BF%E6%80%A7%E4%BB%A3%E6%95%B0/">线性代数</a></span><span class="level-item">8 分钟读完 (大约1192个字)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/11/23/%E5%90%91%E9%87%8F%E7%A9%BA%E9%97%B4/">线性代数-矩阵乘法后的空间原理</a></p><div class="content"><h1 id="前记"><a class="markdownIt-Anchor" href="#前记"></a> 前记</h1>
 <p>在学习线性代数的过程当中，发现很多教材对矩阵乘法的定义过于代数化了，只介绍了矩阵乘法的代数形式，而很少有提及矩阵乘法背后的空间意义，这也许会导致学习向量空间的过程当中，无法很好的联系矩阵乘法和向量张成的关系</p>
 <h1 id="矩阵乘法定义"><a class="markdownIt-Anchor" href="#矩阵乘法定义"></a> 矩阵乘法定义：</h1>
@@ -614,7 +614,7 @@ higher dimension are the same</p>
 5.注意公式应该是一个整体，公式里的东西应该在一个公式环境里而且不要有中文<br />
 6.公式/英文/数字和中文要有空格</p>
 </blockquote>
-</div></article></div></div><div class="column column-left is-4-tablet is-4-desktop is-4-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar is-rounded" src="https://avatars.githubusercontent.com/u/144225184?s=400&amp;u=f62e0f37c00d8518afb213a36c81cd8428ce0a06&amp;v=4" alt="RichardF"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">RichardF</p><p class="is-size-6 is-block">Polyu大一</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>中国香港</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">文章</p><a href="/archives"><p class="title">6</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">分类</p><a href="/categories"><p class="title">5</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">标签</p><a href="/tags"><p class="title">5</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/RichardF123" target="_blank" rel="noopener">关注我</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/RichardF123"><i class="fab fa-github"></i></a></div></div></div><!--!--><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">链接</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://blog.imyangty.com/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ty哥的博客</span></span><span class="level-right"><span class="level-item tag">blog.imyangty.com</span></span></a></li></ul></div></div></div><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">分类</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/Calculus/"><span class="level-start"><span class="level-item">Calculus</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Data-science/"><span class="level-start"><span class="level-item">Data science</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/cs/"><span class="level-start"><span class="level-item">cs</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/%E6%95%A3%E8%AE%B0/"><span class="level-start"><span class="level-item">散记</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/%E7%BA%BF%E6%80%A7%E4%BB%A3%E6%95%B0/"><span class="level-start"><span class="level-item">线性代数</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></div></div></div><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">最新文章</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2024-01-18T12:49:21.000Z">2024-01-18</time></p><p class="title"><a href="/2024/01/18/MultivariableCalculus_lecture1/">MultivariableCalculus_lecture1</a></p><p class="categories"><a href="/categories/Calculus/">Calculus</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2024-01-17T11:27:21.000Z">2024-01-17</time></p><p class="title"><a href="/2024/01/17/CPP_lecture1/">c++_lecture1</a></p><p class="categories"><a href="/categories/cs/">cs</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2024-01-17T11:27:21.000Z">2024-01-17</time></p><p class="title"><a href="/2024/01/17/Pandas/">c++_lecture1</a></p><p class="categories"><a href="/categories/cs/">cs</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2023-11-23T04:47:28.000Z">2023-11-23</time></p><p class="title"><a href="/2023/11/23/%E5%90%91%E9%87%8F%E7%A9%BA%E9%97%B4/">线性代数-矩阵乘法后的空间原理</a></p><p class="categories"><a href="/categories/%E7%BA%BF%E6%80%A7%E4%BB%A3%E6%95%B0/">线性代数</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2023-11-20T06:47:28.000Z">2023-11-20</time></p><p class="title"><a href="/2023/11/20/kaggle_one/">kaggle learning log_1</a></p><p class="categories"><a href="/categories/Data-science/">Data science</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">归档</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2024/"><span class="level-start"><span class="level-item">2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/"><span class="level-start"><span class="level-item">2023</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">标签</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/MultivariableCalculus/"><span class="tag">MultivariableCalculus</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/c/"><span class="tag">c++</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/kaggle/"><span class="tag">kaggle</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%95%A3%E8%AE%B0/"><span class="tag">散记</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E7%BA%BF%E6%80%A7%E4%BB%A3%E6%95%B0/"><span class="tag">线性代数</span><span class="tag">1</span></a></div></div></div></div></div></div><!--!--></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="https://avatars.githubusercontent.com/u/144225184?s=400&amp;u=f62e0f37c00d8518afb213a36c81cd8428ce0a06&amp;v=4" alt="hi，这里是我的博客" height="28"></a><p class="is-size-7"><span>&copy; 2024 RichardF</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">RichardF</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="GitHub" href="https://github.com/RichardF123"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("zh-cn");</script><script>var IcarusThemeSettings = {
+</div></article></div></div><div class="column column-left is-4-tablet is-4-desktop is-4-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar is-rounded" src="https://avatars.githubusercontent.com/u/144225184?s=400&amp;u=f62e0f37c00d8518afb213a36c81cd8428ce0a06&amp;v=4" alt="RichardF"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">RichardF</p><p class="is-size-6 is-block">Polyu大一</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>中国香港</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">文章</p><a href="/archives"><p class="title">6</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">分类</p><a href="/categories"><p class="title">5</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">标签</p><a href="/tags"><p class="title">6</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/RichardF123" target="_blank" rel="noopener">关注我</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/RichardF123"><i class="fab fa-github"></i></a></div></div></div><!--!--><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">链接</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://blog.imyangty.com/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ty哥的博客</span></span><span class="level-right"><span class="level-item tag">blog.imyangty.com</span></span></a></li></ul></div></div></div><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">分类</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/Calculus/"><span class="level-start"><span class="level-item">Calculus</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Data-science/"><span class="level-start"><span class="level-item">Data science</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/cs/"><span class="level-start"><span class="level-item">cs</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/%E6%95%A3%E8%AE%B0/"><span class="level-start"><span class="level-item">散记</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/%E7%BA%BF%E6%80%A7%E4%BB%A3%E6%95%B0/"><span class="level-start"><span class="level-item">线性代数</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></div></div></div><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">最新文章</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2024-02-02T11:27:21.000Z">2024-02-02</time></p><p class="title"><a href="/2024/02/02/Pandas/">Pandas</a></p><p class="categories"><a href="/categories/cs/">cs</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2024-01-18T12:49:21.000Z">2024-01-18</time></p><p class="title"><a href="/2024/01/18/MultivariableCalculus_lecture1/">MultivariableCalculus_lecture1</a></p><p class="categories"><a href="/categories/Calculus/">Calculus</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2024-01-17T11:27:21.000Z">2024-01-17</time></p><p class="title"><a href="/2024/01/17/CPP_lecture1/">c++_lecture1</a></p><p class="categories"><a href="/categories/cs/">cs</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2023-11-23T04:47:28.000Z">2023-11-23</time></p><p class="title"><a href="/2023/11/23/%E5%90%91%E9%87%8F%E7%A9%BA%E9%97%B4/">线性代数-矩阵乘法后的空间原理</a></p><p class="categories"><a href="/categories/%E7%BA%BF%E6%80%A7%E4%BB%A3%E6%95%B0/">线性代数</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2023-11-20T06:47:28.000Z">2023-11-20</time></p><p class="title"><a href="/2023/11/20/kaggle_one/">kaggle learning log_1</a></p><p class="categories"><a href="/categories/Data-science/">Data science</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">归档</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2024/"><span class="level-start"><span class="level-item">2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/"><span class="level-start"><span class="level-item">2023</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">标签</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/MultivariableCalculus/"><span class="tag">MultivariableCalculus</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/c/"><span class="tag">c++</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/kaggle/"><span class="tag">kaggle</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/python/"><span class="tag">python</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%95%A3%E8%AE%B0/"><span class="tag">散记</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E7%BA%BF%E6%80%A7%E4%BB%A3%E6%95%B0/"><span class="tag">线性代数</span><span class="tag">1</span></a></div></div></div></div></div></div><!--!--></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="https://avatars.githubusercontent.com/u/144225184?s=400&amp;u=f62e0f37c00d8518afb213a36c81cd8428ce0a06&amp;v=4" alt="hi，这里是我的博客" height="28"></a><p class="is-size-7"><span>&copy; 2024 RichardF</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">RichardF</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="GitHub" href="https://github.com/RichardF123"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("zh-cn");</script><script>var IcarusThemeSettings = {
             article: {
                 highlight: {
                     clipboard: true,
