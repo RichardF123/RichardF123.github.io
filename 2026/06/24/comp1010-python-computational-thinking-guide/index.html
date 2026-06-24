@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>Python 计算思维入门到实用：函数、循环、条件、排序、矩阵、图与最短路 - RichardF&#039;s Blog</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="RichardF&#039;s Blog"><meta name="msapplication-TileImage" content="https://avatars.githubusercontent.com/u/144225184?s=400&amp;u=f62e0f37c00d8518afb213a36c81cd8428ce0a06&amp;v=4"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="RichardF&#039;s Blog"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="这篇笔记根据 COMP1010 &amp;#x2F; COMP1002 计算思维与问题求解资料整理。它和普通 Python 语法教程不太一样：重点不是“Python 有哪些语法”，而是“拿到一个问题之后，怎样把它拆成可以执行的步骤，再用 Python 写出来”。 如果你以后想继续学数据分析、机器学习、搜索推荐、NLP 或 AI infra，Python 的价值不只是写脚本，更重要的是训练一种能力：把模糊问题变成输入"><meta property="og:type" content="blog"><meta property="og:title" content="Python 计算思维入门到实用：函数、循环、条件、排序、矩阵、图与最短路"><meta property="og:url" content="https://richardf123.github.io/2026/06/24/comp1010-python-computational-thinking-guide/"><meta property="og:site_name" content="RichardF&#039;s Blog"><meta property="og:description" content="这篇笔记根据 COMP1010 &amp;#x2F; COMP1002 计算思维与问题求解资料整理。它和普通 Python 语法教程不太一样：重点不是“Python 有哪些语法”，而是“拿到一个问题之后，怎样把它拆成可以执行的步骤，再用 Python 写出来”。 如果你以后想继续学数据分析、机器学习、搜索推荐、NLP 或 AI infra，Python 的价值不只是写脚本，更重要的是训练一种能力：把模糊问题变成输入"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="d:/logo.jpg"><meta property="article:published_time" content="2026-06-24T13:05:00.000Z"><meta property="article:modified_time" content="2026-06-24T13:05:00.000Z"><meta property="article:author" content="RichardF"><meta property="article:tag" content="python"><meta property="article:tag" content="programming"><meta property="article:tag" content="algorithm"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="d:/logo.jpg"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://richardf123.github.io/2026/06/24/comp1010-python-computational-thinking-guide/"},"headline":"Python 计算思维入门到实用：函数、循环、条件、排序、矩阵、图与最短路","image":["d:/logo.jpg"],"datePublished":"2026-06-24T13:05:00.000Z","dateModified":"2026-06-24T13:05:00.000Z","author":{"@type":"Person","name":"RichardF"},"publisher":{"@type":"Organization","name":"D:/logo.jpg","logo":{"@type":"ImageObject","url":"d:/logo.jpg"}},"description":"这篇笔记根据 COMP1010 &#x2F; COMP1002 计算思维与问题求解资料整理。它和普通 Python 语法教程不太一样：重点不是“Python 有哪些语法”，而是“拿到一个问题之后，怎样把它拆成可以执行的步骤，再用 Python 写出来”。 如果你以后想继续学数据分析、机器学习、搜索推荐、NLP 或 AI infra，Python 的价值不只是写脚本，更重要的是训练一种能力：把模糊问题变成输入"}</script><link rel="canonical" href="https://richardf123.github.io/2026/06/24/comp1010-python-computational-thinking-guide/"><link rel="icon" href="https://avatars.githubusercontent.com/u/144225184?s=400&amp;u=f62e0f37c00d8518afb213a36c81cd8428ce0a06&amp;v=4"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css?v=20260624-interactive-map"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="https://avatars.githubusercontent.com/u/144225184?s=400&amp;u=f62e0f37c00d8518afb213a36c81cd8428ce0a06&amp;v=4" alt="RichardF&#039;s Blog" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">主页</a><a class="navbar-item" href="/archives">归档</a><a class="navbar-item" href="/categories">分类</a><a class="navbar-item" href="/tags">标签</a><a class="navbar-item" href="/knowledge-map">知识图谱</a><a class="navbar-item" href="/about">关于</a></div><div class="navbar-end"><a class="navbar-item search" title="搜索" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item"><time dateTime="2026-06-24T13:05:00.000Z" title="2026/6/24 21:05:00">2026-06-24</time>发表</span><span class="level-item"><time dateTime="2026-06-24T13:05:00.000Z" title="2026/6/24 21:05:00">2026-06-24</time>更新</span><span class="level-item"><a class="link-muted" href="/categories/cs/">cs</a></span><span class="level-item">25 分钟读完 (大约3793个字)</span></div></div><h1 class="title is-3 is-size-4-mobile">Python 计算思维入门到实用：函数、循环、条件、排序、矩阵、图与最短路</h1><div class="content"><p>这篇笔记根据 COMP1010 / COMP1002 计算思维与问题求解资料整理。它和普通 Python 语法教程不太一样：重点不是“Python 有哪些语法”，而是“拿到一个问题之后，怎样把它拆成可以执行的步骤，再用 Python 写出来”。</p>
+<p>如果你以后想继续学数据分析、机器学习、搜索推荐、NLP 或 AI infra，Python 的价值不只是写脚本，更重要的是训练一种能力：把模糊问题变成输入、输出、数据结构和算法流程。</p>
+<span id="more"></span>
+<h2 id="参考资料下载"><a class="markdownIt-Anchor" href="#参考资料下载"></a> 参考资料下载</h2>
+<p>原始课件和作业资料保留在这里，方便对照阅读：</p>
+<ul>
+<li><a href="/files/comp1010-python-guide/COMP1010-python-materials.zip">COMP1010 Python 全部资料压缩包</a></li>
+<li><a href="/files/comp1010-python-guide/04-lecture-1-introduction-to-computational-thinking.pdf">Lecture 1: Introduction to Computational Thinking</a></li>
+<li><a href="/files/comp1010-python-guide/08-lecture-2-number-representation-functions-and-procedures-2.pdf">Lecture 2: Number Representation, Functions and Procedures</a></li>
+<li><a href="/files/comp1010-python-guide/09-lecture-3-pseudocode-and-iterations-3.pdf">Lecture 3: Pseudocode and Iterations</a></li>
+<li><a href="/files/comp1010-python-guide/10-lecture-4-conditionals.pdf">Lecture 4: Conditionals</a></li>
+<li><a href="/files/comp1010-python-guide/11-lecture-5-and-6-sorting-and-computing-adding.pdf">Lecture 5 and 6: Sorting and Computing</a></li>
+<li><a href="/files/comp1010-python-guide/03-forthekids.pdf">Lecture 7: Challenges in Computation</a></li>
+<li><a href="/files/comp1010-python-guide/12-lecture-8-problem-solving-principles-and-abstraction.pdf">Lecture 8: Problem Solving Principles and Abstraction</a></li>
+<li><a href="/files/comp1010-python-guide/13-lecture-9-graph-problems.pdf">Lecture 9: Graph Problems</a></li>
+<li><a href="/files/comp1010-python-guide/05-lecture-10-graph-representations-1.pdf">Lecture 10: Graph Representations</a></li>
+<li><a href="/files/comp1010-python-guide/06-lecture-11-shortest-paths.pdf">Lecture 11: Shortest Paths</a></li>
+<li><a href="/files/comp1010-python-guide/07-lecture-12-recap.pdf">Lecture 12: Recap</a></li>
+<li><a href="/files/comp1010-python-guide/02-comp1010-25-assignment-1.pdf">Assignment 1</a></li>
+<li><a href="/files/comp1010-python-guide/01-comp1010-25-a2-v2-1.pdf">Assignment 2</a></li>
+</ul>
+<h2 id="1-什么是计算思维"><a class="markdownIt-Anchor" href="#1-什么是计算思维"></a> 1. 什么是计算思维</h2>
+<p>计算思维不是“会用电脑”，而是用计算机可以执行的方式描述问题。</p>
+<p>一个程序通常可以拆成：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Input -&gt; Process -&gt; Output</span><br></pre></td></tr></table></figure>
+<p>例如“把一组学生分数按从高到低排序”：</p>
+<ul>
+<li>Input：学生名字和分数列表。</li>
+<li>Process：比较分数、交换位置、生成排序结果。</li>
+<li>Output：排序后的学生列表。</li>
+</ul>
+<p>如果问题还停留在“我想整理成绩”这个层面，电脑是无法执行的。你必须进一步说明：数据长什么样、比较规则是什么、输出格式是什么、边界情况如何处理。</p>
+<p>这就是计算思维的核心：</p>
+<ul>
+<li>abstraction：忽略不必要细节，只保留解决问题需要的信息。</li>
+<li>decomposition：把大问题拆成小问题。</li>
+<li>algorithm：设计一步一步能执行的流程。</li>
+<li>evaluation：检查结果是否正确，效率是否能接受。</li>
+</ul>
+<h2 id="2-先写伪代码再写-python"><a class="markdownIt-Anchor" href="#2-先写伪代码再写-python"></a> 2. 先写伪代码，再写 Python</h2>
+<p>初学者常见问题是直接写代码，然后卡在语法里。更稳的方法是先写伪代码。</p>
+<p>假设要输出 1 到 10 的平方：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">set i = 1</span><br><span class="line">while i &lt;= 10 do</span><br><span class="line">    print i * i</span><br><span class="line">    i = i + 1</span><br><span class="line">end while</span><br></pre></td></tr></table></figure>
+<p>翻译成 Python：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">i = <span class="number">1</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span> i &lt;= <span class="number">10</span>:</span><br><span class="line">    <span class="built_in">print</span>(i * i)</span><br><span class="line">    i = i + <span class="number">1</span></span><br></pre></td></tr></table></figure>
+<p>伪代码的好处是，它让你先关心逻辑，再关心语法。尤其是循环、条件、图算法这类问题，伪代码可以帮你看清楚每一步。</p>
+<h2 id="3-变量-类型与表达式"><a class="markdownIt-Anchor" href="#3-变量-类型与表达式"></a> 3. 变量、类型与表达式</h2>
+<p>Python 变量不需要提前声明类型：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">age = <span class="number">20</span></span><br><span class="line">gpa = <span class="number">3.7</span></span><br><span class="line">name = <span class="string">&quot;Richard&quot;</span></span><br><span class="line">passed = <span class="literal">True</span></span><br></pre></td></tr></table></figure>
+<p>常见基础类型：</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>示例</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>int</code></td>
+<td><code>42</code></td>
+<td>整数</td>
+</tr>
+<tr>
+<td><code>float</code></td>
+<td><code>3.14</code></td>
+<td>小数</td>
+</tr>
+<tr>
+<td><code>str</code></td>
+<td><code>&quot;hello&quot;</code></td>
+<td>文本</td>
+</tr>
+<tr>
+<td><code>bool</code></td>
+<td><code>True</code></td>
+<td>判断条件</td>
+</tr>
+<tr>
+<td><code>list</code></td>
+<td><code>[1, 2, 3]</code></td>
+<td>一组有顺序的数据</td>
+</tr>
+<tr>
+<td><code>tuple</code></td>
+<td><code>(1, 2)</code></td>
+<td>固定组合</td>
+</tr>
+<tr>
+<td><code>dict</code></td>
+<td><code>&#123;&quot;a&quot;: 1&#125;</code></td>
+<td>键值映射</td>
+</tr>
+<tr>
+<td><code>set</code></td>
+<td><code>&#123;1, 2, 3&#125;</code></td>
+<td>去重集合</td>
+</tr>
+</tbody>
+</table>
+<p>一个容易踩的坑是整数除法和取余：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">print</span>(<span class="number">7</span> / <span class="number">2</span>)   <span class="comment"># 3.5</span></span><br><span class="line"><span class="built_in">print</span>(<span class="number">7</span> // <span class="number">2</span>)  <span class="comment"># 3</span></span><br><span class="line"><span class="built_in">print</span>(<span class="number">7</span> % <span class="number">2</span>)   <span class="comment"># 1</span></span><br></pre></td></tr></table></figure>
+<p><code>//</code> 常用于“只保留整数部分”，<code>%</code> 常用于判断整除、奇偶、循环位置。</p>
+<h2 id="4-进制转换理解数字如何被表示"><a class="markdownIt-Anchor" href="#4-进制转换理解数字如何被表示"></a> 4. 进制转换：理解数字如何被表示</h2>
+<p>课件里讲了十进制、八进制、二进制、十六进制。计算机底层使用二进制，因为硬件状态天然适合表示 0 和 1。</p>
+<p>手写十进制转二进制的思路：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">while n &gt; 0:</span><br><span class="line">    remainder = n % 2</span><br><span class="line">    record remainder</span><br><span class="line">    n = n // 2</span><br><span class="line">reverse recorded remainders</span><br></pre></td></tr></table></figure>
+<p>Python 实现：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">decimal_to_binary</span>(<span class="params">n</span>):</span><br><span class="line">    <span class="keyword">if</span> n == <span class="number">0</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;0&quot;</span></span><br><span class="line"></span><br><span class="line">    digits = []</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> n &gt; <span class="number">0</span>:</span><br><span class="line">        digits.append(<span class="built_in">str</span>(n % <span class="number">2</span>))</span><br><span class="line">        n = n // <span class="number">2</span></span><br><span class="line"></span><br><span class="line">    digits.reverse()</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;&quot;</span>.join(digits)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(decimal_to_binary(<span class="number">13</span>))  <span class="comment"># 1101</span></span><br></pre></td></tr></table></figure>
+<p>为什么这很重要？因为它训练你用循环不断缩小问题，也能帮助理解哈希、位运算、编码和计算机存储。</p>
+<h2 id="5-函数与过程把重复逻辑封装起来"><a class="markdownIt-Anchor" href="#5-函数与过程把重复逻辑封装起来"></a> 5. 函数与过程：把重复逻辑封装起来</h2>
+<p>函数让程序有结构。比如判断一个输入是否有效：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">is_four_digit_number</span>(<span class="params">text</span>):</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">len</span>(text) != <span class="number">4</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> ch <span class="keyword">in</span> text:</span><br><span class="line">        <span class="keyword">if</span> ch &lt; <span class="string">&quot;0&quot;</span> <span class="keyword">or</span> ch &gt; <span class="string">&quot;9&quot;</span>:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">True</span></span><br></pre></td></tr></table></figure>
+<p>这个函数只做一件事：判断 <code>text</code> 是否由 4 个数字组成。</p>
+<p>好的函数通常有几个特点：</p>
+<ul>
+<li>函数名说明用途。</li>
+<li>参数清晰。</li>
+<li>返回值清晰。</li>
+<li>不在一个函数里做太多事。</li>
+<li>能被单独测试。</li>
+</ul>
+<p>例如作业中常见的结构：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">validate_input</span>(<span class="params">n</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;Return True if n is a valid input, otherwise False.&quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sort_digits</span>(<span class="params">n, descending=<span class="literal">True</span></span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;Return digits of n sorted manually.&quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">main</span>():</span><br><span class="line">    user_input = <span class="built_in">input</span>(<span class="string">&quot;Enter a number: &quot;</span>)</span><br><span class="line">    <span class="keyword">if</span> validate_input(user_input):</span><br><span class="line">        <span class="built_in">print</span>(sort_digits(user_input))</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">main()</span><br></pre></td></tr></table></figure>
+<p>这种结构比把所有代码堆在一起更容易改，也更容易查 bug。</p>
+<h2 id="6-条件判断把问题变成分支"><a class="markdownIt-Anchor" href="#6-条件判断把问题变成分支"></a> 6. 条件判断：把问题变成分支</h2>
+<p>条件判断负责“如果这样，就做 A；否则，做 B”。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">score = <span class="number">86</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> score &gt;= <span class="number">90</span>:</span><br><span class="line">    grade = <span class="string">&quot;A&quot;</span></span><br><span class="line"><span class="keyword">elif</span> score &gt;= <span class="number">80</span>:</span><br><span class="line">    grade = <span class="string">&quot;B&quot;</span></span><br><span class="line"><span class="keyword">elif</span> score &gt;= <span class="number">70</span>:</span><br><span class="line">    grade = <span class="string">&quot;C&quot;</span></span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">    grade = <span class="string">&quot;D&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(grade)</span><br></pre></td></tr></table></figure>
+<p>复杂条件可以用 <code>and</code>、<code>or</code>、<code>not</code>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> age &gt;= <span class="number">18</span> <span class="keyword">and</span> has_ticket:</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;can enter&quot;</span>)</span><br></pre></td></tr></table></figure>
+<p>条件判断的难点不是语法，而是边界：</p>
+<ul>
+<li><code>&gt;=</code> 还是 <code>&gt;</code>？</li>
+<li>多个条件有没有重叠？</li>
+<li>是否覆盖了所有可能输入？</li>
+<li>嵌套太深时能不能改成更清晰的结构？</li>
+</ul>
+<p>一个判断三角形的例子：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">triangle_type</span>(<span class="params">a, b, c</span>):</span><br><span class="line">    <span class="keyword">if</span> a &lt;= <span class="number">0</span> <span class="keyword">or</span> b &lt;= <span class="number">0</span> <span class="keyword">or</span> c &lt;= <span class="number">0</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;not a triangle&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> a + b &lt;= c <span class="keyword">or</span> a + c &lt;= b <span class="keyword">or</span> b + c &lt;= a:</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;not a triangle&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> a == b == c:</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;equilateral&quot;</span></span><br><span class="line">    <span class="keyword">elif</span> a == b <span class="keyword">or</span> a == c <span class="keyword">or</span> b == c:</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;isosceles&quot;</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;scalene&quot;</span></span><br></pre></td></tr></table></figure>
+<p>注意这里先处理非法输入，再处理合法分类。这是写条件判断时很实用的顺序。</p>
+<h2 id="7-循环重复-累计与搜索"><a class="markdownIt-Anchor" href="#7-循环重复-累计与搜索"></a> 7. 循环：重复、累计与搜索</h2>
+<p>循环是程序处理批量任务的基础。</p>
+<h3 id="while-循环"><a class="markdownIt-Anchor" href="#while-循环"></a> while 循环</h3>
+<p>适合“不知道要循环多少次”的情况：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">n = <span class="built_in">int</span>(<span class="built_in">input</span>(<span class="string">&quot;Enter a positive number: &quot;</span>))</span><br><span class="line">count = <span class="number">0</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span> n &gt; <span class="number">0</span>:</span><br><span class="line">    n = n // <span class="number">10</span></span><br><span class="line">    count += <span class="number">1</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(count)</span><br></pre></td></tr></table></figure>
+<h3 id="for-循环"><a class="markdownIt-Anchor" href="#for-循环"></a> for 循环</h3>
+<p>适合遍历一个范围或容器：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">total = <span class="number">0</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> x <span class="keyword">in</span> [<span class="number">3</span>, <span class="number">5</span>, <span class="number">7</span>, <span class="number">9</span>]:</span><br><span class="line">    total += x</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(total)</span><br></pre></td></tr></table></figure>
+<h3 id="手写最大值"><a class="markdownIt-Anchor" href="#手写最大值"></a> 手写最大值</h3>
+<p>很多作业会要求不用内置函数，因为目的是训练算法流程：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">my_max</span>(<span class="params">values</span>):</span><br><span class="line">    best = values[<span class="number">0</span>]</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> x <span class="keyword">in</span> values[<span class="number">1</span>:]:</span><br><span class="line">        <span class="keyword">if</span> x &gt; best:</span><br><span class="line">            best = x</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> best</span><br></pre></td></tr></table></figure>
+<p>这个过程看似简单，但它是很多算法的基础：维护一个当前最优答案，然后不断更新。</p>
+<h2 id="8-列表python-里的基础数据容器"><a class="markdownIt-Anchor" href="#8-列表python-里的基础数据容器"></a> 8. 列表：Python 里的基础数据容器</h2>
+<p>列表用来保存一组有顺序的数据：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">numbers = [<span class="number">5</span>, <span class="number">2</span>, <span class="number">9</span>, <span class="number">1</span>]</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(numbers[<span class="number">0</span>])   <span class="comment"># 5</span></span><br><span class="line"><span class="built_in">print</span>(numbers[-<span class="number">1</span>])  <span class="comment"># 1</span></span><br></pre></td></tr></table></figure>
+<p>常见操作：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">numbers.append(<span class="number">7</span>)</span><br><span class="line">numbers[<span class="number">1</span>] = <span class="number">100</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> x <span class="keyword">in</span> numbers:</span><br><span class="line">    <span class="built_in">print</span>(x)</span><br></pre></td></tr></table></figure>
+<p>如果需要同时拿到下标和值：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> i, x <span class="keyword">in</span> <span class="built_in">enumerate</span>(numbers):</span><br><span class="line">    <span class="built_in">print</span>(i, x)</span><br></pre></td></tr></table></figure>
+<p>初学时要特别注意：列表下标从 0 开始。长度为 <code>n</code> 的列表，合法下标是 <code>0</code> 到 <code>n - 1</code>。</p>
+<h2 id="9-手写排序从选择排序理解算法"><a class="markdownIt-Anchor" href="#9-手写排序从选择排序理解算法"></a> 9. 手写排序：从选择排序理解算法</h2>
+<p>课件中排序的思路是：每次找出当前列表中最小的数，放入新列表。</p>
+<p>伪代码：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">set result as empty list</span><br><span class="line">repeat until original list is empty:</span><br><span class="line">    find smallest value in original list</span><br><span class="line">    append smallest value to result</span><br><span class="line">    remove smallest value from original list</span><br></pre></td></tr></table></figure>
+<p>Python 实现：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">selection_sort</span>(<span class="params">values</span>):</span><br><span class="line">    temp = values[:]</span><br><span class="line">    result = []</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> <span class="built_in">len</span>(temp) &gt; <span class="number">0</span>:</span><br><span class="line">        smallest_index = <span class="number">0</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>, <span class="built_in">len</span>(temp)):</span><br><span class="line">            <span class="keyword">if</span> temp[i] &lt; temp[smallest_index]:</span><br><span class="line">                smallest_index = i</span><br><span class="line"></span><br><span class="line">        result.append(temp[smallest_index])</span><br><span class="line">        temp.pop(smallest_index)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> result</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(selection_sort([<span class="number">1</span>, <span class="number">5</span>, <span class="number">8</span>, <span class="number">2</span>, <span class="number">7</span>, <span class="number">9</span>]))</span><br></pre></td></tr></table></figure>
+<p>这不是最高效的排序方法，但很适合入门，因为逻辑直观。</p>
+<p>你需要能说清楚：</p>
+<ul>
+<li><code>temp</code> 是还没处理的数据。</li>
+<li><code>result</code> 是已经排好的数据。</li>
+<li>每一轮找一个最小值。</li>
+<li>循环结束时，所有元素都被移动到 <code>result</code>。</li>
+</ul>
+<h2 id="10-抽象把复杂问题变成简单模型"><a class="markdownIt-Anchor" href="#10-抽象把复杂问题变成简单模型"></a> 10. 抽象：把复杂问题变成简单模型</h2>
+<p>抽象是计算思维中最重要的一步。</p>
+<p>比如“帮员工按生日排序”这个问题，现实中有姓名、部门、职位、生日格式等很多细节。但如果当前目标只是按生日排序，我们可以先抽象成：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">employees = [</span><br><span class="line">    (<span class="string">&quot;Alice&quot;</span>, <span class="string">&quot;03-15&quot;</span>),</span><br><span class="line">    (<span class="string">&quot;Bob&quot;</span>, <span class="string">&quot;01-20&quot;</span>),</span><br><span class="line">    (<span class="string">&quot;Chris&quot;</span>, <span class="string">&quot;12-05&quot;</span>),</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+<p>然后问题变成：按 tuple 的第二个元素排序。</p>
+<p>抽象不是忽略现实，而是暂时只保留当前问题需要的部分。做算法题、数据分析和机器学习时，这个能力非常重要：</p>
+<ul>
+<li>推荐系统把用户行为抽象成 user-item interaction。</li>
+<li>搜索系统把网页抽象成节点和链接。</li>
+<li>NLP 把文本抽象成 token 序列或 embedding。</li>
+<li>图算法把城市道路抽象成节点和边。</li>
+</ul>
+<h2 id="11-矩阵用列表嵌套列表表示二维数据"><a class="markdownIt-Anchor" href="#11-矩阵用列表嵌套列表表示二维数据"></a> 11. 矩阵：用列表嵌套列表表示二维数据</h2>
+<p>Python 里可以用 list of lists 表示矩阵：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">A = [</span><br><span class="line">    [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>],</span><br><span class="line">    [<span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>],</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+<p>访问第 <code>i</code> 行第 <code>j</code> 列：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">print</span>(A[<span class="number">0</span>][<span class="number">1</span>])  <span class="comment"># 2</span></span><br></pre></td></tr></table></figure>
+<p>矩阵乘法的核心是三层循环：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">matrix_multiply</span>(<span class="params">A, B</span>):</span><br><span class="line">    rows = <span class="built_in">len</span>(A)</span><br><span class="line">    cols = <span class="built_in">len</span>(B[<span class="number">0</span>])</span><br><span class="line">    inner = <span class="built_in">len</span>(B)</span><br><span class="line"></span><br><span class="line">    C = []</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(rows):</span><br><span class="line">        row = []</span><br><span class="line">        <span class="keyword">for</span> j <span class="keyword">in</span> <span class="built_in">range</span>(cols):</span><br><span class="line">            total = <span class="number">0</span></span><br><span class="line">            <span class="keyword">for</span> k <span class="keyword">in</span> <span class="built_in">range</span>(inner):</span><br><span class="line">                total += A[i][k] * B[k][j]</span><br><span class="line">            row.append(total)</span><br><span class="line">        C.append(row)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> C</span><br></pre></td></tr></table></figure>
+<p>理解这段代码的关键：</p>
+<ul>
+<li><code>i</code> 控制结果矩阵的行。</li>
+<li><code>j</code> 控制结果矩阵的列。</li>
+<li><code>k</code> 负责做点积。</li>
+</ul>
+<p>矩阵很快会连接到后面的线性代数、图、机器学习。比如图的邻接矩阵就是一种矩阵。</p>
+<h2 id="12-图节点-边与关系建模"><a class="markdownIt-Anchor" href="#12-图节点-边与关系建模"></a> 12. 图：节点、边与关系建模</h2>
+<p>图由节点和边组成：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Graph = (V, E)</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>V</code> 是 vertices，也就是节点。</li>
+<li><code>E</code> 是 edges，也就是边。</li>
+</ul>
+<p>社交网络、道路、网页链接、知识图谱、推荐系统都可以用图来建模。</p>
+<p>一个简单无向图：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">nodes = [<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>, <span class="string">&quot;c&quot;</span>, <span class="string">&quot;d&quot;</span>]</span><br><span class="line">edges = [(<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>), (<span class="string">&quot;a&quot;</span>, <span class="string">&quot;c&quot;</span>), (<span class="string">&quot;b&quot;</span>, <span class="string">&quot;d&quot;</span>)]</span><br></pre></td></tr></table></figure>
+<p>如果要快速查询某个点连着哪些点，更常用邻接表：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">graph = &#123;</span><br><span class="line">    <span class="string">&quot;a&quot;</span>: [<span class="string">&quot;b&quot;</span>, <span class="string">&quot;c&quot;</span>],</span><br><span class="line">    <span class="string">&quot;b&quot;</span>: [<span class="string">&quot;a&quot;</span>, <span class="string">&quot;d&quot;</span>],</span><br><span class="line">    <span class="string">&quot;c&quot;</span>: [<span class="string">&quot;a&quot;</span>],</span><br><span class="line">    <span class="string">&quot;d&quot;</span>: [<span class="string">&quot;b&quot;</span>],</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>邻接矩阵则适合用二维列表表示：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">matrix = [</span><br><span class="line">    [<span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>],</span><br><span class="line">    [<span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>],</span><br><span class="line">    [<span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>],</span><br><span class="line">    [<span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>],</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+<p>邻接表和邻接矩阵的区别：</p>
+<table>
+<thead>
+<tr>
+<th>表示方式</th>
+<th>优点</th>
+<th>缺点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>邻接表</td>
+<td>节省空间，适合稀疏图</td>
+<td>查询两点是否相连可能较慢</td>
+</tr>
+<tr>
+<td>邻接矩阵</td>
+<td>查询连接关系很快</td>
+<td>节点多时占空间</td>
+</tr>
+</tbody>
+</table>
+<h2 id="13-bfs无权图最短路"><a class="markdownIt-Anchor" href="#13-bfs无权图最短路"></a> 13. BFS：无权图最短路</h2>
+<p>如果图是无权图，找最少边数的路径可以用 BFS。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">bfs_shortest_path</span>(<span class="params">graph, start, target</span>):</span><br><span class="line">    queue = [(start, [start])]</span><br><span class="line">    visited = &#123;start&#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> queue:</span><br><span class="line">        node, path = queue.pop(<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> node == target:</span><br><span class="line">            <span class="keyword">return</span> path</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> neighbor <span class="keyword">in</span> graph[node]:</span><br><span class="line">            <span class="keyword">if</span> neighbor <span class="keyword">not</span> <span class="keyword">in</span> visited:</span><br><span class="line">                visited.add(neighbor)</span><br><span class="line">                queue.append((neighbor, path + [neighbor]))</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">None</span></span><br></pre></td></tr></table></figure>
+<p>例子：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">graph = &#123;</span><br><span class="line">    <span class="string">&quot;a&quot;</span>: [<span class="string">&quot;b&quot;</span>, <span class="string">&quot;c&quot;</span>],</span><br><span class="line">    <span class="string">&quot;b&quot;</span>: [<span class="string">&quot;a&quot;</span>, <span class="string">&quot;d&quot;</span>],</span><br><span class="line">    <span class="string">&quot;c&quot;</span>: [<span class="string">&quot;a&quot;</span>, <span class="string">&quot;d&quot;</span>],</span><br><span class="line">    <span class="string">&quot;d&quot;</span>: [<span class="string">&quot;b&quot;</span>, <span class="string">&quot;c&quot;</span>, <span class="string">&quot;e&quot;</span>],</span><br><span class="line">    <span class="string">&quot;e&quot;</span>: [<span class="string">&quot;d&quot;</span>],</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(bfs_shortest_path(graph, <span class="string">&quot;a&quot;</span>, <span class="string">&quot;e&quot;</span>))</span><br></pre></td></tr></table></figure>
+<p>BFS 的思想是按层扩展：</p>
+<ul>
+<li>先看距离起点 1 步的节点。</li>
+<li>再看距离起点 2 步的节点。</li>
+<li>第一次到达目标时，就是最短路径。</li>
+</ul>
+<h2 id="14-dijkstra带权图最短路"><a class="markdownIt-Anchor" href="#14-dijkstra带权图最短路"></a> 14. Dijkstra：带权图最短路</h2>
+<p>如果边有权重，比如道路距离、花费、时间，就不能只数边数。这个时候可以用 Dijkstra 算法。</p>
+<p>一个带权图：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">graph = &#123;</span><br><span class="line">    <span class="string">&quot;a&quot;</span>: [(<span class="string">&quot;b&quot;</span>, <span class="number">4</span>), (<span class="string">&quot;c&quot;</span>, <span class="number">2</span>)],</span><br><span class="line">    <span class="string">&quot;b&quot;</span>: [(<span class="string">&quot;a&quot;</span>, <span class="number">4</span>), (<span class="string">&quot;d&quot;</span>, <span class="number">5</span>)],</span><br><span class="line">    <span class="string">&quot;c&quot;</span>: [(<span class="string">&quot;a&quot;</span>, <span class="number">2</span>), (<span class="string">&quot;d&quot;</span>, <span class="number">1</span>)],</span><br><span class="line">    <span class="string">&quot;d&quot;</span>: [(<span class="string">&quot;b&quot;</span>, <span class="number">5</span>), (<span class="string">&quot;c&quot;</span>, <span class="number">1</span>)],</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>不用高级库的简单版本：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">dijkstra</span>(<span class="params">graph, start</span>):</span><br><span class="line">    distances = &#123;&#125;</span><br><span class="line">    visited = <span class="built_in">set</span>()</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> node <span class="keyword">in</span> graph:</span><br><span class="line">        distances[node] = <span class="built_in">float</span>(<span class="string">&quot;inf&quot;</span>)</span><br><span class="line">    distances[start] = <span class="number">0</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> <span class="built_in">len</span>(visited) &lt; <span class="built_in">len</span>(graph):</span><br><span class="line">        current = <span class="literal">None</span></span><br><span class="line">        current_distance = <span class="built_in">float</span>(<span class="string">&quot;inf&quot;</span>)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> node <span class="keyword">in</span> graph:</span><br><span class="line">            <span class="keyword">if</span> node <span class="keyword">not</span> <span class="keyword">in</span> visited <span class="keyword">and</span> distances[node] &lt; current_distance:</span><br><span class="line">                current = node</span><br><span class="line">                current_distance = distances[node]</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> current <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line"></span><br><span class="line">        visited.add(current)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> neighbor, weight <span class="keyword">in</span> graph[current]:</span><br><span class="line">            new_distance = distances[current] + weight</span><br><span class="line">            <span class="keyword">if</span> new_distance &lt; distances[neighbor]:</span><br><span class="line">                distances[neighbor] = new_distance</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> distances</span><br></pre></td></tr></table></figure>
+<p>Dijkstra 的核心是维护当前已知的最短距离，每次选择还没确定的节点中距离最小的那个，然后用它更新邻居。</p>
+<p>这个思想以后会在搜索、推荐、路径规划、网络路由里反复出现。</p>
+<h2 id="15-assignment-风格不要只会调用内置函数"><a class="markdownIt-Anchor" href="#15-assignment-风格不要只会调用内置函数"></a> 15. Assignment 风格：不要只会调用内置函数</h2>
+<p>这类课程经常限制不能用内置排序、不能用外部库。原因不是 Python 没有这些功能，而是训练你理解背后的算法。</p>
+<p>例如不能直接写：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sorted</span>(values)</span><br></pre></td></tr></table></figure>
+<p>而要自己实现：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">sort_numbers</span>(<span class="params">values</span>):</span><br><span class="line">    result = []</span><br><span class="line">    temp = values[:]</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> temp:</span><br><span class="line">        min_index = <span class="number">0</span></span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>, <span class="built_in">len</span>(temp)):</span><br><span class="line">            <span class="keyword">if</span> temp[i] &lt; temp[min_index]:</span><br><span class="line">                min_index = i</span><br><span class="line"></span><br><span class="line">        result.append(temp.pop(min_index))</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> result</span><br></pre></td></tr></table></figure>
+<p>这对算法学习很有帮助。等你理解原理之后，在真实项目里当然应该优先使用标准库和成熟工具。</p>
+<h2 id="16-一个完整小项目模板"><a class="markdownIt-Anchor" href="#16-一个完整小项目模板"></a> 16. 一个完整小项目模板</h2>
+<p>写程序时可以用这个模板：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">read_input</span>():</span><br><span class="line">    <span class="string">&quot;&quot;&quot;Read and return user input.&quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">input</span>(<span class="string">&quot;Enter values: &quot;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">validate</span>(<span class="params">data</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;Return True if data is valid.&quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">len</span>(data) &gt; <span class="number">0</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">solve</span>(<span class="params">data</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;Core algorithm.&quot;&quot;&quot;</span></span><br><span class="line">    result = []</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> item <span class="keyword">in</span> data:</span><br><span class="line">        result.append(item)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> result</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">display</span>(<span class="params">result</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;Display result.&quot;&quot;&quot;</span></span><br><span class="line">    <span class="built_in">print</span>(result)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">main</span>():</span><br><span class="line">    data = read_input()</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> validate(data):</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;Invalid input&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line"></span><br><span class="line">    result = solve(data)</span><br><span class="line">    display(result)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">main()</span><br></pre></td></tr></table></figure>
+<p>这个结构对应：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">input -&gt; validation -&gt; algorithm -&gt; output</span><br></pre></td></tr></table></figure>
+<p>以后做更大的项目，比如数据清洗、模型训练、RAG demo，也可以沿用这个思路，只是每个函数会变得更复杂。</p>
+<h2 id="17-怎么从这篇继续学"><a class="markdownIt-Anchor" href="#17-怎么从这篇继续学"></a> 17. 怎么从这篇继续学</h2>
+<p>建议按这个顺序练：</p>
+<ol>
+<li>用伪代码写清楚问题流程。</li>
+<li>用 Python 写变量、条件、循环。</li>
+<li>把重复逻辑封装成函数。</li>
+<li>手写最大值、计数、搜索、排序。</li>
+<li>用 list of lists 表示矩阵。</li>
+<li>用 dict/list 表示图。</li>
+<li>写 BFS 找无权最短路。</li>
+<li>写简单 Dijkstra 找带权最短路。</li>
+<li>做 2 到 3 个综合小项目，把输入、处理、输出串起来。</li>
+</ol>
+<p>如果目标是后续算法实习，这篇文章对应的是基础中的基础。真正重要的不是“背过 Python 语法”，而是看到一个问题时，能自然地问：</p>
+<ul>
+<li>输入是什么？</li>
+<li>输出是什么？</li>
+<li>数据结构怎么选？</li>
+<li>是否需要循环、条件或递归？</li>
+<li>有没有边界情况？</li>
+<li>算法会不会太慢？</li>
+<li>能不能拆成几个函数？</li>
+</ul>
+<p>这套思考方式一旦建立，后面学 Pandas、PyTorch、NLP、图算法、推荐系统都会轻松很多。</p>
+<h2 id="18-最小练习清单"><a class="markdownIt-Anchor" href="#18-最小练习清单"></a> 18. 最小练习清单</h2>
+<p>如果下面这些题能独立写出来，Python 计算思维入门就比较稳：</p>
+<ul>
+<li>手写十进制转二进制。</li>
+<li>判断一个字符串是否只包含数字。</li>
+<li>统计一个整数有多少位。</li>
+<li>输入一组数，手写最大值、最小值、平均值。</li>
+<li>手写选择排序。</li>
+<li>写一个函数判断三角形类型。</li>
+<li>用二维列表实现矩阵加法。</li>
+<li>用三层循环实现矩阵乘法。</li>
+<li>用邻接表表示无向图。</li>
+<li>写 BFS 找两个节点之间的最短路径。</li>
+<li>写 Dijkstra 求起点到所有点的最短距离。</li>
+<li>把一个完整题目拆成 <code>validate_input</code>、<code>solve</code>、<code>display</code>、<code>main</code>。</li>
+</ul>
+<p>这些练习看起来朴素，但它们会直接支撑后面的算法题、数据结构和机器学习项目。</p>
+</div><div class="article-licensing box"><div class="licensing-title"><p>Python 计算思维入门到实用：函数、循环、条件、排序、矩阵、图与最短路</p><p><a href="https://richardf123.github.io/2026/06/24/comp1010-python-computational-thinking-guide/">https://richardf123.github.io/2026/06/24/comp1010-python-computational-thinking-guide/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>作者</h6><p>RichardF</p></div></div><div class="level-item is-narrow"><div><h6>发布于</h6><p>2026-06-24</p></div></div><div class="level-item is-narrow"><div><h6>更新于</h6><p>2026-06-24</p></div></div><div class="level-item is-narrow"><div><h6>许可协议</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/python/">python</a><a class="link-muted mr-2" rel="tag" href="/tags/programming/">programming</a><a class="link-muted mr-2" rel="tag" href="/tags/algorithm/">algorithm</a></div><!--!--></article></div><!--!--><nav class="post-navigation mt-4 level is-mobile"><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2026/06/24/ama2222-cpp-programming-guide/"><span class="level-item">C++ 程序设计入门到实用：语法、函数、数组、算法、类与指针</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar is-rounded" src="https://avatars.githubusercontent.com/u/144225184?s=400&amp;u=f62e0f37c00d8518afb213a36c81cd8428ce0a06&amp;v=4" alt="RichardF"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">RichardF</p><p class="is-size-6 is-block">大四学生</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Hong Kong</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">文章</p><a href="/archives"><p class="title">15</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">分类</p><a href="/categories"><p class="title">7</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">标签</p><a href="/tags"><p class="title">32</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/RichardF123" target="_blank" rel="noopener">关注我</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/RichardF123"><i class="fab fa-github"></i></a></div></div></div><!--!--><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">链接</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://blog.imyangty.com/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ty哥的博客</span></span><span class="level-right"><span class="level-item tag">blog.imyangty.com</span></span></a></li></ul></div></div></div><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">分类</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/Calculus/"><span class="level-start"><span class="level-item">Calculus</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Data-science/"><span class="level-start"><span class="level-item">Data science</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/Linear-Algebra/"><span class="level-start"><span class="level-item">Linear Algebra</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/Notes/"><span class="level-start"><span class="level-item">Notes</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Optimization/"><span class="level-start"><span class="level-item">Optimization</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Projects/"><span class="level-start"><span class="level-item">Projects</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/cs/"><span class="level-start"><span class="level-item">cs</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li></ul></div></div></div><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">最新文章</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-06-24T13:05:00.000Z">2026-06-24</time></p><p class="title"><a href="/2026/06/24/comp1010-python-computational-thinking-guide/">Python 计算思维入门到实用：函数、循环、条件、排序、矩阵、图与最短路</a></p><p class="categories"><a href="/categories/cs/">cs</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-06-24T12:45:00.000Z">2026-06-24</time></p><p class="title"><a href="/2026/06/24/ama2222-cpp-programming-guide/">C++ 程序设计入门到实用：语法、函数、数组、算法、类与指针</a></p><p class="categories"><a href="/categories/cs/">cs</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-06-24T11:05:00.000Z">2026-06-24</time></p><p class="title"><a href="/2026/06/24/dsai4205-big-data-hands-on-tutorial/">DSAI4205 动手教程：用 Pandas、Dask、Spark RDD 与 SparkSQL 完成大数据分析入门</a></p><p class="categories"><a href="/categories/Data-science/">Data science</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-06-24T10:30:00.000Z">2026-06-24</time></p><p class="title"><a href="/2026/06/24/dsai4205-big-data-analytics-guide/">DSAI4205 Big Data Analytics 全景导览：从分布式系统到 NLP、图分析与推荐系统</a></p><p class="categories"><a href="/categories/Data-science/">Data science</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-06-24T09:40:00.000Z">2026-06-24</time></p><p class="title"><a href="/2026/06/24/ama4850-final-exam-review/">最优化核心概念导览：Convexity、Duality、KKT 与数值优化</a></p><p class="categories"><a href="/categories/Optimization/">Optimization</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">归档</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2026/"><span class="level-start"><span class="level-item">2026</span></span><span class="level-end"><span class="level-item tag">8</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/"><span class="level-start"><span class="level-item">2024</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/"><span class="level-start"><span class="level-item">2023</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">标签</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/C/"><span class="tag">C++</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Dask/"><span class="tag">Dask</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/DistilBERT/"><span class="tag">DistilBERT</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/KKT/"><span class="tag">KKT</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/LoRA/"><span class="tag">LoRA</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/MultivariableCalculus/"><span class="tag">MultivariableCalculus</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/NLP/"><span class="tag">NLP</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/NoSQL/"><span class="tag">NoSQL</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/PageRank/"><span class="tag">PageRank</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/PySpark/"><span class="tag">PySpark</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/SDP/"><span class="tag">SDP</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Spark/"><span class="tag">Spark</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/SparkSQL/"><span class="tag">SparkSQL</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/XGBoost/"><span class="tag">XGBoost</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/algorithm/"><span class="tag">algorithm</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/big-data/"><span class="tag">big-data</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/c/"><span class="tag">c++</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/convex-analysis/"><span class="tag">convex-analysis</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/graph-analytics/"><span class="tag">graph-analytics</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/kaggle/"><span class="tag">kaggle</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/linear-algebra/"><span class="tag">linear-algebra</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/machine-learning/"><span class="tag">machine-learning</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/notes/"><span class="tag">notes</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/numerical-optimization/"><span class="tag">numerical-optimization</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/optimization/"><span class="tag">optimization</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/pandas/"><span class="tag">pandas</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/programming/"><span class="tag">programming</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/python/"><span class="tag">python</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/recommender-system/"><span class="tag">recommender-system</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/sentiment-analysis/"><span class="tag">sentiment-analysis</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/svd/"><span class="tag">svd</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/tensor/"><span class="tag">tensor</span><span class="tag">1</span></a></div></div></div></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="https://avatars.githubusercontent.com/u/144225184?s=400&amp;u=f62e0f37c00d8518afb213a36c81cd8428ce0a06&amp;v=4" alt="RichardF&#039;s Blog" height="28"></a><p class="is-size-7"><span>&copy; 2026 RichardF</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">RichardF</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="GitHub" href="https://github.com/RichardF123"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("zh-cn");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="回到顶端" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/katex.min.css"><script src="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/katex.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/contrib/auto-render.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/contrib/mhchem.min.js" defer></script><script>window.addEventListener("load", function() {
+            document.querySelectorAll('[role="article"] > .content').forEach(function(element) {
+                renderMathInElement(element);
+            });
+        });</script><script type="text/x-mathjax-config">MathJax.Hub.Config({
+            'HTML-CSS': {
+                matchFontHeight: false
+            },
+            SVG: {
+                matchFontHeight: false
+            },
+            CommonHTML: {
+                matchFontHeight: false
+            },
+            tex2jax: {
+                inlineMath: [
+                    ['$','$'],
+                    ['\\(','\\)']
+                ]
+            }
+        });</script><script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/unpacked/MathJax.js?config=TeX-MML-AM_CHTML" defer></script><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="想要查找什么..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"想要查找什么...","untitled":"(无标题)","posts":"文章","pages":"页面","categories":"分类","tags":"标签"});
+        });</script></body></html>
