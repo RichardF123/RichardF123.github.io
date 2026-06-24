@@ -11683,12 +11683,19 @@ body {
   color: #263238;
   font-size: 15px;
   line-height: 1.72;
+  overflow-x: hidden;
 }
 .navbar {
   box-shadow: 0 1px 0 rgba(29,53,62,0.08);
 }
 .navbar .navbar-brand .navbar-item {
   font-weight: 600;
+}
+.navbar .navbar-menu {
+  min-width: 0;
+}
+.navbar .navbar-start {
+  flex-wrap: wrap;
 }
 .section {
   padding-top: 1.75rem;
@@ -11730,6 +11737,10 @@ article.article .content {
   color: #263238;
   font-size: 1rem;
   line-height: 1.82;
+  overflow-x: hidden;
+}
+.card-content.article .content {
+  overflow-x: hidden;
 }
 article.article .content h1,
 article.article .content h2,
@@ -11765,6 +11776,45 @@ article.article .content pre {
 }
 article.article .content code {
   font-size: 0.92em;
+}
+article.article .content .katex-display,
+article.article .content .katex {
+  max-width: 100%;
+}
+.card-content.article .content .katex-display,
+.card-content.article .content .katex {
+  max-width: 100%;
+}
+article.article .content .katex-display {
+  display: block !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  padding-bottom: 0.2rem;
+}
+.card-content.article .content .katex-display {
+  display: block !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  padding-bottom: 0.2rem;
+}
+article.article,
+article.article .card-content {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+.card-content.article {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+article.article .content .katex-html {
+  max-width: 100%;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+}
+.card-content.article .content .katex-html {
+  max-width: 100%;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
 }
 .article-more.button {
   border-color: #bfd4d8;
@@ -12185,6 +12235,26 @@ article.article .content code {
   }
   article.article .article-meta .level-item {
     margin: 0;
+  }
+  .navbar .navbar-container {
+    display: block;
+  }
+  .navbar .navbar-brand {
+    justify-content: flex-start !important;
+  }
+  .navbar .navbar-menu {
+    display: block;
+    overflow-x: auto;
+    padding-bottom: 0.25rem;
+    white-space: nowrap;
+  }
+  .navbar .navbar-start {
+    display: flex;
+    flex-wrap: nowrap;
+    max-width: 100%;
+  }
+  .navbar .navbar-item {
+    flex: 0 0 auto;
   }
   .column-left,
   .column-right {
