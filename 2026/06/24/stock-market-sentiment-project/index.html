@@ -1,0 +1,538 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>股票市场情感分析项目复盘：从传统机器学习到 DistilBERT、LoRA 与 XGBoost Hybrid - RichardF&#039;s Blog</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="RichardF&#039;s Blog"><meta name="msapplication-TileImage" content="https://avatars.githubusercontent.com/u/144225184?s=400&amp;u=f62e0f37c00d8518afb213a36c81cd8428ce0a06&amp;v=4"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="RichardF&#039;s Blog"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="这篇文章整理 DSAI4205 项目中的股票市场情感分析实验。项目目标是对 stock market crash 相关社交媒体文本做三分类情感识别，并比较传统机器学习、轻量 PLM 微调、LoRA 参数高效微调，以及 DistilBERT + XGBoost hybrid 模型的效果。"><meta property="og:type" content="blog"><meta property="og:title" content="股票市场情感分析项目复盘：从传统机器学习到 DistilBERT、LoRA 与 XGBoost Hybrid"><meta property="og:url" content="https://richardf123.github.io/2026/06/24/stock-market-sentiment-project/"><meta property="og:site_name" content="RichardF&#039;s Blog"><meta property="og:description" content="这篇文章整理 DSAI4205 项目中的股票市场情感分析实验。项目目标是对 stock market crash 相关社交媒体文本做三分类情感识别，并比较传统机器学习、轻量 PLM 微调、LoRA 参数高效微调，以及 DistilBERT + XGBoost hybrid 模型的效果。"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="d:/logo.jpg"><meta property="article:published_time" content="2026-06-24T08:20:00.000Z"><meta property="article:modified_time" content="2026-06-24T08:20:00.000Z"><meta property="article:author" content="RichardF"><meta property="article:tag" content="machine-learning"><meta property="article:tag" content="NLP"><meta property="article:tag" content="sentiment-analysis"><meta property="article:tag" content="DistilBERT"><meta property="article:tag" content="LoRA"><meta property="article:tag" content="XGBoost"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="d:/logo.jpg"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://richardf123.github.io/2026/06/24/stock-market-sentiment-project/"},"headline":"股票市场情感分析项目复盘：从传统机器学习到 DistilBERT、LoRA 与 XGBoost Hybrid","image":["d:/logo.jpg"],"datePublished":"2026-06-24T08:20:00.000Z","dateModified":"2026-06-24T08:20:00.000Z","author":{"@type":"Person","name":"RichardF"},"publisher":{"@type":"Organization","name":"D:/logo.jpg","logo":{"@type":"ImageObject","url":"d:/logo.jpg"}},"description":"这篇文章整理 DSAI4205 项目中的股票市场情感分析实验。项目目标是对 stock market crash 相关社交媒体文本做三分类情感识别，并比较传统机器学习、轻量 PLM 微调、LoRA 参数高效微调，以及 DistilBERT + XGBoost hybrid 模型的效果。"}</script><link rel="canonical" href="https://richardf123.github.io/2026/06/24/stock-market-sentiment-project/"><link rel="icon" href="https://avatars.githubusercontent.com/u/144225184?s=400&amp;u=f62e0f37c00d8518afb213a36c81cd8428ce0a06&amp;v=4"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css?v=20260624-interactive-map"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="https://avatars.githubusercontent.com/u/144225184?s=400&amp;u=f62e0f37c00d8518afb213a36c81cd8428ce0a06&amp;v=4" alt="RichardF&#039;s Blog" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">主页</a><a class="navbar-item" href="/archives">归档</a><a class="navbar-item" href="/categories">分类</a><a class="navbar-item" href="/tags">标签</a><a class="navbar-item" href="/knowledge-map">知识图谱</a><a class="navbar-item" href="/about">关于</a></div><div class="navbar-end"><a class="navbar-item search" title="搜索" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item"><time dateTime="2026-06-24T08:20:00.000Z" title="2026/6/24 16:20:00">2026-06-24</time>发表</span><span class="level-item"><time dateTime="2026-06-24T08:20:00.000Z" title="2026/6/24 16:20:00">2026-06-24</time>更新</span><span class="level-item"><a class="link-muted" href="/categories/Projects/">Projects</a></span><span class="level-item">16 分钟读完 (大约2402个字)</span></div></div><h1 class="title is-3 is-size-4-mobile">股票市场情感分析项目复盘：从传统机器学习到 DistilBERT、LoRA 与 XGBoost Hybrid</h1><div class="content"><p>这篇文章整理 DSAI4205 项目中的股票市场情感分析实验。项目目标是对 stock market crash 相关社交媒体文本做三分类情感识别，并比较传统机器学习、轻量 PLM 微调、LoRA 参数高效微调，以及 DistilBERT + XGBoost hybrid 模型的效果。</p>
+<span id="more"></span>
+<h2 id="1-项目目标"><a class="markdownIt-Anchor" href="#1-项目目标"></a> 1. 项目目标</h2>
+<p>项目任务是对与股票市场、熊市、加密货币和市场崩盘相关的社交媒体文本进行情感分类。标签共有三类：</p>
+<ul>
+<li><code>0</code>：negative</li>
+<li><code>1</code>：neutral</li>
+<li><code>2</code>：positive</li>
+</ul>
+<p>整体目标不是只跑一个模型，而是系统比较多种方案：</p>
+<ol>
+<li>传统机器学习 baseline：TF-IDF + Logistic Regression、Word2Vec + XGBoost、Word2Vec + Random Forest。</li>
+<li>串行二阶段分类模型：先粗分类，再细分类。</li>
+<li>DistilBERT + LoRA 参数高效微调。</li>
+<li>DistilBERT-LoRA embedding + XGBoost hybrid 模型。</li>
+</ol>
+<p>最终希望得到一个准确率、稳定性、推理速度和可解释性都比较均衡的方案。</p>
+<p><img src="/images/sentiment-project/overall-flowchart.png" alt="项目整体流程" /></p>
+<h2 id="2-数据集与-eda"><a class="markdownIt-Anchor" href="#2-数据集与-eda"></a> 2. 数据集与 EDA</h2>
+<p>数据集共有 1698 条 stock market crash 相关文本，主要来自 Twitter 等社交媒体平台。字段包括：</p>
+<ul>
+<li><code>text</code>：原始文本内容。</li>
+<li><code>text_sentiment</code>：情感标签。</li>
+</ul>
+<p>原始数据有典型社交媒体特征：hashtag、多语言片段、缩写、口语表达、emoji、编码噪声等。这些特征让任务更接近真实 NLP 分类场景。</p>
+<h3 id="标签分布"><a class="markdownIt-Anchor" href="#标签分布"></a> 标签分布</h3>
+<p>三类标签分布相对均衡：</p>
+<table>
+<thead>
+<tr>
+<th>Label</th>
+<th style="text-align:right">Samples</th>
+<th style="text-align:right">Percentage</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td style="text-align:right">627</td>
+<td style="text-align:right">36.93%</td>
+</tr>
+<tr>
+<td>0</td>
+<td style="text-align:right">575</td>
+<td style="text-align:right">33.86%</td>
+</tr>
+<tr>
+<td>2</td>
+<td style="text-align:right">496</td>
+<td style="text-align:right">29.21%</td>
+</tr>
+</tbody>
+</table>
+<p>整体没有严重类别不平衡，但 positive 类相对更少，因此后续实验中特别关注 positive recall 和 positive F1。</p>
+<h3 id="文本长度"><a class="markdownIt-Anchor" href="#文本长度"></a> 文本长度</h3>
+<p>文本长度统计：</p>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th style="text-align:right">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mean</td>
+<td style="text-align:right">150.6</td>
+</tr>
+<tr>
+<td>Median</td>
+<td style="text-align:right">139.0</td>
+</tr>
+<tr>
+<td>Minimum</td>
+<td style="text-align:right">11</td>
+</tr>
+<tr>
+<td>Maximum</td>
+<td style="text-align:right">448</td>
+</tr>
+</tbody>
+</table>
+<p>不同情感类别的文本长度存在差异：label 0 平均更短，label 1 和 label 2 平均更长。这意味着文本长度本身可能携带一定情感信号。</p>
+<p><img src="/images/sentiment-project/text-length-sentiment.png" alt="文本长度与情感标签分布" /></p>
+<h3 id="hashtag-特征"><a class="markdownIt-Anchor" href="#hashtag-特征"></a> Hashtag 特征</h3>
+<p>hashtag 是数据里的重要语义信号。项目中共提取到：</p>
+<ul>
+<li>总 hashtag 数：5601</li>
+<li>唯一 hashtag 数：1133</li>
+<li>平均每条文本 hashtag 数：3.30</li>
+</ul>
+<p>高频 hashtag 包括 <code>#stockmarketcrash</code>、<code>#bearmarket</code>、<code>#crypto</code>、<code>#bitcoin</code> 等，说明数据主题集中在市场下跌、熊市、加密货币和投资讨论。</p>
+<p><img src="/images/sentiment-project/hashtag-wordcloud.png" alt="高频 hashtag 词云" /></p>
+<p><img src="/images/sentiment-project/hashtag-count.png" alt="hashtag 数量分布" /></p>
+<h2 id="3-数据清洗"><a class="markdownIt-Anchor" href="#3-数据清洗"></a> 3. 数据清洗</h2>
+<p>数据清洗目标是减少噪声，同时尽量保留社交媒体文本里的有效语义。主要步骤包括：</p>
+<ul>
+<li>删除重复样本。</li>
+<li>修复乱码和编码错误。</li>
+<li>统一空格、换行和大小写。</li>
+<li>统一 hashtag 大小写。</li>
+<li>过滤过短文本。</li>
+<li>保留英文文本。</li>
+<li>去除常见 stopwords。</li>
+</ul>
+<p>清洗结果：</p>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th style="text-align:right">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Initial rows</td>
+<td style="text-align:right">1698</td>
+</tr>
+<tr>
+<td>Final rows</td>
+<td style="text-align:right">1689</td>
+</tr>
+<tr>
+<td>Duplicate rows removed</td>
+<td style="text-align:right">9</td>
+</tr>
+<tr>
+<td>Garbled rows before</td>
+<td style="text-align:right">64</td>
+</tr>
+<tr>
+<td>Garbled rows after</td>
+<td style="text-align:right">4</td>
+</tr>
+<tr>
+<td>Avg length before</td>
+<td style="text-align:right">150.55</td>
+</tr>
+<tr>
+<td>Avg length after</td>
+<td style="text-align:right">151.16</td>
+</tr>
+<tr>
+<td>Total hashtags before</td>
+<td style="text-align:right">5601</td>
+</tr>
+<tr>
+<td>Total hashtags after</td>
+<td style="text-align:right">5591</td>
+</tr>
+</tbody>
+</table>
+<p>可以看到清洗过程只移除了少量重复或异常样本，没有明显改变文本长度和标签分布。</p>
+<h2 id="4-baseline传统机器学习"><a class="markdownIt-Anchor" href="#4-baseline传统机器学习"></a> 4. Baseline：传统机器学习</h2>
+<p>第一阶段先建立传统 baseline，用来判断任务难度和后续深度模型是否真的带来提升。</p>
+<p>尝试过的方案包括：</p>
+<ul>
+<li>TF-IDF + Logistic Regression</li>
+<li>Word2Vec + XGBoost</li>
+<li>Word2Vec + Random Forest</li>
+</ul>
+<p>传统模型的优点是训练快、可解释性相对强、实现成本低；缺点是很难捕捉上下文语义和金融社交媒体里的隐含表达。</p>
+<p>最终 baseline 表现大致在 0.55 到 0.58 accuracy 范围，说明仅靠传统特征不足以稳定解决这个三分类任务。</p>
+<h2 id="5-二阶段分类尝试"><a class="markdownIt-Anchor" href="#5-二阶段分类尝试"></a> 5. 二阶段分类尝试</h2>
+<p>项目还尝试过 serial model：先做粗粒度二分类，再做细粒度分类。直觉上，这种方式可以把三分类拆成几个更简单的决策。</p>
+<p>但实际效果并不稳定，主要问题是 error propagation：</p>
+<ol>
+<li>第一阶段如果分错，第二阶段无法纠正。</li>
+<li>三类情感边界并不完全适合硬拆分。</li>
+<li>社交媒体文本含噪，粗分类阶段容易放大不确定性。</li>
+</ol>
+<p>因此二阶段模型没有成为最终方案。</p>
+<h2 id="6-distilbert-lora-微调"><a class="markdownIt-Anchor" href="#6-distilbert-lora-微调"></a> 6. DistilBERT + LoRA 微调</h2>
+<p>第二阶段转向预训练语言模型。考虑到数据规模不大，并且希望控制训练成本，项目选择 DistilBERT 作为 base model，再用 LoRA 做参数高效微调。</p>
+<p>LoRA 的核心思想是冻结原模型大部分参数，只在特定线性层中插入低秩矩阵：</p>
+<p class='katex-block'><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi mathvariant="normal">Δ</mi><mi>W</mi><mo>=</mo><mi>B</mi><mi>A</mi></mrow><annotation encoding="application/x-tex">\Delta W = BA
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord">Δ</span><span class="mord mathnormal" style="margin-right:0.13889em;">W</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathnormal" style="margin-right:0.05017em;">B</span><span class="mord mathnormal">A</span></span></span></span></span></p>
+<p>其中：</p>
+<p class='katex-block'><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>A</mi><mo>∈</mo><msup><mi mathvariant="double-struck">R</mi><mrow><mi>r</mi><mo>×</mo><mi>d</mi></mrow></msup><mo separator="true">,</mo><mspace width="1em"/><mi>B</mi><mo>∈</mo><msup><mi mathvariant="double-struck">R</mi><mrow><mi>d</mi><mo>×</mo><mi>r</mi></mrow></msup></mrow><annotation encoding="application/x-tex">A\in \mathbb{R}^{r\times d},
+\quad
+B\in \mathbb{R}^{d\times r}
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.72243em;vertical-align:-0.0391em;"></span><span class="mord mathnormal">A</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">∈</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1.093548em;vertical-align:-0.19444em;"></span><span class="mord"><span class="mord"><span class="mord mathbb">R</span></span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8991079999999999em;"><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.02778em;">r</span><span class="mbin mtight">×</span><span class="mord mathnormal mtight">d</span></span></span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:1em;"></span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathnormal" style="margin-right:0.05017em;">B</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">∈</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.8991079999999999em;vertical-align:0em;"></span><span class="mord"><span class="mord"><span class="mord mathbb">R</span></span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8991079999999999em;"><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">d</span><span class="mbin mtight">×</span><span class="mord mathnormal mtight" style="margin-right:0.02778em;">r</span></span></span></span></span></span></span></span></span></span></span></span></span></p>
+<p>这样可以用更少的可训练参数适配下游任务。</p>
+<h3 id="lora-迭代过程"><a class="markdownIt-Anchor" href="#lora-迭代过程"></a> LoRA 迭代过程</h3>
+<p>项目中 LoRA 不是一次完成的，而是多轮迭代：</p>
+<ol>
+<li>选择 DistilBERT 作为轻量 base model。</li>
+<li>先只在部分 attention projection 层插入 LoRA。</li>
+<li>扩大 LoRA 覆盖到 <code>q_lin</code>、<code>k_lin</code>、<code>v_lin</code>、<code>out_lin</code>。</li>
+<li>调整 rank 到 <code>r=16</code>，增强表达能力。</li>
+<li>降低 learning rate，加入 cosine decay、warmup 和 gradient clipping。</li>
+<li>针对 positive 类识别弱的问题，加入 positive augmentation 和 Focal Loss。</li>
+</ol>
+<p><img src="/images/sentiment-project/lora-flowchart.png" alt="LoRA 调参流程" /></p>
+<p>最终 native classifier 使用：</p>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Setting</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Base model</td>
+<td><code>distilbert-base-uncased</code></td>
+</tr>
+<tr>
+<td>LoRA target modules</td>
+<td><code>q_lin</code>, <code>k_lin</code>, <code>v_lin</code>, <code>out_lin</code></td>
+</tr>
+<tr>
+<td>LoRA rank</td>
+<td><code>r=16</code></td>
+</tr>
+<tr>
+<td>LoRA alpha</td>
+<td><code>64</code></td>
+</tr>
+<tr>
+<td>Dropout</td>
+<td><code>0.1</code></td>
+</tr>
+<tr>
+<td>Learning rate</td>
+<td><code>1.5e-4</code></td>
+</tr>
+<tr>
+<td>Epochs</td>
+<td><code>6</code></td>
+</tr>
+<tr>
+<td>Batch size</td>
+<td><code>8</code></td>
+</tr>
+<tr>
+<td>Scheduler</td>
+<td>warmup + cosine decay</td>
+</tr>
+<tr>
+<td>Loss</td>
+<td>Focal Loss</td>
+</tr>
+</tbody>
+</table>
+<h2 id="7-focal-loss-与类别平衡"><a class="markdownIt-Anchor" href="#7-focal-loss-与类别平衡"></a> 7. Focal Loss 与类别平衡</h2>
+<p>由于 positive 类相对更难识别，项目引入 Focal Loss，让模型更关注难样本：</p>
+<p class='katex-block'><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mi mathvariant="script">L</mi><mrow><mi>F</mi><mi>L</mi></mrow></msub><mo>=</mo><mo>−</mo><msub><mi>α</mi><mi>t</mi></msub><mo stretchy="false">(</mo><mn>1</mn><mo>−</mo><msub><mi>p</mi><mi>t</mi></msub><msup><mo stretchy="false">)</mo><mi>γ</mi></msup><mi>log</mi><mo>⁡</mo><mo stretchy="false">(</mo><msub><mi>p</mi><mi>t</mi></msub><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">\mathcal{L}_{FL}
+=
+-\alpha_t(1-p_t)^\gamma\log(p_t)
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.83333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord"><span class="mord mathcal">L</span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.32833099999999993em;"><span style="top:-2.5500000000000003em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.13889em;">F</span><span class="mord mathnormal mtight">L</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">−</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0037em;">α</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2805559999999999em;"><span style="top:-2.5500000000000003em;margin-left:-0.0037em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">t</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord">1</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal">p</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2805559999999999em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">t</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose"><span class="mclose">)</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.714392em;"><span style="top:-3.1130000000000004em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.05556em;">γ</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mop">lo<span style="margin-right:0.01389em;">g</span></span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">p</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2805559999999999em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">t</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span></span></p>
+<p>其中：</p>
+<ul>
+<li><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>α</mi><mi>t</mi></msub></mrow><annotation encoding="application/x-tex">\alpha_t</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.58056em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0037em;">α</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2805559999999999em;"><span style="top:-2.5500000000000003em;margin-left:-0.0037em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">t</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> 用于类别权重平衡。</li>
+<li><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>γ</mi></mrow><annotation encoding="application/x-tex">\gamma</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.19444em;"></span><span class="mord mathnormal" style="margin-right:0.05556em;">γ</span></span></span></span> 用于降低 easy samples 的损失权重。</li>
+</ul>
+<p>在本项目中，Focal Loss 的作用不是大幅提高整体 accuracy，而是让三个类别的 F1 更均衡，尤其改善 positive 类。</p>
+<p>训练曲线显示，训练 loss 持续下降，评估 macro F1 在前几轮快速上升，并逐渐稳定在 0.75 左右。</p>
+<p><img src="/images/sentiment-project/training-curves.png" alt="训练曲线与 Macro F1" /></p>
+<h2 id="8-distilbert-xgboost-hybrid"><a class="markdownIt-Anchor" href="#8-distilbert-xgboost-hybrid"></a> 8. DistilBERT + XGBoost Hybrid</h2>
+<p>除了直接用 DistilBERT 分类头输出结果，项目还尝试了 hybrid model：</p>
+<ol>
+<li>用 LoRA-tuned DistilBERT 提取句向量。</li>
+<li>对 token embeddings 做 mean pooling。</li>
+<li>对 768 维句向量做 L2 normalization。</li>
+<li>用 XGBoost 做最终三分类。</li>
+</ol>
+<p>这样做的动机是结合两类模型的优势：</p>
+<ul>
+<li>DistilBERT 负责语义表征。</li>
+<li>XGBoost 负责稳定、可解释的判别边界。</li>
+</ul>
+<p><img src="/images/sentiment-project/xgboost-hybrid-flow.png" alt="DistilBERT + XGBoost Hybrid 流程" /></p>
+<p>XGBoost 最终配置：</p>
+<table>
+<thead>
+<tr>
+<th>Hyperparameter</th>
+<th style="text-align:right">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>learning_rate</td>
+<td style="text-align:right">0.05</td>
+</tr>
+<tr>
+<td>max_depth</td>
+<td style="text-align:right">4</td>
+</tr>
+<tr>
+<td>subsample</td>
+<td style="text-align:right">0.85</td>
+</tr>
+<tr>
+<td>colsample_bytree</td>
+<td style="text-align:right">0.85</td>
+</tr>
+<tr>
+<td>n_estimators</td>
+<td style="text-align:right">100</td>
+</tr>
+<tr>
+<td>reg_alpha</td>
+<td style="text-align:right">0.1</td>
+</tr>
+</tbody>
+</table>
+<p>Hybrid 模型最终 accuracy 为 0.7467，macro F1 为 0.7470，和 native classifier 的 0.7500 非常接近。</p>
+<h2 id="9-最终结果"><a class="markdownIt-Anchor" href="#9-最终结果"></a> 9. 最终结果</h2>
+<p>最终比较中，两个最强方案是：</p>
+<ol>
+<li>DistilBERT + LoRA + augmentation + Focal Loss native classifier。</li>
+<li>DistilBERT-LoRA embedding + XGBoost hybrid classifier。</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th style="text-align:right">Accuracy</th>
+<th style="text-align:right">Negative F1</th>
+<th style="text-align:right">Neutral F1</th>
+<th style="text-align:right">Positive F1</th>
+<th style="text-align:right">Macro F1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DistilBERT + LoRA native V2</td>
+<td style="text-align:right">0.7500</td>
+<td style="text-align:right">0.734</td>
+<td style="text-align:right">0.806</td>
+<td style="text-align:right">0.713</td>
+<td style="text-align:right">0.751</td>
+</tr>
+<tr>
+<td>BERT-LoRA + XGBoost</td>
+<td style="text-align:right">0.7467</td>
+<td style="text-align:right">0.727</td>
+<td style="text-align:right">0.814</td>
+<td style="text-align:right">0.700</td>
+<td style="text-align:right">0.747</td>
+</tr>
+</tbody>
+</table>
+<h3 id="native-classifier-confusion-matrix"><a class="markdownIt-Anchor" href="#native-classifier-confusion-matrix"></a> Native classifier confusion matrix</h3>
+<p><img src="/images/sentiment-project/confusion-native-final.png" alt="DistilBERT + LoRA 最终混淆矩阵" /></p>
+<h3 id="hybrid-model-confusion-matrix"><a class="markdownIt-Anchor" href="#hybrid-model-confusion-matrix"></a> Hybrid model confusion matrix</h3>
+<p><img src="/images/sentiment-project/confusion-xgboost.png" alt="DistilBERT + XGBoost 混淆矩阵" /></p>
+<p>从混淆矩阵可以看到：</p>
+<ul>
+<li>Native classifier 对 negative 和 positive 类略强。</li>
+<li>Hybrid model 对 neutral 类更稳。</li>
+<li>两个模型整体差距非常小。</li>
+</ul>
+<h2 id="10-实验方案总览"><a class="markdownIt-Anchor" href="#10-实验方案总览"></a> 10. 实验方案总览</h2>
+<p>所有主要方案结果如下：</p>
+<table>
+<thead>
+<tr>
+<th>Scheme</th>
+<th style="text-align:right">Accuracy</th>
+<th style="text-align:right">Neg F1</th>
+<th style="text-align:right">Neu F1</th>
+<th style="text-align:right">Pos F1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Logistic Regression baseline</td>
+<td style="text-align:right">0.5767</td>
+<td style="text-align:right">0.650</td>
+<td style="text-align:right">0.560</td>
+<td style="text-align:right">0.520</td>
+</tr>
+<tr>
+<td>XGBoost + Word2Vec</td>
+<td style="text-align:right">0.5467</td>
+<td style="text-align:right">0.475</td>
+<td style="text-align:right">0.657</td>
+<td style="text-align:right">0.428</td>
+</tr>
+<tr>
+<td>Random Forest + Word2Vec</td>
+<td style="text-align:right">0.5767</td>
+<td style="text-align:right">0.514</td>
+<td style="text-align:right">0.672</td>
+<td style="text-align:right">0.494</td>
+</tr>
+<tr>
+<td>Optimal two-stage model</td>
+<td style="text-align:right">0.6433</td>
+<td style="text-align:right">0.692</td>
+<td style="text-align:right">0.686</td>
+<td style="text-align:right">0.536</td>
+</tr>
+<tr>
+<td>vinai/bertweet-base</td>
+<td style="text-align:right">0.5767</td>
+<td style="text-align:right">0.486</td>
+<td style="text-align:right">0.657</td>
+<td style="text-align:right">0.574</td>
+</tr>
+<tr>
+<td>Qwen1.5-0.5B</td>
+<td style="text-align:right">0.6667</td>
+<td style="text-align:right">0.670</td>
+<td style="text-align:right">0.671</td>
+<td style="text-align:right">0.660</td>
+</tr>
+<tr>
+<td>DistilBERT + LoRA round 4</td>
+<td style="text-align:right">0.6767</td>
+<td style="text-align:right">0.649</td>
+<td style="text-align:right">0.758</td>
+<td style="text-align:right">0.627</td>
+</tr>
+<tr>
+<td>DistilBERT + LoRA + Aug + Focal Loss</td>
+<td style="text-align:right">0.7500</td>
+<td style="text-align:right">0.734</td>
+<td style="text-align:right">0.806</td>
+<td style="text-align:right">0.713</td>
+</tr>
+<tr>
+<td>BERT-LoRA + XGBoost</td>
+<td style="text-align:right">0.7467</td>
+<td style="text-align:right">0.727</td>
+<td style="text-align:right">0.814</td>
+<td style="text-align:right">0.700</td>
+</tr>
+</tbody>
+</table>
+<p>可以看到，性能提升主要来自两个方向：</p>
+<ul>
+<li>从传统词袋/词向量特征转向预训练语言模型语义表征。</li>
+<li>针对小样本和类别难点做 LoRA、Focal Loss、augmentation 和训练策略优化。</li>
+</ul>
+<h2 id="11-项目复盘"><a class="markdownIt-Anchor" href="#11-项目复盘"></a> 11. 项目复盘</h2>
+<p>这个项目最有价值的地方不只是最终 accuracy，而是完整地走了一遍 NLP 小样本分类项目的迭代路径。</p>
+<p>一些关键经验：</p>
+<ol>
+<li><strong>baseline 很重要</strong>：传统模型提供了任务难度下限，也帮助识别后续提升是否真实。</li>
+<li><strong>二阶段模型不一定更好</strong>：如果第一阶段不稳定，会出现错误传播。</li>
+<li><strong>LoRA 适合小数据集微调</strong>：相比全量微调，LoRA 更轻、更容易控制过拟合。</li>
+<li><strong>Focal Loss 能缓解难类问题</strong>：尤其适合 positive 类样本不足或识别困难的情况。</li>
+<li><strong>Hybrid model 有部署价值</strong>：虽然 accuracy 略低，但推理更快、内存更低、可解释性更强。</li>
+</ol>
+<h2 id="12-后续优化方向"><a class="markdownIt-Anchor" href="#12-后续优化方向"></a> 12. 后续优化方向</h2>
+<p>后续可以继续做：</p>
+<ul>
+<li>模型融合：native classifier 和 hybrid model 做 voting ensemble。</li>
+<li>更强数据增强：back-translation、EDA、LLM paraphrase。</li>
+<li>更细粒度 LoRA：不同 attention 层使用不同 rank。</li>
+<li>CoT 数据蒸馏：用更强模型生成可审核的推理标注，再微调小模型。</li>
+<li>更严格的实验复现：固定 seed、记录数据切分、补充 ablation study。</li>
+</ul>
+<h2 id="13-总结"><a class="markdownIt-Anchor" href="#13-总结"></a> 13. 总结</h2>
+<p>最终方案 DistilBERT + LoRA + augmentation + Focal Loss 达到 0.7500 accuracy 和 0.751 macro F1；BERT-LoRA + XGBoost 达到 0.7467 accuracy 和 0.747 macro F1。</p>
+<p>对作品集来说，这个项目可以展示三件事：</p>
+<ul>
+<li>能从 EDA 和数据清洗开始做完整 NLP pipeline。</li>
+<li>能比较传统 ML、PLM fine-tuning、LoRA 和 hybrid model。</li>
+<li>能用实验结果解释为什么最终选择某个方案，而不是只报一个最高分。</li>
+</ul>
+<p>项目代码仓库：</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/RichardF123/DSAI4205BigData">RichardF123/DSAI4205BigData</a></p>
+</div><div class="article-licensing box"><div class="licensing-title"><p>股票市场情感分析项目复盘：从传统机器学习到 DistilBERT、LoRA 与 XGBoost Hybrid</p><p><a href="https://richardf123.github.io/2026/06/24/stock-market-sentiment-project/">https://richardf123.github.io/2026/06/24/stock-market-sentiment-project/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>作者</h6><p>RichardF</p></div></div><div class="level-item is-narrow"><div><h6>发布于</h6><p>2026-06-24</p></div></div><div class="level-item is-narrow"><div><h6>更新于</h6><p>2026-06-24</p></div></div><div class="level-item is-narrow"><div><h6>许可协议</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/machine-learning/">machine-learning</a><a class="link-muted mr-2" rel="tag" href="/tags/NLP/">NLP</a><a class="link-muted mr-2" rel="tag" href="/tags/sentiment-analysis/">sentiment-analysis</a><a class="link-muted mr-2" rel="tag" href="/tags/DistilBERT/">DistilBERT</a><a class="link-muted mr-2" rel="tag" href="/tags/LoRA/">LoRA</a><a class="link-muted mr-2" rel="tag" href="/tags/XGBoost/">XGBoost</a></div><!--!--></article></div><!--!--><nav class="post-navigation mt-4 level is-mobile"><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2026/06/24/svd-applications-notes/"><span class="level-item">SVD 应用笔记：图像压缩、推荐系统、PCA 与 SVM Kernel</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar is-rounded" src="https://avatars.githubusercontent.com/u/144225184?s=400&amp;u=f62e0f37c00d8518afb213a36c81cd8428ce0a06&amp;v=4" alt="RichardF"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">RichardF</p><p class="is-size-6 is-block">大四学生</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Hong Kong</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">文章</p><a href="/archives"><p class="title">10</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">分类</p><a href="/categories"><p class="title">6</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">标签</p><a href="/tags"><p class="title">15</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/RichardF123" target="_blank" rel="noopener">关注我</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/RichardF123"><i class="fab fa-github"></i></a></div></div></div><!--!--><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">链接</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://blog.imyangty.com/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ty哥的博客</span></span><span class="level-right"><span class="level-item tag">blog.imyangty.com</span></span></a></li></ul></div></div></div><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">分类</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/Calculus/"><span class="level-start"><span class="level-item">Calculus</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Data-science/"><span class="level-start"><span class="level-item">Data science</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Linear-Algebra/"><span class="level-start"><span class="level-item">Linear Algebra</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/Notes/"><span class="level-start"><span class="level-item">Notes</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Projects/"><span class="level-start"><span class="level-item">Projects</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/cs/"><span class="level-start"><span class="level-item">cs</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></div></div></div><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">最新文章</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-06-24T08:20:00.000Z">2026-06-24</time></p><p class="title"><a href="/2026/06/24/stock-market-sentiment-project/">股票市场情感分析项目复盘：从传统机器学习到 DistilBERT、LoRA 与 XGBoost Hybrid</a></p><p class="categories"><a href="/categories/Projects/">Projects</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-06-24T08:05:00.000Z">2026-06-24</time></p><p class="title"><a href="/2026/06/24/svd-applications-notes/">SVD 应用笔记：图像压缩、推荐系统、PCA 与 SVM Kernel</a></p><p class="categories"><a href="/categories/Linear-Algebra/">Linear Algebra</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-06-24T07:35:00.000Z">2026-06-24</time></p><p class="title"><a href="/2026/06/24/tensor-decomposition-notes/">Tensor 分解入门笔记：从基本记号到 CP、Tucker 与 PARAFAC2</a></p><p class="categories"><a href="/categories/Linear-Algebra/">Linear Algebra</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2024-08-03T14:00:00.000Z">2024-08-03</time></p><p class="title"><a href="/2024/08/03/%E6%97%A5%E5%BF%97/">学习日志</a></p><p class="categories"><a href="/categories/Notes/">Notes</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2024-02-02T11:27:21.000Z">2024-02-02</time></p><p class="title"><a href="/2024/02/02/Pandas/">Pandas 入门笔记</a></p><p class="categories"><a href="/categories/cs/">cs</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">归档</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2026/"><span class="level-start"><span class="level-item">2026</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/"><span class="level-start"><span class="level-item">2024</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/"><span class="level-start"><span class="level-item">2023</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">标签</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/DistilBERT/"><span class="tag">DistilBERT</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/LoRA/"><span class="tag">LoRA</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/MultivariableCalculus/"><span class="tag">MultivariableCalculus</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/NLP/"><span class="tag">NLP</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/XGBoost/"><span class="tag">XGBoost</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/c/"><span class="tag">c++</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/kaggle/"><span class="tag">kaggle</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/linear-algebra/"><span class="tag">linear-algebra</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/machine-learning/"><span class="tag">machine-learning</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/notes/"><span class="tag">notes</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/python/"><span class="tag">python</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/recommender-system/"><span class="tag">recommender-system</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/sentiment-analysis/"><span class="tag">sentiment-analysis</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/svd/"><span class="tag">svd</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/tensor/"><span class="tag">tensor</span><span class="tag">1</span></a></div></div></div></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="https://avatars.githubusercontent.com/u/144225184?s=400&amp;u=f62e0f37c00d8518afb213a36c81cd8428ce0a06&amp;v=4" alt="RichardF&#039;s Blog" height="28"></a><p class="is-size-7"><span>&copy; 2026 RichardF</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">RichardF</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="GitHub" href="https://github.com/RichardF123"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("zh-cn");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="回到顶端" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/katex.min.css"><script src="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/katex.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/contrib/auto-render.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/contrib/mhchem.min.js" defer></script><script>window.addEventListener("load", function() {
+            document.querySelectorAll('[role="article"] > .content').forEach(function(element) {
+                renderMathInElement(element);
+            });
+        });</script><script type="text/x-mathjax-config">MathJax.Hub.Config({
+            'HTML-CSS': {
+                matchFontHeight: false
+            },
+            SVG: {
+                matchFontHeight: false
+            },
+            CommonHTML: {
+                matchFontHeight: false
+            },
+            tex2jax: {
+                inlineMath: [
+                    ['$','$'],
+                    ['\\(','\\)']
+                ]
+            }
+        });</script><script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/unpacked/MathJax.js?config=TeX-MML-AM_CHTML" defer></script><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="想要查找什么..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"想要查找什么...","untitled":"(无标题)","posts":"文章","pages":"页面","categories":"分类","tags":"标签"});
+        });</script></body></html>
