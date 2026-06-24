@@ -11820,6 +11820,26 @@ article.article .content .katex-html {
   color: #1f5d63;
   font-weight: 600;
 }
+.button.is-primary {
+  background: #2f6f73 !important;
+  border-color: #2f6f73 !important;
+  color: #fff !important;
+  font-weight: 600;
+}
+.button.is-primary:hover,
+.button.is-primary:focus {
+  background: #285f63 !important;
+  border-color: #285f63 !important;
+  box-shadow: 0 8px 18px rgba(31,93,99,0.14);
+  color: #fff !important;
+}
+.widget[data-type="profile"] .button.is-primary {
+  border-radius: 999px;
+  box-shadow: 0 8px 18px rgba(31,93,99,0.1);
+  min-height: 2.3rem;
+  padding-left: 1.1rem;
+  padding-right: 1.1rem;
+}
 .widget {
   border: 1px solid #dfe7ea;
   border-radius: 6px;
@@ -11861,6 +11881,17 @@ article.article .content .katex-html {
   min-height: 0;
   padding: 0.38rem 0.52rem;
   transition: background 0.16s ease, border-color 0.16s ease, color 0.16s ease, transform 0.16s ease;
+}
+.widget[data-type="tags"] .tags.has-addons .tag:first-child {
+  background: #f5f8f8 !important;
+  border-color: #d8e5e6 !important;
+  color: #36565e !important;
+}
+.widget[data-type="tags"] .tags.has-addons .tag:last-child {
+  background: #edf3f4 !important;
+  border-color: #d8e5e6 !important;
+  color: #72858b !important;
+  font-weight: 600;
 }
 .widget[data-type="tags"] a.tags:hover .tag {
   background: #e8f3f2 !important;
