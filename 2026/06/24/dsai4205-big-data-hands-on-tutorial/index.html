@@ -1,0 +1,514 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>DSAI4205 动手教程：用 Pandas、Dask、Spark RDD 与 SparkSQL 完成大数据分析入门 - RichardF&#039;s Blog</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="RichardF&#039;s Blog"><meta name="msapplication-TileImage" content="https://avatars.githubusercontent.com/u/144225184?s=400&amp;u=f62e0f37c00d8518afb213a36c81cd8428ce0a06&amp;v=4"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="RichardF&#039;s Blog"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="上一篇 DSAI4205 笔记偏“全景导览”，解释了大数据分析的系统主线。这一篇换成动手教程：根据 Tutorial 1-4、solution PDF 和配套数据，把 Pandas、Dask、Spark RDD、SparkSQL 串成一条从单机数据分析到分布式数据处理的实践路线。 读完这篇，目标不是记住所有 API，而是建立一个非常重要的迁移关系： Pandas DataFrame→Dask Da"><meta property="og:type" content="blog"><meta property="og:title" content="DSAI4205 动手教程：用 Pandas、Dask、Spark RDD 与 SparkSQL 完成大数据分析入门"><meta property="og:url" content="https://richardf123.github.io/2026/06/24/dsai4205-big-data-hands-on-tutorial/"><meta property="og:site_name" content="RichardF&#039;s Blog"><meta property="og:description" content="上一篇 DSAI4205 笔记偏“全景导览”，解释了大数据分析的系统主线。这一篇换成动手教程：根据 Tutorial 1-4、solution PDF 和配套数据，把 Pandas、Dask、Spark RDD、SparkSQL 串成一条从单机数据分析到分布式数据处理的实践路线。 读完这篇，目标不是记住所有 API，而是建立一个非常重要的迁移关系： Pandas DataFrame→Dask Da"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="d:/logo.jpg"><meta property="article:published_time" content="2026-06-24T11:05:00.000Z"><meta property="article:modified_time" content="2026-06-24T11:05:00.000Z"><meta property="article:author" content="RichardF"><meta property="article:tag" content="big-data"><meta property="article:tag" content="Spark"><meta property="article:tag" content="pandas"><meta property="article:tag" content="Dask"><meta property="article:tag" content="SparkSQL"><meta property="article:tag" content="PySpark"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="d:/logo.jpg"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://richardf123.github.io/2026/06/24/dsai4205-big-data-hands-on-tutorial/"},"headline":"DSAI4205 动手教程：用 Pandas、Dask、Spark RDD 与 SparkSQL 完成大数据分析入门","image":["d:/logo.jpg"],"datePublished":"2026-06-24T11:05:00.000Z","dateModified":"2026-06-24T11:05:00.000Z","author":{"@type":"Person","name":"RichardF"},"publisher":{"@type":"Organization","name":"D:/logo.jpg","logo":{"@type":"ImageObject","url":"d:/logo.jpg"}},"description":"上一篇 DSAI4205 笔记偏“全景导览”，解释了大数据分析的系统主线。这一篇换成动手教程：根据 Tutorial 1-4、solution PDF 和配套数据，把 Pandas、Dask、Spark RDD、SparkSQL 串成一条从单机数据分析到分布式数据处理的实践路线。 读完这篇，目标不是记住所有 API，而是建立一个非常重要的迁移关系： Pandas DataFrame→Dask Da"}</script><link rel="canonical" href="https://richardf123.github.io/2026/06/24/dsai4205-big-data-hands-on-tutorial/"><link rel="icon" href="https://avatars.githubusercontent.com/u/144225184?s=400&amp;u=f62e0f37c00d8518afb213a36c81cd8428ce0a06&amp;v=4"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css?v=20260624-interactive-map"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="https://avatars.githubusercontent.com/u/144225184?s=400&amp;u=f62e0f37c00d8518afb213a36c81cd8428ce0a06&amp;v=4" alt="RichardF&#039;s Blog" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">主页</a><a class="navbar-item" href="/archives">归档</a><a class="navbar-item" href="/categories">分类</a><a class="navbar-item" href="/tags">标签</a><a class="navbar-item" href="/knowledge-map">知识图谱</a><a class="navbar-item" href="/about">关于</a></div><div class="navbar-end"><a class="navbar-item search" title="搜索" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item"><time dateTime="2026-06-24T11:05:00.000Z" title="2026/6/24 19:05:00">2026-06-24</time>发表</span><span class="level-item"><time dateTime="2026-06-24T11:05:00.000Z" title="2026/6/24 19:05:00">2026-06-24</time>更新</span><span class="level-item"><a class="link-muted" href="/categories/Data-science/">Data science</a></span><span class="level-item">34 分钟读完 (大约5068个字)</span></div></div><h1 class="title is-3 is-size-4-mobile">DSAI4205 动手教程：用 Pandas、Dask、Spark RDD 与 SparkSQL 完成大数据分析入门</h1><div class="content"><p>上一篇 DSAI4205 笔记偏“全景导览”，解释了大数据分析的系统主线。这一篇换成动手教程：根据 Tutorial 1-4、solution PDF 和配套数据，把 Pandas、Dask、Spark RDD、SparkSQL 串成一条从单机数据分析到分布式数据处理的实践路线。</p>
+<p>读完这篇，目标不是记住所有 API，而是建立一个非常重要的迁移关系：</p>
+<p class='katex-block'><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mtext>Pandas DataFrame</mtext><mo>→</mo><mtext>Dask DataFrame</mtext><mo>→</mo><mtext>Spark RDD</mtext><mo>→</mo><mtext>Spark DataFrame / SparkSQL</mtext></mrow><annotation encoding="application/x-tex">\text{Pandas DataFrame}
+\rightarrow
+\text{Dask DataFrame}
+\rightarrow
+\text{Spark RDD}
+\rightarrow
+\text{Spark DataFrame / SparkSQL}
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord text"><span class="mord">Pandas DataFrame</span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">→</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord text"><span class="mord">Dask DataFrame</span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">→</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.8888799999999999em;vertical-align:-0.19444em;"></span><span class="mord text"><span class="mord">Spark RDD</span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">→</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord text"><span class="mord">Spark DataFrame / SparkSQL</span></span></span></span></span></span></p>
+<span id="more"></span>
+<p>原始资料与数据：</p>
+<ul>
+<li><a href="/files/dsai4205-big-data-tutorial/Tutorial_1_Intro_to_Python_and_Pandas.ipynb">Tutorial 1: Intro to Python and Pandas</a></li>
+<li><a href="/files/dsai4205-big-data-tutorial/Tutorial_2_Intro_to_Dask_Array_and_Dask_Dataframe.ipynb">Tutorial 2: Intro to Dask Array and Dask DataFrame</a></li>
+<li><a href="/files/dsai4205-big-data-tutorial/Tutorial_3_Intro_to_Spark.ipynb">Tutorial 3: Intro to Spark</a></li>
+<li><a href="/files/dsai4205-big-data-tutorial/Tutorial_4_Intro_to_SparkSQL.ipynb">Tutorial 4: Intro to SparkSQL</a></li>
+<li><a href="/files/dsai4205-big-data-tutorial/T02Solution.pdf">T02 Solution</a></li>
+<li><a href="/files/dsai4205-big-data-tutorial/T03Solution.pdf">T03 Solution</a></li>
+<li><a href="/files/dsai4205-big-data-tutorial/T04%20Solution.pdf">T04 Solution</a></li>
+<li><a href="/files/dsai4205-big-data-tutorial/data.tsv">data.tsv</a></li>
+<li><a href="/files/dsai4205-big-data-tutorial/ratings.csv">ratings.csv</a></li>
+<li><a href="/files/dsai4205-big-data-tutorial/mtcars.csv">mtcars.csv</a></li>
+<li><a href="/files/dsai4205-big-data-tutorial/data.zip">data.zip</a></li>
+</ul>
+<h2 id="1-这组教程到底在训练什么"><a class="markdownIt-Anchor" href="#1-这组教程到底在训练什么"></a> 1. 这组教程到底在训练什么</h2>
+<p>这四个 tutorial 表面上分别讲不同工具，但真正训练的是同一件事：同样的数据分析逻辑，如何随着数据规模变大而迁移。</p>
+<p>在小数据上，我们用 Pandas。数据在内存里，API 简洁，适合做探索性分析。</p>
+<p>当数据接近或超过单机内存，或者希望利用多核并行时，可以用 Dask。Dask 尽量保留 NumPy/Pandas 风格，但把计算拆成 partitions 和 task graph。</p>
+<p>当进入真正的分布式处理时，Spark 提供 RDD 和 DataFrame 两套抽象。RDD 更底层，训练你理解 map、filter、flatMap、reduceByKey、join 这些分布式操作；SparkSQL 更高层，让你用 DataFrame/SQL 风格表达结构化数据分析。</p>
+<p>可以把四个 tutorial 的关系理解成：</p>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>工具</th>
+<th>核心对象</th>
+<th>适合解决的问题</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tutorial 1</td>
+<td>Pandas</td>
+<td>DataFrame</td>
+<td>单机表格数据清洗、筛选、合并、聚合</td>
+</tr>
+<tr>
+<td>Tutorial 2</td>
+<td>Dask</td>
+<td>Dask Array / Dask DataFrame</td>
+<td>大数组、大表格、延迟计算、并行执行</td>
+</tr>
+<tr>
+<td>Tutorial 3</td>
+<td>Spark</td>
+<td>RDD</td>
+<td>分布式函数式计算、word count、key-value 聚合</td>
+</tr>
+<tr>
+<td>Tutorial 4</td>
+<td>SparkSQL</td>
+<td>Spark DataFrame</td>
+<td>分布式结构化数据分析、SQL-like 查询</td>
+</tr>
+</tbody>
+</table>
+<h2 id="2-数据文件先认清"><a class="markdownIt-Anchor" href="#2-数据文件先认清"></a> 2. 数据文件先认清</h2>
+<p>这组资料里有几类数据。</p>
+<p><code>data.tsv</code> 是电影相关数据，字段包括：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">userID, age, gender, movieID, name, year, genre1, genre2, genre3</span><br></pre></td></tr></table></figure>
+<p>它适合练习 Pandas 的读取、筛选、列处理和 genre 合并。</p>
+<p><code>ratings.csv</code> 包含用户评分：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">userID, movieID, rating</span><br></pre></td></tr></table></figure>
+<p>它适合和 <code>data.tsv</code> 做 merge，再做 groupby 计算平均评分。</p>
+<p><code>mtcars.csv</code> 是经典汽车数据，字段包括：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mpg, cyl, disp, hp, drat, wt, qsec, vs, am, gear, carb</span><br></pre></td></tr></table></figure>
+<p>它适合 SparkSQL 练习读取 CSV、选择列、过滤、排序、聚合和 schema 检查。</p>
+<p><code>data.zip</code> 解压后是一组航班数据 CSV，包含 <code>1990.csv</code> 到 <code>1999.csv</code>。它适合 Dask DataFrame 练习，因为文件多、数据量更大，天然需要 partition-based processing。</p>
+<h2 id="3-tutorial-1python-基础是为了读懂数据操作"><a class="markdownIt-Anchor" href="#3-tutorial-1python-基础是为了读懂数据操作"></a> 3. Tutorial 1：Python 基础是为了读懂数据操作</h2>
+<p>Tutorial 1 前半部分复习 Python 基础：if statement、字符串、for loop、list、dictionary、list comprehension。</p>
+<p>这些内容看似基础，但后面非常常用。例如 list comprehension：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">nums = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]</span><br><span class="line">squares = [x ** <span class="number">2</span> <span class="keyword">for</span> x <span class="keyword">in</span> nums]</span><br></pre></td></tr></table></figure>
+<p>它的含义是：对 iterable 里的每个元素应用一个表达式，生成新 list。</p>
+<p>加上条件：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">large_values = [x <span class="keyword">for</span> x <span class="keyword">in</span> nums <span class="keyword">if</span> x &gt; <span class="number">3</span>]</span><br></pre></td></tr></table></figure>
+<p>后面无论是 Pandas 的 <code>apply</code>，还是 Spark 的 <code>map</code>，思想都很像：把一个函数应用到一批数据上。</p>
+<p>所以 Python 基础里最值得掌握的不是语法细节，而是这三种思维：</p>
+<ol>
+<li>条件判断：决定保留什么数据。</li>
+<li>循环/遍历：逐个处理数据。</li>
+<li>函数映射：把 transformation 应用到每个元素。</li>
+</ol>
+<h2 id="4-pandas表格数据分析的基本工作流"><a class="markdownIt-Anchor" href="#4-pandas表格数据分析的基本工作流"></a> 4. Pandas：表格数据分析的基本工作流</h2>
+<p>Pandas 的核心对象有两个：</p>
+<p><strong>Series</strong> 是一维带标签数组，可以理解为 DataFrame 的一列。</p>
+<p><strong>DataFrame</strong> 是二维表格，由多列 Series 组成。</p>
+<p>创建 DataFrame 的例子：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"></span><br><span class="line">programme_offer = pd.DataFrame(&#123;</span><br><span class="line">    <span class="string">&quot;course_codes&quot;</span>: [<span class="string">&quot;DSAI4205&quot;</span>, <span class="string">&quot;DSAI5201&quot;</span>, <span class="string">&quot;DSAI5202&quot;</span>],</span><br><span class="line">    <span class="string">&quot;course_names&quot;</span>: [<span class="string">&quot;Big Data Analytics&quot;</span>, <span class="string">&quot;AI Practice&quot;</span>, <span class="string">&quot;Emerging Topics&quot;</span>],</span><br><span class="line">    <span class="string">&quot;tools&quot;</span>: [<span class="string">&quot;Python, Pandas, Spark&quot;</span>, <span class="string">&quot;Python, TensorFlow&quot;</span>, <span class="string">&quot;Python, Dask&quot;</span>]</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p>读取文件时，<code>data.tsv</code> 要注意分隔符是 tab：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">df = pd.read_csv(<span class="string">&quot;data.tsv&quot;</span>, sep=<span class="string">&quot;\t&quot;</span>)</span><br></pre></td></tr></table></figure>
+<p>读入后先做三件事：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">df.head()</span><br><span class="line">df.info()</span><br><span class="line">df.describe()</span><br></pre></td></tr></table></figure>
+<p><code>head()</code> 看前几行，<code>info()</code> 看列名、缺失值和类型，<code>describe()</code> 看数值统计。这三个动作相当于数据分析的“开箱检查”。</p>
+<h2 id="5-pandas-列选择单中括号和双中括号"><a class="markdownIt-Anchor" href="#5-pandas-列选择单中括号和双中括号"></a> 5. Pandas 列选择：单中括号和双中括号</h2>
+<p>Tutorial 1 里有一个很重要的小问题：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">programme_offer[<span class="string">&quot;course_names&quot;</span>]</span><br></pre></td></tr></table></figure>
+<p>和</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">programme_offer[[<span class="string">&quot;course_names&quot;</span>]]</span><br></pre></td></tr></table></figure>
+<p>有什么区别？</p>
+<p>单中括号选一列时，返回的是 <code>Series</code>。双中括号选一组列时，返回的是 <code>DataFrame</code>，即使里面只有一列。</p>
+<p>这个区别会影响后续操作。如果你只需要一列做向量计算，用 Series 更直接；如果你希望结果仍然保持二维表格结构，用 DataFrame 更安全。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">type</span>(programme_offer[<span class="string">&quot;course_names&quot;</span>])    <span class="comment"># pandas.Series</span></span><br><span class="line"><span class="built_in">type</span>(programme_offer[[<span class="string">&quot;course_names&quot;</span>]])  <span class="comment"># pandas.DataFrame</span></span><br></pre></td></tr></table></figure>
+<h2 id="6-pandas-条件筛选-排序和新增列"><a class="markdownIt-Anchor" href="#6-pandas-条件筛选-排序和新增列"></a> 6. Pandas 条件筛选、排序和新增列</h2>
+<p>电影数据中常见问题是：筛选 1990 年之后、女性用户观看过的电影，并按年份降序排列。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">filtered = df[(df[<span class="string">&quot;year&quot;</span>] &gt; <span class="number">1990</span>) &amp; (df[<span class="string">&quot;gender&quot;</span>] == <span class="string">&quot;F&quot;</span>)]</span><br><span class="line">filtered = filtered.sort_values(<span class="string">&quot;year&quot;</span>, ascending=<span class="literal">False</span>)</span><br></pre></td></tr></table></figure>
+<p>注意 Pandas 里多个条件要用 <code>&amp;</code>，并且每个条件都要加括号。不能直接写 Python 的 <code>and</code>，因为 Pandas 的条件是一整列 boolean Series。</p>
+<p>新增列也很常见。比如把三列 genre 合并为一列：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">combine_genre</span>(<span class="params">row</span>):</span><br><span class="line">    genres = [row[<span class="string">&quot;genre1&quot;</span>], row[<span class="string">&quot;genre2&quot;</span>], row[<span class="string">&quot;genre3&quot;</span>]]</span><br><span class="line">    genres = [g <span class="keyword">for</span> g <span class="keyword">in</span> genres <span class="keyword">if</span> pd.notna(g) <span class="keyword">and</span> g != <span class="string">&quot;&quot;</span>]</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;|&quot;</span>.join(genres)</span><br><span class="line"></span><br><span class="line">df[<span class="string">&quot;genre&quot;</span>] = df.apply(combine_genre, axis=<span class="number">1</span>)</span><br></pre></td></tr></table></figure>
+<p>这里 <code>axis=1</code> 表示按行 apply。每次传入的是一行，所以可以同时读取 <code>genre1</code>、<code>genre2</code>、<code>genre3</code>。</p>
+<h2 id="7-pandas-merge把电影信息和评分连起来"><a class="markdownIt-Anchor" href="#7-pandas-merge把电影信息和评分连起来"></a> 7. Pandas merge：把电影信息和评分连起来</h2>
+<p><code>data.tsv</code> 里有电影和用户信息，<code>ratings.csv</code> 里有评分。想分析评分，就需要把它们按共同字段合并。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">ratings = pd.read_csv(<span class="string">&quot;ratings.csv&quot;</span>)</span><br><span class="line">merged = pd.merge(</span><br><span class="line">    left=df,</span><br><span class="line">    right=ratings,</span><br><span class="line">    on=[<span class="string">&quot;userID&quot;</span>, <span class="string">&quot;movieID&quot;</span>],</span><br><span class="line">    how=<span class="string">&quot;inner&quot;</span></span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<p><code>how=&quot;inner&quot;</code> 表示只保留两边都匹配上的记录。</p>
+<p>常见 join 类型：</p>
+<table>
+<thead>
+<tr>
+<th>join 类型</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>inner</td>
+<td>只保留左右两边都匹配的行</td>
+</tr>
+<tr>
+<td>left</td>
+<td>保留左表全部行，右表匹配不到就填 NaN</td>
+</tr>
+<tr>
+<td>right</td>
+<td>保留右表全部行，左表匹配不到就填 NaN</td>
+</tr>
+<tr>
+<td>outer</td>
+<td>左右两边全部保留，匹配不到就填 NaN</td>
+</tr>
+</tbody>
+</table>
+<p>实际项目里，merge 后一定要检查行数有没有异常变化：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">df.shape</span><br><span class="line">ratings.shape</span><br><span class="line">merged.shape</span><br></pre></td></tr></table></figure>
+<p>如果 merge 后行数突然暴涨，可能是 key 不唯一导致 many-to-many join。</p>
+<h2 id="8-pandas-groupby从记录变成统计结果"><a class="markdownIt-Anchor" href="#8-pandas-groupby从记录变成统计结果"></a> 8. Pandas groupby：从记录变成统计结果</h2>
+<p><code>groupby</code> 的核心模式是：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dataframe.groupby(keys).aggregate_function()</span><br></pre></td></tr></table></figure>
+<p>比如计算每部电影的平均评分：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">movie_rating = (</span><br><span class="line">    merged</span><br><span class="line">    .groupby([<span class="string">&quot;movieID&quot;</span>, <span class="string">&quot;name&quot;</span>])[<span class="string">&quot;rating&quot;</span>]</span><br><span class="line">    .mean()</span><br><span class="line">    .reset_index()</span><br><span class="line">    .sort_values(<span class="string">&quot;rating&quot;</span>, ascending=<span class="literal">False</span>)</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<p>这里发生了四步：</p>
+<ol>
+<li>按 <code>movieID</code> 和 <code>name</code> 分组。</li>
+<li>取每组里的 <code>rating</code>。</li>
+<li>计算平均值。</li>
+<li>用 <code>reset_index()</code> 把 groupby 后的 index 还原为普通列。</li>
+</ol>
+<p>这个模式非常重要。后面 Dask DataFrame 和 SparkSQL 里的 groupby，本质都是同一个逻辑。</p>
+<h2 id="9-dask为什么-pandas-不够时要换工具"><a class="markdownIt-Anchor" href="#9-dask为什么-pandas-不够时要换工具"></a> 9. Dask：为什么 Pandas 不够时要换工具</h2>
+<p>Pandas 很好用，但它通常把数据放进单机内存。如果数据太大，或者你想利用多核并行，Pandas 就不够了。</p>
+<p>Dask 的关键思想是：</p>
+<ol>
+<li>把大数据切成 chunks 或 partitions。</li>
+<li>每个 partition 可以看成一个较小的 NumPy array 或 Pandas DataFrame。</li>
+<li>操作不会立刻执行，而是先构建 task graph。</li>
+<li>调用 <code>compute()</code> 时，Dask 才真正执行。</li>
+</ol>
+<p>这就是 lazy evaluation。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> dask.array <span class="keyword">as</span> da</span><br><span class="line"></span><br><span class="line">arr = da.ones(<span class="number">20</span>, chunks=<span class="number">10</span>)</span><br><span class="line">result = arr.<span class="built_in">sum</span>()</span><br></pre></td></tr></table></figure>
+<p>此时 <code>result</code> 还不是最终数值，而是一个延迟计算对象。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">result.compute()</span><br></pre></td></tr></table></figure>
+<p>调用 <code>compute()</code> 后才真正计算。</p>
+<h2 id="10-dask-arraychunk-size-是性能关键"><a class="markdownIt-Anchor" href="#10-dask-arraychunk-size-是性能关键"></a> 10. Dask Array：chunk size 是性能关键</h2>
+<p>Tutorial 2 里用 Dask Array 创建大数组：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">dask_arr = da.random.normal(</span><br><span class="line">    <span class="number">20</span>,</span><br><span class="line">    <span class="number">0.1</span>,</span><br><span class="line">    size=(<span class="number">20000</span>, <span class="number">20000</span>),</span><br><span class="line">    chunks=(<span class="number">2000</span>, <span class="number">2000</span>)</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">dask_arr_mean = dask_arr.mean(axis=<span class="number">0</span>).compute()</span><br></pre></td></tr></table></figure>
+<p>这里 <code>chunks=(2000, 2000)</code> 表示把大矩阵切成很多 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2000</mn><mo>×</mo><mn>2000</mn></mrow><annotation encoding="application/x-tex">2000\times 2000</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.72777em;vertical-align:-0.08333em;"></span><span class="mord">2</span><span class="mord">0</span><span class="mord">0</span><span class="mord">0</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">2</span><span class="mord">0</span><span class="mord">0</span><span class="mord">0</span></span></span></span> 的小块。</p>
+<p>chunk size 不能太小，也不能太大。</p>
+<p>如果 chunk 太小，每个 task 做的实际计算很少，调度开销会很大。</p>
+<p>如果 chunk 太大，每个 worker 需要一次加载太多数据，可能内存不够，甚至 spill 到磁盘，速度会明显下降。</p>
+<p>所以 Dask 里一个核心经验是：</p>
+<p class='katex-block'><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mtext>chunk size</mtext><mo>=</mo><mtext>enough work per task</mtext><mo>+</mo><mtext>fits in memory</mtext></mrow><annotation encoding="application/x-tex">\text{chunk size} = \text{enough work per task} + \text{fits in memory}
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord text"><span class="mord">chunk size</span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.8888799999999999em;vertical-align:-0.19444em;"></span><span class="mord text"><span class="mord">enough work per task</span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.8888799999999999em;vertical-align:-0.19444em;"></span><span class="mord text"><span class="mord">fits in memory</span></span></span></span></span></span></p>
+<p>教程中的 TODO 比较了 <code>chunks=(10000,10000)</code> 和 <code>chunks=(30,30)</code>。前者 task 少但单块大，后者 task 很多但调度开销高。这个实验比单纯背概念更重要，因为它能让你直观看到 chunk size 对性能的影响。</p>
+<h2 id="11-dask-dataframe把-pandas-操作迁移到多文件数据"><a class="markdownIt-Anchor" href="#11-dask-dataframe把-pandas-操作迁移到多文件数据"></a> 11. Dask DataFrame：把 Pandas 操作迁移到多文件数据</h2>
+<p><code>data.zip</code> 里有 1990 到 1999 年的航班 CSV。解压后可以用 Dask 一次读取多个文件：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> dask.dataframe <span class="keyword">as</span> dd</span><br><span class="line"></span><br><span class="line">ddf = dd.read_csv(<span class="string">&quot;data/*.csv&quot;</span>)</span><br></pre></td></tr></table></figure>
+<p>Dask DataFrame 看起来像 Pandas，但背后是很多 Pandas DataFrame partition。</p>
+<p>常见操作：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">non_cancelled = ddf[~ddf[<span class="string">&quot;Cancelled&quot;</span>]]</span><br></pre></td></tr></table></figure>
+<p>统计未取消航班数量：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">len</span>(non_cancelled.compute())</span><br></pre></td></tr></table></figure>
+<p>按机场统计未取消航班：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">non_cancelled.groupby(<span class="string">&quot;Origin&quot;</span>).Origin.count().compute()</span><br></pre></td></tr></table></figure>
+<p>计算每个机场平均出发延误：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ddf.groupby(<span class="string">&quot;Origin&quot;</span>).DepDelay.mean().compute()</span><br></pre></td></tr></table></figure>
+<p>找平均延误最高的星期：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ddf.groupby(<span class="string">&quot;DayOfWeek&quot;</span>).DepDelay.mean().idxmax().compute()</span><br></pre></td></tr></table></figure>
+<p>这些代码和 Pandas 很像，但要注意：Dask 里很多结果都需要 <code>compute()</code> 才会真正执行。</p>
+<h2 id="12-dask-的-compute-persist-和-map_partitions"><a class="markdownIt-Anchor" href="#12-dask-的-compute-persist-和-map_partitions"></a> 12. Dask 的 compute、persist 和 map_partitions</h2>
+<p>如果你写：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mean_delay = non_cancelled[<span class="string">&quot;DepDelay&quot;</span>].mean()</span><br><span class="line">std_delay = non_cancelled[<span class="string">&quot;DepDelay&quot;</span>].std()</span><br></pre></td></tr></table></figure>
+<p>这两个变量还只是延迟计算。分别调用两次：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mean_delay.compute()</span><br><span class="line">std_delay.compute()</span><br></pre></td></tr></table></figure>
+<p>可能会重复读取和过滤数据。更好的方式是一次性触发多个计算：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> dask</span><br><span class="line"></span><br><span class="line">mean_result, std_result = dask.compute(mean_delay, std_delay)</span><br></pre></td></tr></table></figure>
+<p>如果某个中间结果会反复使用，可以 <code>persist()</code>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ddf_jfk = non_cancelled[non_cancelled[<span class="string">&quot;Origin&quot;</span>] == <span class="string">&quot;JFK&quot;</span>]</span><br><span class="line">ddf_jfk = ddf_jfk.persist()</span><br></pre></td></tr></table></figure>
+<p><code>persist()</code> 会把中间结果保留在内存里，避免后续重复执行读取和筛选。</p>
+<p>对于 Dask DataFrame 没有直接支持的自定义逻辑，可以用 <code>map_partitions()</code>。比如把距离从 miles 转成 kilometers：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">converter</span>(<span class="params">series, multiplier=<span class="number">1.60934</span></span>):</span><br><span class="line">    <span class="keyword">return</span> series * multiplier</span><br><span class="line"></span><br><span class="line">meta = pd.Series(name=<span class="string">&quot;Distance&quot;</span>, dtype=<span class="string">&quot;float64&quot;</span>)</span><br><span class="line"></span><br><span class="line">distance_km = ddf.Distance.map_partitions(</span><br><span class="line">    converter,</span><br><span class="line">    multiplier=<span class="number">1.60934</span>,</span><br><span class="line">    meta=meta</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<p><code>map_partitions()</code> 的含义是：把函数应用到每个内部 Pandas partition 上。<code>meta</code> 用来告诉 Dask 输出的数据结构和类型，帮助它构建 task graph。</p>
+<h2 id="13-spark先理解-rdd"><a class="markdownIt-Anchor" href="#13-spark先理解-rdd"></a> 13. Spark：先理解 RDD</h2>
+<p>Spark 的入口通常是 <code>SparkSession</code>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pyspark.sql <span class="keyword">import</span> SparkSession</span><br><span class="line"></span><br><span class="line">ss = (</span><br><span class="line">    SparkSession.builder</span><br><span class="line">    .master(<span class="string">&quot;local[1]&quot;</span>)</span><br><span class="line">    .appName(<span class="string">&quot;DSAI4205&quot;</span>)</span><br><span class="line">    .getOrCreate()</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">spark = ss.sparkContext</span><br></pre></td></tr></table></figure>
+<p>这里 <code>.master(&quot;local[1]&quot;)</code> 表示在本机用 1 个 worker thread 跑。真实集群里 master 会指向 cluster manager。</p>
+<p>RDD 是 Spark 的底层分布式数据抽象。创建 RDD 有两种常见方式：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rdd = spark.parallelize([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>])</span><br></pre></td></tr></table></figure>
+<p>或者从文件读取：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">text_rdd = spark.textFile(<span class="string">&quot;wordCount.txt&quot;</span>)</span><br></pre></td></tr></table></figure>
+<p>RDD 操作分两类：</p>
+<p><strong>Transformation</strong> 返回新的 RDD，比如 <code>map</code>、<code>filter</code>、<code>flatMap</code>、<code>reduceByKey</code>。</p>
+<p><strong>Action</strong> 触发执行并返回结果，比如 <code>collect</code>、<code>count</code>、<code>take</code>。</p>
+<p>这和 Dask 的 lazy evaluation 很像：不是每一步都立刻执行，而是遇到 action 才真正计算。</p>
+<h2 id="14-spark-rdd-的-map-filter-flatmap"><a class="markdownIt-Anchor" href="#14-spark-rdd-的-map-filter-flatmap"></a> 14. Spark RDD 的 map、filter、flatMap</h2>
+<p><code>map()</code> 对每个元素做一对一转换：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">rdd = spark.parallelize([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>])</span><br><span class="line">rdd.<span class="built_in">map</span>(<span class="keyword">lambda</span> x: x + <span class="number">1</span>).collect()</span><br></pre></td></tr></table></figure>
+<p><code>filter()</code> 保留满足条件的元素：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rdd.<span class="built_in">filter</span>(<span class="keyword">lambda</span> x: x &gt; <span class="number">1</span>).collect()</span><br></pre></td></tr></table></figure>
+<p><code>flatMap()</code> 是一对多转换，然后把结果压平。word count 里非常常用：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">lines = spark.parallelize([<span class="string">&quot;I like Spark&quot;</span>, <span class="string">&quot;I like Python&quot;</span>])</span><br><span class="line">words = lines.flatMap(<span class="keyword">lambda</span> line: line.split())</span><br><span class="line">words.collect()</span><br></pre></td></tr></table></figure>
+<p>如果用 <code>map(lambda line: line.split())</code>，结果会是 list of lists；用 <code>flatMap</code>，结果是一个平铺后的 word stream。</p>
+<h2 id="15-word-countspark-的经典模式"><a class="markdownIt-Anchor" href="#15-word-countspark-的经典模式"></a> 15. Word Count：Spark 的经典模式</h2>
+<p>word count 是 Spark RDD 的入门模板：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> operator <span class="keyword">import</span> add</span><br><span class="line"></span><br><span class="line">text_rdd = spark.textFile(<span class="string">&quot;wordCountEx.txt&quot;</span>)</span><br><span class="line"></span><br><span class="line">counts = (</span><br><span class="line">    text_rdd</span><br><span class="line">    .flatMap(<span class="keyword">lambda</span> line: line.split())</span><br><span class="line">    .<span class="built_in">map</span>(<span class="keyword">lambda</span> word: (word.lower(), <span class="number">1</span>))</span><br><span class="line">    .reduceByKey(add)</span><br><span class="line">    .sortBy(<span class="keyword">lambda</span> x: x[<span class="number">1</span>], ascending=<span class="literal">False</span>)</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">counts.collect()</span><br></pre></td></tr></table></figure>
+<p>这段代码对应四步：</p>
+<ol>
+<li><code>flatMap</code>：把每行文本拆成词。</li>
+<li><code>map</code>：把每个词变成 <code>(word, 1)</code>。</li>
+<li><code>reduceByKey</code>：按 word 聚合，把 1 加起来。</li>
+<li><code>sortBy</code>：按 count 降序排序。</li>
+</ol>
+<p>这是分布式计算里最重要的模式之一：</p>
+<p class='katex-block'><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mtext>records</mtext><mo>→</mo><mtext>key-value pairs</mtext><mo>→</mo><mtext>group by key</mtext><mo>→</mo><mtext>aggregate</mtext></mrow><annotation encoding="application/x-tex">\text{records}
+\rightarrow
+\text{key-value pairs}
+\rightarrow
+\text{group by key}
+\rightarrow
+\text{aggregate}
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord text"><span class="mord">records</span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">→</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.8888799999999999em;vertical-align:-0.19444em;"></span><span class="mord text"><span class="mord">key-value pairs</span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">→</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.8888799999999999em;vertical-align:-0.19444em;"></span><span class="mord text"><span class="mord">group by key</span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">→</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.80952em;vertical-align:-0.19444em;"></span><span class="mord text"><span class="mord">aggregate</span></span></span></span></span></span></p>
+<h2 id="16-key-value-rddjoin-和-reducebykey"><a class="markdownIt-Anchor" href="#16-key-value-rddjoin-和-reducebykey"></a> 16. Key-value RDD：join 和 reduceByKey</h2>
+<p>RDD 里很多高级操作都围绕 key-value pair。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kv_rdd = spark.parallelize([(<span class="number">3</span>, <span class="number">4</span>), (<span class="number">3</span>, <span class="number">1</span>), (<span class="number">5</span>, <span class="number">6</span>), (<span class="number">5</span>, <span class="number">2</span>)])</span><br></pre></td></tr></table></figure>
+<p>按 key 求和：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> operator <span class="keyword">import</span> add</span><br><span class="line"></span><br><span class="line">kv_rdd.reduceByKey(add).collect()</span><br></pre></td></tr></table></figure>
+<p>对 value 做变换：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kv_rdd.mapValues(<span class="keyword">lambda</span> v: v ** <span class="number">2</span>).collect()</span><br></pre></td></tr></table></figure>
+<p>两个 key-value RDD 可以 join：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">left = spark.parallelize([(<span class="number">1</span>, <span class="number">2</span>), (<span class="number">3</span>, <span class="number">4</span>), (<span class="number">3</span>, <span class="number">6</span>)])</span><br><span class="line">right = spark.parallelize([(<span class="number">3</span>, <span class="number">7</span>)])</span><br><span class="line"></span><br><span class="line">left.join(right).collect()</span><br></pre></td></tr></table></figure>
+<p>inner join 只保留两边都有的 key。<code>leftOuterJoin()</code> 会保留左边所有 key，如果右边没有对应值，会出现 <code>None</code>。Tutorial 3 的 solution 里把 <code>None</code> 替换成 <code>&quot;error&quot;</code>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">result.<span class="built_in">map</span>(</span><br><span class="line">    <span class="keyword">lambda</span> x: (</span><br><span class="line">        x[<span class="number">0</span>],</span><br><span class="line">        (</span><br><span class="line">            <span class="string">&quot;error&quot;</span> <span class="keyword">if</span> x[<span class="number">1</span>][<span class="number">0</span>] <span class="keyword">is</span> <span class="literal">None</span> <span class="keyword">else</span> x[<span class="number">1</span>][<span class="number">0</span>],</span><br><span class="line">            <span class="string">&quot;error&quot;</span> <span class="keyword">if</span> x[<span class="number">1</span>][<span class="number">1</span>] <span class="keyword">is</span> <span class="literal">None</span> <span class="keyword">else</span> x[<span class="number">1</span>][<span class="number">1</span>]</span><br><span class="line">        )</span><br><span class="line">    )</span><br><span class="line">).collect()</span><br></pre></td></tr></table></figure>
+<p>这个例子很适合理解 Spark 里的 tuple 结构：<code>x[0]</code> 是 key，<code>x[1]</code> 是 join 后的 value tuple。</p>
+<h2 id="17-dna-k-mer-练习把序列变成分布式计数问题"><a class="markdownIt-Anchor" href="#17-dna-k-mer-练习把序列变成分布式计数问题"></a> 17. DNA k-mer 练习：把序列变成分布式计数问题</h2>
+<p>Tutorial 3 的 DNA 练习很有价值，因为它把字符串序列分析转成了 Spark RDD pipeline。</p>
+<p>给定 DNA 字符串：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dna_str = <span class="string">&quot;gcctaagccta&quot;</span></span><br></pre></td></tr></table></figure>
+<p>如果 <code>k=5</code>，连续 pattern 是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gccta, cctaa, ctaag, taagc, aagcc, agcct, gccta</span><br></pre></td></tr></table></figure>
+<p>可以写函数：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">generate_pattern</span>(<span class="params">line, k</span>):</span><br><span class="line">    <span class="keyword">return</span> [(line[i:i+k], <span class="number">1</span>) <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(line) - k + <span class="number">1</span>)]</span><br></pre></td></tr></table></figure>
+<p>然后用 Spark 统计：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">k = <span class="number">5</span></span><br><span class="line"></span><br><span class="line">seq_rdd = (</span><br><span class="line">    dna_rdd</span><br><span class="line">    .flatMap(<span class="keyword">lambda</span> line: generate_pattern(line, k))</span><br><span class="line">    .reduceByKey(add)</span><br><span class="line">    .sortBy(<span class="keyword">lambda</span> x: x[<span class="number">1</span>], ascending=<span class="literal">False</span>)</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<p>如果要找出现超过一次的 palindrome pattern：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">palindromes = (</span><br><span class="line">    seq_rdd</span><br><span class="line">    .<span class="built_in">filter</span>(<span class="keyword">lambda</span> x: x[<span class="number">1</span>] &gt; <span class="number">1</span>)</span><br><span class="line">    .<span class="built_in">filter</span>(<span class="keyword">lambda</span> x: x[<span class="number">0</span>] == x[<span class="number">0</span>][::-<span class="number">1</span>])</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<p>这个练习的重点不是 DNA 本身，而是把复杂对象拆成 key-value，再用分布式聚合解决。</p>
+<h2 id="18-sparksql从-rdd-走向-dataframe"><a class="markdownIt-Anchor" href="#18-sparksql从-rdd-走向-dataframe"></a> 18. SparkSQL：从 RDD 走向 DataFrame</h2>
+<p>RDD 很灵活，但写起来偏底层。SparkSQL 的 DataFrame API 更接近 Pandas 和 SQL，也更适合结构化数据分析。</p>
+<p>读取 <code>mtcars.csv</code>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">mtcars = ss.read.csv(</span><br><span class="line">    path=<span class="string">&quot;mtcars.csv&quot;</span>,</span><br><span class="line">    sep=<span class="string">&quot;,&quot;</span>,</span><br><span class="line">    encoding=<span class="string">&quot;UTF-8&quot;</span>,</span><br><span class="line">    comment=<span class="literal">None</span>,</span><br><span class="line">    header=<span class="literal">True</span>,</span><br><span class="line">    inferSchema=<span class="literal">True</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">mtcars.show(<span class="number">5</span>, truncate=<span class="literal">False</span>)</span><br></pre></td></tr></table></figure>
+<p><code>inferSchema=True</code> 会让 Spark 自动推断列类型。如果不推断，很多数值列可能会被当成 string，后面做比较和聚合会出问题。</p>
+<p>从 Python list 创建 DataFrame：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">my_list = [[<span class="string">&quot;a&quot;</span>, <span class="number">1</span>], [<span class="string">&quot;b&quot;</span>, <span class="number">2</span>]]</span><br><span class="line">df = ss.createDataFrame(my_list, [<span class="string">&quot;letter&quot;</span>, <span class="string">&quot;number&quot;</span>])</span><br></pre></td></tr></table></figure>
+<p>从 Pandas DataFrame 转 Spark DataFrame：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"></span><br><span class="line">pdf = pd.DataFrame(&#123;</span><br><span class="line">    <span class="string">&quot;name&quot;</span>: [<span class="string">&quot;Alice&quot;</span>, <span class="string">&quot;Bob&quot;</span>],</span><br><span class="line">    <span class="string">&quot;score&quot;</span>: [<span class="number">90</span>, <span class="number">85</span>]</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line">df_spark = ss.createDataFrame(pdf)</span><br></pre></td></tr></table></figure>
+<h2 id="19-spark-dataframe-常用操作"><a class="markdownIt-Anchor" href="#19-spark-dataframe-常用操作"></a> 19. Spark DataFrame 常用操作</h2>
+<p>查看列名：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mtcars.columns</span><br></pre></td></tr></table></figure>
+<p>重命名列：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">df0 = mtcars.withColumnRenamed(<span class="string">&quot;_c0&quot;</span>, <span class="string">&quot;model&quot;</span>)</span><br></pre></td></tr></table></figure>
+<p>选择列：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mtcars.select(<span class="string">&quot;mpg&quot;</span>, <span class="string">&quot;cyl&quot;</span>).show(<span class="number">5</span>)</span><br></pre></td></tr></table></figure>
+<p>过滤：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">df1 = df0.<span class="built_in">filter</span>(df0.mpg &gt; <span class="number">18</span>)</span><br></pre></td></tr></table></figure>
+<p>排序：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">df0.sort(<span class="string">&quot;model&quot;</span>).show(<span class="number">5</span>)</span><br></pre></td></tr></table></figure>
+<p>删除列：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">df0.drop(<span class="string">&quot;mpg&quot;</span>).show(<span class="number">5</span>)</span><br></pre></td></tr></table></figure>
+<p>看 schema：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">df0.printSchema()</span><br></pre></td></tr></table></figure>
+<p>聚合：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mtcars.agg(&#123;<span class="string">&quot;mpg&quot;</span>: <span class="string">&quot;max&quot;</span>&#125;).show()</span><br><span class="line">mtcars.agg(&#123;<span class="string">&quot;mpg&quot;</span>: <span class="string">&quot;mean&quot;</span>&#125;).show()</span><br></pre></td></tr></table></figure>
+<p>这些操作对应 Pandas 里熟悉的 <code>select columns</code>、<code>filter rows</code>、<code>sort_values</code>、<code>drop</code>、<code>groupby/agg</code>。区别是 Spark DataFrame 的执行是分布式的，而且很多操作也是 lazy 的。</p>
+<h2 id="20-withcolumn-col-whensparksql-的表达式思维"><a class="markdownIt-Anchor" href="#20-withcolumn-col-whensparksql-的表达式思维"></a> 20. withColumn、col、when：SparkSQL 的表达式思维</h2>
+<p>Spark DataFrame 里经常用 <code>withColumn()</code> 新增或替换列。</p>
+<p>例如计算山地比赛平均时间：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pyspark.sql.functions <span class="keyword">import</span> col</span><br><span class="line"></span><br><span class="line">hills2000_df = ss.read.csv(</span><br><span class="line">    <span class="string">&quot;hills2000.txt&quot;</span>,</span><br><span class="line">    header=<span class="literal">True</span>,</span><br><span class="line">    inferSchema=<span class="literal">True</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">hills2000_df = hills2000_df.withColumn(</span><br><span class="line">    <span class="string">&quot;avg_time&quot;</span>,</span><br><span class="line">    (col(<span class="string">&quot;time&quot;</span>) + col(<span class="string">&quot;timef&quot;</span>)) / <span class="number">2</span></span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<p>再计算平均速度：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">hills2000_df = hills2000_df.withColumn(</span><br><span class="line">    <span class="string">&quot;avg_speed&quot;</span>,</span><br><span class="line">    col(<span class="string">&quot;dist&quot;</span>) / col(<span class="string">&quot;avg_time&quot;</span>)</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<p>如果要根据难度分级，可以用 <code>when()</code>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pyspark.sql.functions <span class="keyword">import</span> when</span><br><span class="line"></span><br><span class="line">hills_union_diff_level = hills_union_diff.withColumn(</span><br><span class="line">    <span class="string">&quot;difficulty&quot;</span>,</span><br><span class="line">    when(col(<span class="string">&quot;diff_score&quot;</span>) &lt; <span class="number">200</span>, <span class="string">&quot;Easy&quot;</span>)</span><br><span class="line">    .when(col(<span class="string">&quot;diff_score&quot;</span>) &lt; <span class="number">350</span>, <span class="string">&quot;Moderate&quot;</span>)</span><br><span class="line">    .otherwise(<span class="string">&quot;Difficult&quot;</span>)</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<p>这里的关键是：Spark DataFrame 不是直接对 Python 变量逐行循环，而是构造 column expression。<code>col(&quot;time&quot;)</code> 表示一整列，<code>withColumn()</code> 表示基于表达式生成新列。</p>
+<h2 id="21-dataframe-与-rdd-可以互相转换"><a class="markdownIt-Anchor" href="#21-dataframe-与-rdd-可以互相转换"></a> 21. DataFrame 与 RDD 可以互相转换</h2>
+<p>SparkSQL 里可以把 DataFrame 转成 RDD：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rdd = mtcars.rdd</span><br></pre></td></tr></table></figure>
+<p>每一行会变成 <code>Row</code> 对象。反过来，也可以从 RDD 创建 DataFrame：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pyspark.sql <span class="keyword">import</span> Row</span><br><span class="line"></span><br><span class="line">data = [(<span class="string">&quot;ctaag&quot;</span>, <span class="number">103</span>), (<span class="string">&quot;gccta&quot;</span>, <span class="number">96</span>)]</span><br><span class="line">rdd = ss.sparkContext.parallelize(data)</span><br><span class="line">df = rdd.<span class="built_in">map</span>(<span class="keyword">lambda</span> x: Row(sequence=x[<span class="number">0</span>], count=x[<span class="number">1</span>])).toDF()</span><br></pre></td></tr></table></figure>
+<p>什么时候用 RDD，什么时候用 DataFrame？</p>
+<p>如果数据是非结构化的、逻辑很自定义，比如 DNA k-mer 或 word count，RDD 很自然。</p>
+<p>如果数据是表格，有列名、类型、过滤、聚合、join，那么 DataFrame/SparkSQL 更合适，也更容易被 Spark 优化。</p>
+<h2 id="22-把四个-tutorial-串成一套学习路线"><a class="markdownIt-Anchor" href="#22-把四个-tutorial-串成一套学习路线"></a> 22. 把四个 Tutorial 串成一套学习路线</h2>
+<p>如果你要真正掌握这组资料，建议按下面顺序练：</p>
+<p><strong>第一轮：Pandas</strong></p>
+<ol>
+<li>用 <code>pd.read_csv(&quot;data.tsv&quot;, sep=&quot;\t&quot;)</code> 读取电影数据。</li>
+<li>用条件筛选找出 1990 年之后女性用户相关记录。</li>
+<li>用 <code>apply(axis=1)</code> 合并 genre。</li>
+<li>读取 <code>ratings.csv</code> 并和电影数据 merge。</li>
+<li>用 groupby 计算每部电影平均评分。</li>
+</ol>
+<p><strong>第二轮：Dask</strong></p>
+<ol>
+<li>创建 Dask Array，观察 chunks。</li>
+<li>修改 chunk size，比较计算表现。</li>
+<li>解压 <code>data.zip</code>，用 <code>dd.read_csv(&quot;data/*.csv&quot;)</code> 读取多文件。</li>
+<li>计算未取消航班、机场延误、星期延误。</li>
+<li>比较 <code>compute()</code>、<code>dask.compute()</code> 和 <code>persist()</code>。</li>
+<li>用 <code>map_partitions()</code> 写自定义转换。</li>
+</ol>
+<p><strong>第三轮：Spark RDD</strong></p>
+<ol>
+<li>创建 SparkSession 和 SparkContext。</li>
+<li>用 <code>parallelize()</code> 创建 RDD。</li>
+<li>练习 <code>map</code>、<code>filter</code>、<code>flatMap</code>。</li>
+<li>完成 word count。</li>
+<li>完成 key-value RDD 的 <code>reduceByKey</code> 和 join。</li>
+<li>完成 DNA k-mer count 和 palindrome filter。</li>
+</ol>
+<p><strong>第四轮：SparkSQL</strong></p>
+<ol>
+<li>读取 <code>mtcars.csv</code>。</li>
+<li>练习 <code>select</code>、<code>filter</code>、<code>sort</code>、<code>drop</code>、<code>agg</code>。</li>
+<li>用 <code>withColumn</code> 和 <code>col</code> 创建新列。</li>
+<li>用 <code>when</code> 做分级标签。</li>
+<li>理解 DataFrame 和 RDD 的互相转换。</li>
+</ol>
+<h2 id="23-最重要的迁移关系"><a class="markdownIt-Anchor" href="#23-最重要的迁移关系"></a> 23. 最重要的迁移关系</h2>
+<p>这组 tutorial 的价值在于，你会发现很多操作其实是同一种思想的不同实现。</p>
+<table>
+<thead>
+<tr>
+<th>数据分析意图</th>
+<th>Pandas</th>
+<th>Dask</th>
+<th>Spark RDD</th>
+<th>SparkSQL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>读取数据</td>
+<td><code>pd.read_csv</code></td>
+<td><code>dd.read_csv</code></td>
+<td><code>textFile</code></td>
+<td><code>ss.read.csv</code></td>
+</tr>
+<tr>
+<td>按行转换</td>
+<td><code>apply(axis=1)</code></td>
+<td><code>map_partitions</code></td>
+<td><code>map</code> / <code>flatMap</code></td>
+<td><code>withColumn</code></td>
+</tr>
+<tr>
+<td>过滤</td>
+<td>boolean mask</td>
+<td>boolean mask</td>
+<td><code>filter</code></td>
+<td><code>filter</code></td>
+</tr>
+<tr>
+<td>分组聚合</td>
+<td><code>groupby().mean()</code></td>
+<td><code>groupby().mean().compute()</code></td>
+<td><code>map</code> + <code>reduceByKey</code></td>
+<td><code>groupBy().agg()</code></td>
+</tr>
+<tr>
+<td>合并</td>
+<td><code>merge</code></td>
+<td>limited merge/join</td>
+<td><code>join</code></td>
+<td><code>join</code></td>
+</tr>
+<tr>
+<td>触发执行</td>
+<td>立即执行</td>
+<td><code>compute()</code></td>
+<td><code>collect()</code> / action</td>
+<td>action，如 <code>show()</code></td>
+</tr>
+</tbody>
+</table>
+<p>理解这张表，比记住单个 API 更重要。因为以后换工具时，你会知道自己真正要做的是哪类数据操作。</p>
+<h2 id="24-常见坑"><a class="markdownIt-Anchor" href="#24-常见坑"></a> 24. 常见坑</h2>
+<p><strong>Pandas 的 <code>and</code> / <code>or</code> 不能直接用于 Series 条件。</strong></p>
+<p>要用 <code>&amp;</code> 和 <code>|</code>，并给每个条件加括号：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">df[(df[<span class="string">&quot;year&quot;</span>] &gt; <span class="number">1990</span>) &amp; (df[<span class="string">&quot;gender&quot;</span>] == <span class="string">&quot;F&quot;</span>)]</span><br></pre></td></tr></table></figure>
+<p><strong>Pandas 单中括号和双中括号返回类型不同。</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">df[<span class="string">&quot;name&quot;</span>]    <span class="comment"># Series</span></span><br><span class="line">df[[<span class="string">&quot;name&quot;</span>]]  <span class="comment"># DataFrame</span></span><br></pre></td></tr></table></figure>
+<p><strong>Dask 看到结果对象不代表已经计算。</strong></p>
+<p>Dask 很多操作只是构建 task graph，需要 <code>compute()</code>。</p>
+<p><strong>Dask chunk 太小或太大都不好。</strong></p>
+<p>太小会有调度开销，太大可能内存压力大。</p>
+<p><strong>Spark 的 <code>collect()</code> 不要乱用在大数据上。</strong></p>
+<p><code>collect()</code> 会把分布式结果拉回 driver，本地小练习可以用，真实大数据场景容易爆内存。</p>
+<p><strong>Spark DataFrame 里的 <code>col()</code> 是列表达式，不是普通 Python 值。</strong></p>
+<p>写 SparkSQL 时，要习惯 expression-based programming。</p>
+<h2 id="25-总结"><a class="markdownIt-Anchor" href="#25-总结"></a> 25. 总结</h2>
+<p>这组资料最值得学到的不是“某个函数怎么写”，而是从单机到分布式的数据分析抽象。</p>
+<p>Pandas 让你熟悉表格数据分析的基本语法：读、筛、改、合、聚合。</p>
+<p>Dask 让你理解 partitions、chunks、lazy evaluation、task graph，以及为什么计算需要延迟和调度。</p>
+<p>Spark RDD 让你理解最基础的分布式函数式计算：map、flatMap、filter、reduceByKey、join。</p>
+<p>SparkSQL 让你回到更接近业务分析的 DataFrame/SQL 风格，同时保留分布式执行能力。</p>
+<p>如果你未来要做数据挖掘、搜索推荐、RAG 数据管线或大模型应用工程，这条路线很实用：小数据先用 Pandas 验证逻辑，数据变大后用 Dask 或 Spark 扩展，结构化分析用 SparkSQL，非结构化或 key-value 任务用 RDD 思维处理。</p>
+</div><div class="article-licensing box"><div class="licensing-title"><p>DSAI4205 动手教程：用 Pandas、Dask、Spark RDD 与 SparkSQL 完成大数据分析入门</p><p><a href="https://richardf123.github.io/2026/06/24/dsai4205-big-data-hands-on-tutorial/">https://richardf123.github.io/2026/06/24/dsai4205-big-data-hands-on-tutorial/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>作者</h6><p>RichardF</p></div></div><div class="level-item is-narrow"><div><h6>发布于</h6><p>2026-06-24</p></div></div><div class="level-item is-narrow"><div><h6>更新于</h6><p>2026-06-24</p></div></div><div class="level-item is-narrow"><div><h6>许可协议</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/big-data/">big-data</a><a class="link-muted mr-2" rel="tag" href="/tags/Spark/">Spark</a><a class="link-muted mr-2" rel="tag" href="/tags/pandas/">pandas</a><a class="link-muted mr-2" rel="tag" href="/tags/Dask/">Dask</a><a class="link-muted mr-2" rel="tag" href="/tags/SparkSQL/">SparkSQL</a><a class="link-muted mr-2" rel="tag" href="/tags/PySpark/">PySpark</a></div><!--!--></article></div><!--!--><nav class="post-navigation mt-4 level is-mobile"><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2026/06/24/dsai4205-big-data-analytics-guide/"><span class="level-item">DSAI4205 Big Data Analytics 全景导览：从分布式系统到 NLP、图分析与推荐系统</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar is-rounded" src="https://avatars.githubusercontent.com/u/144225184?s=400&amp;u=f62e0f37c00d8518afb213a36c81cd8428ce0a06&amp;v=4" alt="RichardF"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">RichardF</p><p class="is-size-6 is-block">大四学生</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Hong Kong</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">文章</p><a href="/archives"><p class="title">13</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">分类</p><a href="/categories"><p class="title">7</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">标签</p><a href="/tags"><p class="title">29</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/RichardF123" target="_blank" rel="noopener">关注我</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/RichardF123"><i class="fab fa-github"></i></a></div></div></div><!--!--><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">链接</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://blog.imyangty.com/" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">ty哥的博客</span></span><span class="level-right"><span class="level-item tag">blog.imyangty.com</span></span></a></li></ul></div></div></div><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">分类</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/Calculus/"><span class="level-start"><span class="level-item">Calculus</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Data-science/"><span class="level-start"><span class="level-item">Data science</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/Linear-Algebra/"><span class="level-start"><span class="level-item">Linear Algebra</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/categories/Notes/"><span class="level-start"><span class="level-item">Notes</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Optimization/"><span class="level-start"><span class="level-item">Optimization</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Projects/"><span class="level-start"><span class="level-item">Projects</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/cs/"><span class="level-start"><span class="level-item">cs</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></div></div></div><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">最新文章</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-06-24T11:05:00.000Z">2026-06-24</time></p><p class="title"><a href="/2026/06/24/dsai4205-big-data-hands-on-tutorial/">DSAI4205 动手教程：用 Pandas、Dask、Spark RDD 与 SparkSQL 完成大数据分析入门</a></p><p class="categories"><a href="/categories/Data-science/">Data science</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-06-24T10:30:00.000Z">2026-06-24</time></p><p class="title"><a href="/2026/06/24/dsai4205-big-data-analytics-guide/">DSAI4205 Big Data Analytics 全景导览：从分布式系统到 NLP、图分析与推荐系统</a></p><p class="categories"><a href="/categories/Data-science/">Data science</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-06-24T09:40:00.000Z">2026-06-24</time></p><p class="title"><a href="/2026/06/24/ama4850-final-exam-review/">最优化核心概念导览：Convexity、Duality、KKT 与数值优化</a></p><p class="categories"><a href="/categories/Optimization/">Optimization</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-06-24T08:20:00.000Z">2026-06-24</time></p><p class="title"><a href="/2026/06/24/stock-market-sentiment-project/">股票市场情感分析项目复盘：从传统机器学习到 DistilBERT、LoRA 与 XGBoost Hybrid</a></p><p class="categories"><a href="/categories/Projects/">Projects</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-06-24T08:05:00.000Z">2026-06-24</time></p><p class="title"><a href="/2026/06/24/svd-applications-notes/">SVD 应用笔记：图像压缩、推荐系统、PCA 与 SVM Kernel</a></p><p class="categories"><a href="/categories/Linear-Algebra/">Linear Algebra</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">归档</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2026/"><span class="level-start"><span class="level-item">2026</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/"><span class="level-start"><span class="level-item">2024</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/"><span class="level-start"><span class="level-item">2023</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">标签</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/Dask/"><span class="tag">Dask</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/DistilBERT/"><span class="tag">DistilBERT</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/KKT/"><span class="tag">KKT</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/LoRA/"><span class="tag">LoRA</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/MultivariableCalculus/"><span class="tag">MultivariableCalculus</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/NLP/"><span class="tag">NLP</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/NoSQL/"><span class="tag">NoSQL</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/PageRank/"><span class="tag">PageRank</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/PySpark/"><span class="tag">PySpark</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/SDP/"><span class="tag">SDP</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Spark/"><span class="tag">Spark</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/SparkSQL/"><span class="tag">SparkSQL</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/XGBoost/"><span class="tag">XGBoost</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/big-data/"><span class="tag">big-data</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/c/"><span class="tag">c++</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/convex-analysis/"><span class="tag">convex-analysis</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/graph-analytics/"><span class="tag">graph-analytics</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/kaggle/"><span class="tag">kaggle</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/linear-algebra/"><span class="tag">linear-algebra</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/machine-learning/"><span class="tag">machine-learning</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/notes/"><span class="tag">notes</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/numerical-optimization/"><span class="tag">numerical-optimization</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/optimization/"><span class="tag">optimization</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/pandas/"><span class="tag">pandas</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/python/"><span class="tag">python</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/recommender-system/"><span class="tag">recommender-system</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/sentiment-analysis/"><span class="tag">sentiment-analysis</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/svd/"><span class="tag">svd</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/tensor/"><span class="tag">tensor</span><span class="tag">1</span></a></div></div></div></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="https://avatars.githubusercontent.com/u/144225184?s=400&amp;u=f62e0f37c00d8518afb213a36c81cd8428ce0a06&amp;v=4" alt="RichardF&#039;s Blog" height="28"></a><p class="is-size-7"><span>&copy; 2026 RichardF</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">RichardF</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="GitHub" href="https://github.com/RichardF123"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("zh-cn");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="回到顶端" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/katex.min.css"><script src="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/katex.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/contrib/auto-render.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/contrib/mhchem.min.js" defer></script><script>window.addEventListener("load", function() {
+            document.querySelectorAll('[role="article"] > .content').forEach(function(element) {
+                renderMathInElement(element);
+            });
+        });</script><script type="text/x-mathjax-config">MathJax.Hub.Config({
+            'HTML-CSS': {
+                matchFontHeight: false
+            },
+            SVG: {
+                matchFontHeight: false
+            },
+            CommonHTML: {
+                matchFontHeight: false
+            },
+            tex2jax: {
+                inlineMath: [
+                    ['$','$'],
+                    ['\\(','\\)']
+                ]
+            }
+        });</script><script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/unpacked/MathJax.js?config=TeX-MML-AM_CHTML" defer></script><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="想要查找什么..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"想要查找什么...","untitled":"(无标题)","posts":"文章","pages":"页面","categories":"分类","tags":"标签"});
+        });</script></body></html>
