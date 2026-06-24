@@ -65,9 +65,19 @@
             });
         });</script><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="想要查找什么..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
             var insightLoaded = false;
+            var enhancePalette = function () {
+                var container = document.querySelector('.searchbox-container');
+                var body = document.querySelector('.searchbox-body');
+                if (!container || !body || container.querySelector('.command-palette-intro')) return;
+                var intro = document.createElement('div');
+                intro.className = 'command-palette-intro';
+                intro.innerHTML = '<div class="command-palette-title"><span>学习 Command Center</span><small>搜索文章、跳转模块、快速进入训练路线</small></div><div class="command-palette-chips"><button type="button" data-query="Python">Python</button><button type="button" data-query="PyTorch">PyTorch</button><button type="button" data-query="NLP">NLP</button><button type="button" data-query="RAG">RAG</button><button type="button" data-query="SVD">SVD</button><button type="button" data-query="Spark">Spark</button></div><div class="command-palette-actions"><a href="/roadmap/">学习路线</a><a href="/projects/">项目作品集</a><a href="/knowledge-map/">知识图谱</a></div>';
+                container.insertBefore(intro, body);
+            };
             var openSearch = function () {
                 var box = document.querySelector('.searchbox');
                 var input = document.querySelector('.searchbox-input');
+                enhancePalette();
                 if (box) box.classList.add('show');
                 if (input) setTimeout(function () { input.focus(); }, 0);
                 if (insightLoaded) return;
@@ -75,7 +85,17 @@
                 loadInsight({"contentUrl":"/content.json"}, {"hint":"想要查找什么...","untitled":"(无标题)","posts":"文章","pages":"页面","categories":"分类","tags":"标签"});
             };
             document.addEventListener('click', function (event) {
-                if (event.target.closest && event.target.closest('.navbar-main .search')) openSearch();
+                var trigger = event.target.closest && event.target.closest('.navbar-main .search');
+                var chip = event.target.closest && event.target.closest('.command-palette-chips button');
+                if (trigger) openSearch();
+                if (chip) {
+                    openSearch();
+                    var input = document.querySelector('.searchbox-input');
+                    if (input) {
+                        input.value = chip.getAttribute('data-query') || '';
+                        input.dispatchEvent(new Event('input', { bubbles: true }));
+                    }
+                }
             }, true);
             if (location.hash && location.hash.trim() === '#insight-search') openSearch();
         });</script></body></html>
