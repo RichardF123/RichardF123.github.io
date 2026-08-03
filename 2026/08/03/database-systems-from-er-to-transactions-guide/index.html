@@ -1,0 +1,375 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>数据库系统教程：从 ER 建模、关系代数、SQL 到事务、索引与恢复 - RichardF&#039;s Blog</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="RichardF&#039;s Blog"><meta name="msapplication-TileImage" content="https://avatars.githubusercontent.com/u/144225184?s=400&amp;u=f62e0f37c00d8518afb213a36c81cd8428ce0a06&amp;v=4"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="RichardF&#039;s Blog"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="这篇文章根据数据库系统课程资料整理，目标不是把课件逐页翻译，而是把数据库这门课真正的主线讲清楚： 现实业务 -&amp;gt; ER 建模 -&amp;gt; 关系模型 -&amp;gt; 关系代数 -&amp;gt; SQL 查询 -&amp;gt; 存储、索引、优化 -&amp;gt; 事务、并发、恢复 如果只背概念，数据库很容易学成一堆名词：entity、relationship、primary key、foreign key、selec"><meta property="og:type" content="blog"><meta property="og:title" content="数据库系统教程：从 ER 建模、关系代数、SQL 到事务、索引与恢复"><meta property="og:url" content="https://richardf123.github.io/2026/08/03/database-systems-from-er-to-transactions-guide/"><meta property="og:site_name" content="RichardF&#039;s Blog"><meta property="og:description" content="这篇文章根据数据库系统课程资料整理，目标不是把课件逐页翻译，而是把数据库这门课真正的主线讲清楚： 现实业务 -&amp;gt; ER 建模 -&amp;gt; 关系模型 -&amp;gt; 关系代数 -&amp;gt; SQL 查询 -&amp;gt; 存储、索引、优化 -&amp;gt; 事务、并发、恢复 如果只背概念，数据库很容易学成一堆名词：entity、relationship、primary key、foreign key、selec"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="d:/logo.jpg"><meta property="article:published_time" content="2026-08-03T10:20:00.000Z"><meta property="article:modified_time" content="2026-08-03T10:20:00.000Z"><meta property="article:author" content="RichardF"><meta property="article:tag" content="database"><meta property="article:tag" content="SQL"><meta property="article:tag" content="relational-algebra"><meta property="article:tag" content="transaction"><meta property="article:tag" content="indexing"><meta property="article:tag" content="query-optimization"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="d:/logo.jpg"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://richardf123.github.io/2026/08/03/database-systems-from-er-to-transactions-guide/"},"headline":"数据库系统教程：从 ER 建模、关系代数、SQL 到事务、索引与恢复","image":["d:/logo.jpg"],"datePublished":"2026-08-03T10:20:00.000Z","dateModified":"2026-08-03T10:20:00.000Z","author":{"@type":"Person","name":"RichardF"},"publisher":{"@type":"Organization","name":"D:/logo.jpg","logo":{"@type":"ImageObject","url":"d:/logo.jpg"}},"description":"这篇文章根据数据库系统课程资料整理，目标不是把课件逐页翻译，而是把数据库这门课真正的主线讲清楚： 现实业务 -&gt; ER 建模 -&gt; 关系模型 -&gt; 关系代数 -&gt; SQL 查询 -&gt; 存储、索引、优化 -&gt; 事务、并发、恢复 如果只背概念，数据库很容易学成一堆名词：entity、relationship、primary key、foreign key、selec"}</script><link rel="canonical" href="https://richardf123.github.io/2026/08/03/database-systems-from-er-to-transactions-guide/"><link rel="icon" href="https://avatars.githubusercontent.com/u/144225184?s=400&amp;u=f62e0f37c00d8518afb213a36c81cd8428ce0a06&amp;v=4"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&amp;family=Noto+Serif+SC:wght@400;500;700&amp;family=Noto+Sans+SC:wght@400;500;700&amp;family=JetBrains+Mono:wght@400;600"><link rel="stylesheet" href="/css/default.css?v=20260624-interactive-map"><link rel="stylesheet" href="/css/site-overrides.css?v=20260803-db-epic-1"><!--!--><!--!--><!--!--><!--!--><!--!--><!--!--><!--!--><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head><body class="is-3-column"><a class="skip-link" href="#site-main">Skip to content</a><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="https://avatars.githubusercontent.com/u/144225184?s=400&amp;u=f62e0f37c00d8518afb213a36c81cd8428ce0a06&amp;v=4" alt="RichardF&#039;s Blog" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">主页</a><a class="navbar-item" href="/roadmap">学习路线</a><a class="navbar-item" href="/projects">项目作品集</a><a class="navbar-item" href="/archives">归档</a><a class="navbar-item" href="/categories">分类</a><a class="navbar-item" href="/tags">标签</a><a class="navbar-item" href="/knowledge-map">知识图谱</a><a class="navbar-item" href="/friends">友链</a><a class="navbar-item" href="/about">关于</a></div><div class="navbar-end"><a class="navbar-item search" title="搜索" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><main class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen" id="site-main"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item"><time dateTime="2026-08-03T10:20:00.000Z" title="2026/8/3 18:20:00">2026-08-03</time>发表</span><span class="level-item"><time dateTime="2026-08-03T10:20:00.000Z" title="2026/8/3 18:20:00">2026-08-03</time>更新</span><span class="level-item"><a class="link-muted" href="/categories/Data-science/">Data science</a></span><span class="level-item">38 分钟读完 (大约5665个字)</span></div></div><h1 class="title is-3 is-size-4-mobile">数据库系统教程：从 ER 建模、关系代数、SQL 到事务、索引与恢复</h1><div class="content"><p>这篇文章根据数据库系统课程资料整理，目标不是把课件逐页翻译，而是把数据库这门课真正的主线讲清楚：</p>
+<p><strong>现实业务 -&gt; ER 建模 -&gt; 关系模型 -&gt; 关系代数 -&gt; SQL 查询 -&gt; 存储、索引、优化 -&gt; 事务、并发、恢复</strong></p>
+<p>如果只背概念，数据库很容易学成一堆名词：entity、relationship、primary key、foreign key、selection、projection、join、normalization、B+ tree、ACID、serializability、logging。更好的学习方式是把它们看成同一个问题的不同层次：<strong>如何把现实世界中的数据，组织成可以被可靠查询、快速访问、正确更新、崩溃后还能恢复的系统</strong>。</p>
+<span id="more"></span>
+<p>原始资料：</p>
+<ul>
+<li><a href="/files/database-systems-guide/er-model.pptx">ER Model 课件</a></li>
+<li><a href="/files/database-systems-guide/relational-model.pptx">Relational Model 课件</a></li>
+<li><a href="/files/database-systems-guide/relational-algebra.pptx">Relational Algebra 课件</a></li>
+<li><a href="/files/database-systems-guide/sql-basics.pptx">SQL Basics 课件</a></li>
+<li><a href="/files/database-systems-guide/integrity-constraints.pptx">Integrity Constraints 课件</a></li>
+<li><a href="/files/database-systems-guide/normalization.pdf">Normalization 讲义</a></li>
+<li><a href="/files/database-systems-guide/file-organization-indexing.pdf">File Organization and Indexing 讲义</a></li>
+<li><a href="/files/database-systems-guide/query-processing.pdf">Query Processing 讲义</a></li>
+<li><a href="/files/database-systems-guide/query-optimization.pdf">Query Optimization 讲义</a></li>
+<li><a href="/files/database-systems-guide/concurrency-control.pdf">Concurrency Control 讲义</a></li>
+<li><a href="/files/database-systems-guide/recovery.pdf">Recovery 讲义</a></li>
+<li><a href="/files/database-systems-guide/course-project.zip">Course Project 资料包</a></li>
+</ul>
+<h2 id="1-数据库到底在解决什么问题"><a class="markdownIt-Anchor" href="#1-数据库到底在解决什么问题"></a> 1. 数据库到底在解决什么问题</h2>
+<p>数据库系统不是一个“更高级的 Excel”。Excel 更像是给人直接看的表格工具，而数据库系统是给应用程序长期使用的数据基础设施。它至少要同时解决四类问题：</p>
+<ol>
+<li>数据如何建模：现实世界里有学生、课程、选课、订单、商品、用户行为，系统要把这些对象和关系表达出来。</li>
+<li>数据如何查询：用户不是只想看整张表，而是想做筛选、连接、分组、排序、聚合。</li>
+<li>数据如何高效存储：数据大了以后，不能每次查询都从头扫到尾，需要文件组织、索引和查询优化。</li>
+<li>数据如何可靠更新：多个用户同时修改数据时不能互相覆盖；系统崩溃后，已经提交的修改不能丢，未完成的修改不能半吊子留在库里。</li>
+</ol>
+<p>所以数据库系统可以理解成：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Data Model + Query Language + Storage Engine + Transaction System</span><br></pre></td></tr></table></figure>
+<p>前两部分偏逻辑，后两部分偏系统。初学时最重要的是先把逻辑层理解扎实，因为 SQL、索引、事务最终都是围绕“关系表里的数据如何被正确读写”展开的。</p>
+<h2 id="2-er-建模先从现实世界抽象出对象和关系"><a class="markdownIt-Anchor" href="#2-er-建模先从现实世界抽象出对象和关系"></a> 2. ER 建模：先从现实世界抽象出对象和关系</h2>
+<p>数据库设计的第一步不是直接建表，而是先问：现实世界里有哪些对象？它们之间有什么关系？这就是 ER Model，Entity-Relationship Model。</p>
+<p><strong>Entity</strong> 是可以被独立识别的对象。例如学生、课程、教师、部门、订单、商品。每个实体通常有一组属性，比如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Student(student_id, name, major, year)</span><br></pre></td></tr></table></figure>
+<p>这里 <code>student_id</code> 通常会作为标识学生的 key。没有 key，数据库就很难区分两个同名学生。</p>
+<p><strong>Relationship</strong> 描述实体之间的联系。例如学生选课：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Enroll(Student, Course)</span><br></pre></td></tr></table></figure>
+<p>这不是学生实体本身，也不是课程实体本身，而是“学生和课程之间发生了一次选课关系”。如果选课还有成绩、学期、状态，那么这些属性应该放在关系上：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Enroll(student_id, course_id, semester, grade)</span><br></pre></td></tr></table></figure>
+<p>ER 建模最容易犯的错误，是把所有东西都塞到一个大表里。例如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">student_id, student_name, course_id, course_name, teacher_name, grade</span><br></pre></td></tr></table></figure>
+<p>这个表看似方便，但会产生重复和更新异常。如果一门课有 200 个学生，课程名和教师名就会重复 200 次。假如课程换老师，你要更新很多行，一旦漏更新就会出现数据不一致。</p>
+<p>ER 建模的核心思想是：<strong>把对象本身和对象之间的关系拆开</strong>。例如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Student(student_id, name, major)</span><br><span class="line">Course(course_id, title, teacher_id)</span><br><span class="line">Teacher(teacher_id, name)</span><br><span class="line">Enrollment(student_id, course_id, semester, grade)</span><br></pre></td></tr></table></figure>
+<p>这种拆分不是为了让表变多，而是为了让每个事实只存一遍。学生姓名属于 Student，课程标题属于 Course，成绩属于 Enrollment。一个属性应该放在哪里，取决于它描述的事实属于哪个对象或关系。</p>
+<h2 id="3-从-er-到关系模型把图变成表"><a class="markdownIt-Anchor" href="#3-从-er-到关系模型把图变成表"></a> 3. 从 ER 到关系模型：把图变成表</h2>
+<p>关系模型的基本单位是 relation，也就是表。一个 relation 有 schema 和 instance：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Student(student_id, name, major)</span><br></pre></td></tr></table></figure>
+<p>这是 schema，描述表的结构。真正的一行行学生记录是 instance。</p>
+<p>在关系模型里，有几个非常核心的约束。</p>
+<p><strong>Primary key</strong> 用来唯一标识一行。例如：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> Student (</span><br><span class="line">  student_id <span class="type">CHAR</span>(<span class="number">8</span>) <span class="keyword">PRIMARY</span> KEY,</span><br><span class="line">  name <span class="type">VARCHAR</span>(<span class="number">50</span>),</span><br><span class="line">  major <span class="type">VARCHAR</span>(<span class="number">30</span>)</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+<p>它表达的不是“这个字段看起来重要”，而是一个逻辑承诺：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">For any two rows r1 and r2 in Student:</span><br><span class="line">if r1.student_id = r2.student_id, then r1 and r2 refer to the same student.</span><br></pre></td></tr></table></figure>
+<p>也就是说，如果两行的 <code>student_id</code> 一样，那它们就应该是同一个学生。</p>
+<p><strong>Foreign key</strong> 用来保证引用关系存在。例如选课表里的 <code>student_id</code> 必须真的出现在 Student 表里：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> Enrollment (</span><br><span class="line">  student_id <span class="type">CHAR</span>(<span class="number">8</span>),</span><br><span class="line">  course_id <span class="type">CHAR</span>(<span class="number">8</span>),</span><br><span class="line">  semester <span class="type">VARCHAR</span>(<span class="number">20</span>),</span><br><span class="line">  grade <span class="type">VARCHAR</span>(<span class="number">2</span>),</span><br><span class="line">  <span class="keyword">PRIMARY</span> KEY (student_id, course_id, semester),</span><br><span class="line">  <span class="keyword">FOREIGN</span> KEY (student_id) <span class="keyword">REFERENCES</span> Student(student_id),</span><br><span class="line">  <span class="keyword">FOREIGN</span> KEY (course_id) <span class="keyword">REFERENCES</span> Course(course_id)</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+<p>这解决的是 referential integrity。如果没有外键，就可能出现一个不存在的学生选了一门课，或者选课记录指向一门不存在的课程。</p>
+<p>从 ER 图到关系表，常见规则如下：</p>
+<ol>
+<li>强实体通常变成一张表。</li>
+<li>实体的简单属性变成表的列。</li>
+<li>一对多关系通常把“一”的主键放到“多”的表里作为外键。</li>
+<li>多对多关系通常单独变成一张关系表。</li>
+<li>弱实体需要依赖拥有者实体的主键来形成自己的主键。</li>
+</ol>
+<p>多对多关系最值得注意。学生和课程是多对多，因为一个学生可以选多门课，一门课也可以被多个学生选。所以不能把 <code>course_id</code> 直接放进 Student，也不能把 <code>student_id</code> 直接放进 Course，而要创建 Enrollment。</p>
+<h2 id="4-关系代数sql-背后的数学骨架"><a class="markdownIt-Anchor" href="#4-关系代数sql-背后的数学骨架"></a> 4. 关系代数：SQL 背后的数学骨架</h2>
+<p>关系代数是数据库查询语言的理论基础。SQL 看起来像英文句子，但它背后可以理解成一组关系操作。</p>
+<p>最基础的操作有五类：</p>
+<ol>
+<li>Selection：选择行，记作 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>σ</mi></mrow><annotation encoding="application/x-tex">\sigma</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">σ</span></span></span></span></li>
+<li>Projection：选择列，记作 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>π</mi></mrow><annotation encoding="application/x-tex">\pi</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">π</span></span></span></span></li>
+<li>Union / Difference：集合并、差</li>
+<li>Cartesian Product：笛卡尔积，记作 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>×</mo></mrow><annotation encoding="application/x-tex">\times</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.66666em;vertical-align:-0.08333em;"></span><span class="mord">×</span></span></span></span></li>
+<li>Join：连接，通常由笛卡尔积加条件筛选得到</li>
+</ol>
+<p>例如，从 Student 表里找所有 CS 专业学生：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sigma_&#123;major = &#x27;CS&#x27;&#125;(Student)</span><br></pre></td></tr></table></figure>
+<p>对应 SQL：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span></span><br><span class="line"><span class="keyword">FROM</span> Student</span><br><span class="line"><span class="keyword">WHERE</span> major <span class="operator">=</span> <span class="string">&#x27;CS&#x27;</span>;</span><br></pre></td></tr></table></figure>
+<p>如果只要学生姓名：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pi_name(sigma_&#123;major = &#x27;CS&#x27;&#125;(Student))</span><br></pre></td></tr></table></figure>
+<p>对应 SQL：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> name</span><br><span class="line"><span class="keyword">FROM</span> Student</span><br><span class="line"><span class="keyword">WHERE</span> major <span class="operator">=</span> <span class="string">&#x27;CS&#x27;</span>;</span><br></pre></td></tr></table></figure>
+<p>连接是数据库查询里最重要的操作之一。假设要查每个选课学生的名字和课程名：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Student</span><br><span class="line">  join Student.student_id = Enrollment.student_id Enrollment</span><br><span class="line">  join Enrollment.course_id = Course.course_id Course</span><br></pre></td></tr></table></figure>
+<p>对应 SQL：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> s.name, c.title, e.grade</span><br><span class="line"><span class="keyword">FROM</span> Student <span class="keyword">AS</span> s</span><br><span class="line"><span class="keyword">JOIN</span> Enrollment <span class="keyword">AS</span> e</span><br><span class="line">  <span class="keyword">ON</span> s.student_id <span class="operator">=</span> e.student_id</span><br><span class="line"><span class="keyword">JOIN</span> Course <span class="keyword">AS</span> c</span><br><span class="line">  <span class="keyword">ON</span> e.course_id <span class="operator">=</span> c.course_id;</span><br></pre></td></tr></table></figure>
+<p>理解关系代数的好处是，你会知道 SQL 不是魔法。每个查询大致都可以拆成：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">filter rows -&gt; join tables -&gt; project columns -&gt; aggregate or sort</span><br></pre></td></tr></table></figure>
+<p>查询优化器做的很多事情，本质上就是重排这些操作，让结果不变但代价更低。</p>
+<h2 id="5-sql声明式语言不是逐行执行脚本"><a class="markdownIt-Anchor" href="#5-sql声明式语言不是逐行执行脚本"></a> 5. SQL：声明式语言，不是逐行执行脚本</h2>
+<p>SQL 的重要特点是 declarative，也就是声明式。你告诉数据库“我想要什么结果”，而不是详细命令它“先扫哪张表，再怎么循环”。</p>
+<p>例如：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> major, <span class="built_in">COUNT</span>(<span class="operator">*</span>) <span class="keyword">AS</span> n_students</span><br><span class="line"><span class="keyword">FROM</span> Student</span><br><span class="line"><span class="keyword">GROUP</span> <span class="keyword">BY</span> major</span><br><span class="line"><span class="keyword">HAVING</span> <span class="built_in">COUNT</span>(<span class="operator">*</span>) <span class="operator">&gt;=</span> <span class="number">10</span></span><br><span class="line"><span class="keyword">ORDER</span> <span class="keyword">BY</span> n_students <span class="keyword">DESC</span>;</span><br></pre></td></tr></table></figure>
+<p>这条 SQL 表达的是：</p>
+<ol>
+<li>从 Student 表取数据。</li>
+<li>按 major 分组。</li>
+<li>每组统计人数。</li>
+<li>只保留人数不少于 10 的专业。</li>
+<li>按人数从多到少排序。</li>
+</ol>
+<p>初学 SQL 时，要特别区分 <code>WHERE</code> 和 <code>HAVING</code>：</p>
+<ul>
+<li><code>WHERE</code> 在分组之前过滤原始行。</li>
+<li><code>HAVING</code> 在分组之后过滤聚合结果。</li>
+</ul>
+<p>所以：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">WHERE</span> grade <span class="operator">=</span> <span class="string">&#x27;A&#x27;</span></span><br></pre></td></tr></table></figure>
+<p>表示只看成绩为 A 的行；而：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">HAVING</span> <span class="built_in">COUNT</span>(<span class="operator">*</span>) <span class="operator">&gt;</span> <span class="number">20</span></span><br></pre></td></tr></table></figure>
+<p>表示只保留聚合后数量超过 20 的组。</p>
+<p>再看一个带子查询的例子：找选课数超过平均水平的学生。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> student_id, <span class="built_in">COUNT</span>(<span class="operator">*</span>) <span class="keyword">AS</span> n_courses</span><br><span class="line"><span class="keyword">FROM</span> Enrollment</span><br><span class="line"><span class="keyword">GROUP</span> <span class="keyword">BY</span> student_id</span><br><span class="line"><span class="keyword">HAVING</span> <span class="built_in">COUNT</span>(<span class="operator">*</span>) <span class="operator">&gt;</span> (</span><br><span class="line">  <span class="keyword">SELECT</span> <span class="built_in">AVG</span>(course_count)</span><br><span class="line">  <span class="keyword">FROM</span> (</span><br><span class="line">    <span class="keyword">SELECT</span> <span class="built_in">COUNT</span>(<span class="operator">*</span>) <span class="keyword">AS</span> course_count</span><br><span class="line">    <span class="keyword">FROM</span> Enrollment</span><br><span class="line">    <span class="keyword">GROUP</span> <span class="keyword">BY</span> student_id</span><br><span class="line">  ) <span class="keyword">AS</span> t</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+<p>这类查询的思路是先构造一个中间结果：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">每个学生 -&gt; 选课数量</span><br></pre></td></tr></table></figure>
+<p>再对这个中间结果求平均，最后筛选超过平均值的学生。写复杂 SQL 时，不要试图一口气写完，应该先在脑子里画出中间表。</p>
+<h2 id="6-integrity-constraints数据库里的规则边界"><a class="markdownIt-Anchor" href="#6-integrity-constraints数据库里的规则边界"></a> 6. Integrity Constraints：数据库里的“规则边界”</h2>
+<p>Integrity Constraints，也就是完整性约束，解决的是“哪些数据状态是合法的”。数据库不是只负责存储，还要负责拒绝明显不合法的数据。</p>
+<p>常见约束包括：</p>
+<ol>
+<li>Domain constraint：字段取值类型和范围必须合法。</li>
+<li>Key constraint：主键不能重复。</li>
+<li>Entity integrity：主键不能为 NULL。</li>
+<li>Referential integrity：外键必须引用存在的行。</li>
+<li>Check constraint：业务规则约束，例如余额不能小于 0。</li>
+</ol>
+<p>例如：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> Account (</span><br><span class="line">  account_id <span class="type">INT</span> <span class="keyword">PRIMARY</span> KEY,</span><br><span class="line">  client_id <span class="type">INT</span> <span class="keyword">NOT</span> <span class="keyword">NULL</span>,</span><br><span class="line">  balance <span class="type">DECIMAL</span>(<span class="number">12</span>, <span class="number">2</span>) <span class="keyword">CHECK</span> (balance <span class="operator">&gt;=</span> <span class="number">0</span>)</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+<p>这里 <code>CHECK (balance &gt;= 0)</code> 的意义是：数据库层面不允许账户余额为负。即使应用程序写错了 SQL，数据库也能挡住非法状态。</p>
+<p>这点在事务里也很重要。ACID 里的 Consistency，不是说数据库自动知道所有业务逻辑，而是说：如果事务开始前数据库满足约束，事务结束后也应该满足约束。约束定义得越清楚，数据库越能帮你守住底线。</p>
+<h2 id="7-normalization为什么要范式化"><a class="markdownIt-Anchor" href="#7-normalization为什么要范式化"></a> 7. Normalization：为什么要范式化</h2>
+<p>范式化的目标是减少冗余和异常。最经典的问题来自 functional dependency，函数依赖。</p>
+<p>如果在一个关系 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi></mrow><annotation encoding="application/x-tex">R</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathnormal" style="margin-right:0.00773em;">R</span></span></span></span> 中，属性集 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>X</mi></mrow><annotation encoding="application/x-tex">X</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathnormal" style="margin-right:0.07847em;">X</span></span></span></span> 的值可以唯一决定属性集 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Y</mi></mrow><annotation encoding="application/x-tex">Y</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathnormal" style="margin-right:0.22222em;">Y</span></span></span></span> 的值，就记作：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">X -&gt; Y</span><br></pre></td></tr></table></figure>
+<p>例如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">course_id -&gt; course_title, teacher_id</span><br><span class="line">teacher_id -&gt; teacher_name</span><br></pre></td></tr></table></figure>
+<p>如果你把学生选课、课程信息、教师信息全部放在一张表里：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Enrollment(student_id, course_id, course_title, teacher_id, teacher_name, grade)</span><br></pre></td></tr></table></figure>
+<p>那么 <code>course_title</code> 会随着每个选课学生重复，<code>teacher_name</code> 也会重复。由此产生三类异常：</p>
+<ol>
+<li>Update anomaly：教师姓名改了，需要更新很多行。</li>
+<li>Insert anomaly：还没人选的新课程很难插入，因为缺少 student_id。</li>
+<li>Delete anomaly：最后一个学生退课时，课程信息也可能被删掉。</li>
+</ol>
+<p>范式化的基本操作是 decomposition，也就是拆表：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Course(course_id, course_title, teacher_id)</span><br><span class="line">Teacher(teacher_id, teacher_name)</span><br><span class="line">Enrollment(student_id, course_id, grade)</span><br></pre></td></tr></table></figure>
+<p>一个好的 decomposition 应该满足两个要求：</p>
+<ol>
+<li>Lossless join：拆开后再 join 回来，不会丢信息，也不会产生假行。</li>
+<li>Dependency preservation：原来的重要函数依赖仍然容易检查。</li>
+</ol>
+<p>直觉上，范式化就是让每张表只表达一类事实。课程事实放 Course，教师事实放 Teacher，选课事实放 Enrollment。这样数据更干净，也更容易维护。</p>
+<h2 id="8-文件组织和索引为什么数据库查询可以很快"><a class="markdownIt-Anchor" href="#8-文件组织和索引为什么数据库查询可以很快"></a> 8. 文件组织和索引：为什么数据库查询可以很快</h2>
+<p>逻辑层讲完后，进入系统层：表最终要存到磁盘上。磁盘访问比内存慢很多，所以数据库性能很大程度取决于如何减少磁盘 I/O。</p>
+<p>最朴素的查询方式是 full table scan：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span></span><br><span class="line"><span class="keyword">FROM</span> Student</span><br><span class="line"><span class="keyword">WHERE</span> student_id <span class="operator">=</span> <span class="string">&#x27;S1234567&#x27;</span>;</span><br></pre></td></tr></table></figure>
+<p>如果没有索引，数据库可能要把 Student 表从头扫到尾。假设表有 100 万行，这显然很慢。</p>
+<p>索引的目的就是用额外的数据结构换查询速度。最常见的是 B+ tree index。它像一本书的目录：你不需要逐页翻书，而是先通过目录定位到大概位置。</p>
+<p>B+ tree 的几个关键点：</p>
+<ol>
+<li>数据项按 key 有序。</li>
+<li>内部节点只负责导航。</li>
+<li>叶子节点存放指向真实记录的指针。</li>
+<li>叶子节点通常串起来，方便范围查询。</li>
+</ol>
+<p>所以等值查询：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">WHERE</span> student_id <span class="operator">=</span> <span class="string">&#x27;S1234567&#x27;</span></span><br></pre></td></tr></table></figure>
+<p>可以快速从根节点走到叶子节点；范围查询：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">WHERE</span> student_id <span class="keyword">BETWEEN</span> <span class="string">&#x27;S1000&#x27;</span> <span class="keyword">AND</span> <span class="string">&#x27;S2000&#x27;</span></span><br></pre></td></tr></table></figure>
+<p>也可以从第一个叶子节点顺着链表向后扫。</p>
+<p>但索引不是越多越好。索引会带来维护成本。每次插入、删除、更新 key 时，索引也要更新。所以经验上：</p>
+<ul>
+<li>经常出现在 <code>WHERE</code>、<code>JOIN</code>、<code>ORDER BY</code> 中的列适合建索引。</li>
+<li>高选择性的列更适合建索引，比如 student_id。</li>
+<li>低选择性的列不一定适合，比如 gender 只有少数几个取值。</li>
+<li>写入很频繁的表不能盲目堆索引。</li>
+</ul>
+<p>数据库性能调优的第一步，往往不是换模型，而是看查询路径：它是在扫全表，还是在用索引？</p>
+<h2 id="9-query-processing-and-optimizationsql-是怎样被执行的"><a class="markdownIt-Anchor" href="#9-query-processing-and-optimizationsql-是怎样被执行的"></a> 9. Query Processing and Optimization：SQL 是怎样被执行的</h2>
+<p>SQL 写出来后，数据库不会按你写的文本顺序机械执行。一般会经历：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SQL -&gt; Parse -&gt; Logical Plan -&gt; Physical Plan -&gt; Execution</span><br></pre></td></tr></table></figure>
+<p>逻辑计划描述“做什么”，物理计划描述“怎么做”。例如 join 在逻辑上都是连接，但物理上可能有不同算法：</p>
+<ol>
+<li>Nested Loop Join：外层每一行去内层找匹配。</li>
+<li>Sort-Merge Join：先按 join key 排序，再线性合并。</li>
+<li>Hash Join：对一张表建立 hash table，再用另一张表探测。</li>
+</ol>
+<p>不同算法适合不同场景。小表 join 大表时，nested loop 加索引可能很好；大表等值连接时，hash join 往往更合适；如果数据已经有序，sort-merge join 可能有优势。</p>
+<p>查询优化的核心是 cost estimation。数据库会估计不同计划的代价，比如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">I/O cost + CPU cost + memory cost</span><br></pre></td></tr></table></figure>
+<p>一个经典优化是 selection pushdown。假设查询：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> s.name, e.grade</span><br><span class="line"><span class="keyword">FROM</span> Student s</span><br><span class="line"><span class="keyword">JOIN</span> Enrollment e <span class="keyword">ON</span> s.student_id <span class="operator">=</span> e.student_id</span><br><span class="line"><span class="keyword">WHERE</span> s.major <span class="operator">=</span> <span class="string">&#x27;CS&#x27;</span>;</span><br></pre></td></tr></table></figure>
+<p>逻辑上可以先 join 再 filter，也可以先筛出 CS 学生再 join。通常后者更快，因为参与 join 的行更少：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sigma_&#123;major = &#x27;CS&#x27;&#125;(Student join Enrollment)</span><br></pre></td></tr></table></figure>
+<p>可以优化为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sigma_&#123;major = &#x27;CS&#x27;&#125;(Student) join Enrollment</span><br></pre></td></tr></table></figure>
+<p>这就是关系代数为什么重要：它让数据库可以在保持结果等价的前提下改写查询。</p>
+<h2 id="10-事务把一组操作变成一个可靠单位"><a class="markdownIt-Anchor" href="#10-事务把一组操作变成一个可靠单位"></a> 10. 事务：把一组操作变成一个可靠单位</h2>
+<p>事务是数据库系统里最关键的概念之一。一个事务是一组逻辑上应该一起成功或一起失败的操作。</p>
+<p>比如转账：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">BEGIN</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">UPDATE</span> Account</span><br><span class="line"><span class="keyword">SET</span> balance <span class="operator">=</span> balance <span class="operator">-</span> <span class="number">400</span></span><br><span class="line"><span class="keyword">WHERE</span> client_id <span class="operator">=</span> <span class="number">7</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">UPDATE</span> Account</span><br><span class="line"><span class="keyword">SET</span> balance <span class="operator">=</span> balance <span class="operator">+</span> <span class="number">400</span></span><br><span class="line"><span class="keyword">WHERE</span> client_id <span class="operator">=</span> <span class="number">9</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">COMMIT</span>;</span><br></pre></td></tr></table></figure>
+<p>这两条更新必须作为一个整体。只扣钱不加钱是不合法的，只加钱不扣钱也不合法。如果中间崩溃，数据库必须知道该撤销还是该完成。</p>
+<p>事务的目标通常用 ACID 描述：</p>
+<ol>
+<li>Atomicity：原子性，要么全做，要么全不做。</li>
+<li>Consistency：一致性，事务前后都满足完整性约束。</li>
+<li>Isolation：隔离性，并发执行的结果要像某个串行顺序。</li>
+<li>Durability：持久性，提交后的结果即使崩溃也不能丢。</li>
+</ol>
+<p>把 ACID 对应到机制上：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Atomicity + Durability -&gt; Logging and Recovery</span><br><span class="line">Isolation              -&gt; Concurrency Control</span><br><span class="line">Consistency            -&gt; Integrity Constraints + Correct Transaction Logic</span><br></pre></td></tr></table></figure>
+<p>这能帮你理解：事务不是一个单独功能，而是约束、并发控制、日志恢复共同组成的系统。</p>
+<h2 id="11-并发控制为什么两个正确操作一起跑会出错"><a class="markdownIt-Anchor" href="#11-并发控制为什么两个正确操作一起跑会出错"></a> 11. 并发控制：为什么两个正确操作一起跑会出错</h2>
+<p>考虑两个事务同时更新同一个账户：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">T1: balance = balance + 100</span><br><span class="line">T2: balance = balance + 500</span><br></pre></td></tr></table></figure>
+<p>初始余额是 1000，正确结果应该是 1600。但如果两个事务同时读到 1000：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">T1 read 1000</span><br><span class="line">T2 read 1000</span><br><span class="line">T1 write 1100</span><br><span class="line">T2 write 1500</span><br></pre></td></tr></table></figure>
+<p>最终余额可能是 1500，T1 的更新丢了。这叫 lost update。</p>
+<p>隔离性的目标是 serializability：并发执行虽然操作交错，但结果必须等价于某个串行顺序。例如等价于先 T1 后 T2，或者先 T2 后 T1。</p>
+<p>常见并发异常包括：</p>
+<ol>
+<li>Lost update：两个事务写同一数据，一个覆盖另一个。</li>
+<li>Dirty read：读到了另一个未提交事务的数据。</li>
+<li>Unrepeatable read：同一事务内两次读取同一行，结果不同。</li>
+<li>Phantom read：同一事务内两次范围查询，第二次多出或少了行。</li>
+</ol>
+<p>最经典的控制方法是 locking。读写锁可以粗略理解为：</p>
+<ul>
+<li>Shared lock：读锁，多个事务可以同时读。</li>
+<li>Exclusive lock：写锁，一个事务写时别人不能读写冲突数据。</li>
+</ul>
+<p>Two-Phase Locking，2PL，要求事务的加锁和解锁分为两个阶段：</p>
+<ol>
+<li>Growing phase：只加锁，不释放锁。</li>
+<li>Shrinking phase：只释放锁，不再加新锁。</li>
+</ol>
+<p>2PL 可以保证 conflict serializability，但也可能带来 deadlock。比如 T1 拿着 A 等 B，T2 拿着 B 等 A。数据库需要检测死锁，或者用超时/等待图等机制处理。</p>
+<h2 id="12-恢复崩溃后数据库如何回到正确状态"><a class="markdownIt-Anchor" href="#12-恢复崩溃后数据库如何回到正确状态"></a> 12. 恢复：崩溃后数据库如何回到正确状态</h2>
+<p>数据库恢复解决的是 crash 后怎么办。系统崩溃时，内存里的修改可能还没写回磁盘；也可能某些未提交事务已经把部分数据写到了磁盘。这会破坏 Atomicity 和 Durability。</p>
+<p>因此数据库通常使用 log。日志记录数据库发生过什么，典型记录包括：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;T1 start&gt;</span><br><span class="line">&lt;T1, Account[7], old=1000, new=600&gt;</span><br><span class="line">&lt;T1, Account[9], old=300, new=700&gt;</span><br><span class="line">&lt;T1 commit&gt;</span><br></pre></td></tr></table></figure>
+<p>Write-Ahead Logging，WAL，核心原则是：</p>
+<blockquote>
+<p>在数据页写回磁盘之前，相关日志必须先写到稳定存储。</p>
+</blockquote>
+<p>为什么？因为如果数据页已经写了，但日志没写，崩溃后系统就不知道这个修改来自哪个事务，也不知道该 undo 还是 redo。</p>
+<p>恢复时常见两类操作：</p>
+<ol>
+<li>Undo：撤销未提交事务的影响。</li>
+<li>Redo：重做已经提交但可能没完全写入磁盘的影响。</li>
+</ol>
+<p>直觉上：</p>
+<ul>
+<li>没 commit 的事务不能留下痕迹，所以要 undo。</li>
+<li>已 commit 的事务必须永久生效，所以要 redo。</li>
+</ul>
+<p>这就是日志恢复和 ACID 的关系：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Atomicity  -&gt; Undo uncommitted transactions</span><br><span class="line">Durability -&gt; Redo committed transactions</span><br></pre></td></tr></table></figure>
+<h2 id="13-把数据库知识串成一条学习路线"><a class="markdownIt-Anchor" href="#13-把数据库知识串成一条学习路线"></a> 13. 把数据库知识串成一条学习路线</h2>
+<p>学数据库时，可以按下面的顺序复习：</p>
+<ol>
+<li>先会建模：能从业务描述画出实体、关系、属性、key。</li>
+<li>再会落表：能把 ER 图变成关系 schema，并正确设计主键外键。</li>
+<li>再会查询：能用关系代数理解 SQL，特别是 selection、projection、join、group by。</li>
+<li>再会约束和范式：知道为什么拆表，知道冗余会带来什么异常。</li>
+<li>再会性能：理解索引、join 算法、查询计划和优化。</li>
+<li>最后会可靠性：理解事务、并发控制、日志和恢复。</li>
+</ol>
+<p>如果把数据库和数据科学联系起来，它的位置其实非常基础。Pandas、SparkSQL、数据仓库、特征工程、推荐系统、日志分析，背后都离不开表结构、查询、join、聚合和数据一致性。很多机器学习项目的上游问题，本质上都是数据库问题：</p>
+<ul>
+<li>数据从哪里来？</li>
+<li>字段语义是否稳定？</li>
+<li>join key 是否可靠？</li>
+<li>标签是否泄漏？</li>
+<li>训练集和线上数据是否来自同一套口径？</li>
+<li>数据更新时是否会出现不一致？</li>
+</ul>
+<p>所以数据库不是只属于后端开发的课程。对算法、数据挖掘、RAG/Agent 应用来说，数据库系统提供的是一套非常重要的底层思维：<strong>如何组织数据，如何查询数据，如何让数据在规模、并发和故障下仍然可信</strong>。</p>
+<h2 id="14-一个最小实战练习"><a class="markdownIt-Anchor" href="#14-一个最小实战练习"></a> 14. 一个最小实战练习</h2>
+<p>最后给自己留一个小练习：设计一个课程选课系统。</p>
+<p>实体：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Student(student_id, name, major)</span><br><span class="line">Course(course_id, title, credits)</span><br><span class="line">Instructor(instructor_id, name, department)</span><br><span class="line">Enrollment(student_id, course_id, semester, grade)</span><br></pre></td></tr></table></figure>
+<p>需要完成：</p>
+<ol>
+<li>为每张表设计 primary key。</li>
+<li>为 Enrollment 设计 foreign key。</li>
+<li>写 SQL 查询每个学生的选课数量。</li>
+<li>写 SQL 查询每门课的平均成绩。</li>
+<li>思考哪些列适合建索引。</li>
+<li>思考两个学生同时抢同一门课最后一个名额时，事务应该如何设计。</li>
+</ol>
+<p>这个练习虽小，但已经覆盖数据库系统的核心链路：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Schema Design -&gt; Constraints -&gt; Query -&gt; Index -&gt; Transaction</span><br></pre></td></tr></table></figure>
+<p>真正学懂数据库，不是背出 ACID 或 B+ tree 的定义，而是看到一个数据问题时，能自然地问：这个事实应该存在什么表里？这个查询会怎么执行？这个更新是否安全？系统崩了以后还能不能恢复？</p>
+</div><div class="article-licensing box"><div class="licensing-title"><p>数据库系统教程：从 ER 建模、关系代数、SQL 到事务、索引与恢复</p><p><a href="https://richardf123.github.io/2026/08/03/database-systems-from-er-to-transactions-guide/">https://richardf123.github.io/2026/08/03/database-systems-from-er-to-transactions-guide/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>作者</h6><p>RichardF</p></div></div><div class="level-item is-narrow"><div><h6>发布于</h6><p>2026-08-03</p></div></div><div class="level-item is-narrow"><div><h6>更新于</h6><p>2026-08-03</p></div></div><div class="level-item is-narrow"><div><h6>许可协议</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/database/">database</a><a class="link-muted mr-2" rel="tag" href="/tags/SQL/">SQL</a><a class="link-muted mr-2" rel="tag" href="/tags/relational-algebra/">relational-algebra</a><a class="link-muted mr-2" rel="tag" href="/tags/transaction/">transaction</a><a class="link-muted mr-2" rel="tag" href="/tags/indexing/">indexing</a><a class="link-muted mr-2" rel="tag" href="/tags/query-optimization/">query-optimization</a></div><!--!--></article></div><!--!--><nav class="post-navigation mt-4 level is-mobile"><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2026/06/29/comp4204-data-mining-practical-guide/"><span class="level-item">COMP4204 数据挖掘教程：从数据仓库、预处理、关联规则到分类与聚类</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><!--!--></main><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar is-rounded" src="https://avatars.githubusercontent.com/u/144225184?s=400&amp;u=f62e0f37c00d8518afb213a36c81cd8428ce0a06&amp;v=4" alt="RichardF"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">RichardF</p><p class="is-size-6 is-block">大四学生</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Hong Kong</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">文章</p><a href="/archives"><p class="title">21</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">分类</p><a href="/categories"><p class="title">9</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">标签</p><a href="/tags"><p class="title">60</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/RichardF123" target="_blank" rel="noopener">关注我</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/RichardF123"><i class="fab fa-github"></i></a></div></div></div><!--!--><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">分类</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/Calculus/"><span class="level-start"><span class="level-item">Calculus</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Data-science/"><span class="level-start"><span class="level-item">Data science</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/categories/Linear-Algebra/"><span class="level-start"><span class="level-item">Linear Algebra</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/Machine-Learning/"><span class="level-start"><span class="level-item">Machine Learning</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Notes/"><span class="level-start"><span class="level-item">Notes</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Optimization/"><span class="level-start"><span class="level-item">Optimization</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Projects/"><span class="level-start"><span class="level-item">Projects</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Statistics/"><span class="level-start"><span class="level-item">Statistics</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/cs/"><span class="level-start"><span class="level-item">cs</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li></ul></div></div></div><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">最新文章</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-03T10:20:00.000Z">2026-08-03</time></p><p class="title"><a href="/2026/08/03/database-systems-from-er-to-transactions-guide/">数据库系统教程：从 ER 建模、关系代数、SQL 到事务、索引与恢复</a></p><p class="categories"><a href="/categories/Data-science/">Data science</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-06-29T11:10:00.000Z">2026-06-29</time></p><p class="title"><a href="/2026/06/29/comp4204-data-mining-practical-guide/">COMP4204 数据挖掘教程：从数据仓库、预处理、关联规则到分类与聚类</a></p><p class="categories"><a href="/categories/Data-science/">Data science</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-06-29T02:30:00.000Z">2026-06-29</time></p><p class="title"><a href="/2026/06/29/ama3724-linear-algebra-differential-equations-guide/">AMA3724 线性代数与微分方程基础教程：从向量空间、投影、特征值到 ODE/PDE</a></p><p class="categories"><a href="/categories/Linear-Algebra/">Linear Algebra</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-06-24T20:05:00.000Z">2026-06-25</time></p><p class="title"><a href="/2026/06/25/ama4680-statistical-machine-learning-guide/">AMA4680 统计机器学习教程：从正则化、核方法、分类器到聚类与 MDP</a></p><p class="categories"><a href="/categories/Machine-Learning/">Machine Learning</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-06-24T19:55:00.000Z">2026-06-25</time></p><p class="title"><a href="/2026/06/25/ama3602-applied-linear-models-guide/">AMA3602 应用线性模型教程：从简单回归、多元回归到模型诊断、变量选择与混合效应模型</a></p><p class="categories"><a href="/categories/Statistics/">Statistics</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">归档</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2026/"><span class="level-start"><span class="level-item">2026</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/"><span class="level-start"><span class="level-item">2024</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/"><span class="level-start"><span class="level-item">2023</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">标签</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/machine-learning/"><span class="tag">machine-learning</span></a></div><div class="control"><a class="tags has-addons" href="/tags/linear-algebra/"><span class="tag">linear-algebra</span></a></div><div class="control"><a class="tags has-addons" href="/tags/python/"><span class="tag">python</span></a></div><div class="control"><a class="tags has-addons" href="/tags/programming/"><span class="tag">programming</span></a></div><div class="control"><a class="tags has-addons" href="/tags/algorithm/"><span class="tag">algorithm</span></a></div><div class="control"><a class="tags has-addons" href="/tags/pandas/"><span class="tag">pandas</span></a></div><div class="control"><a class="tags has-addons" href="/tags/clustering/"><span class="tag">clustering</span></a></div><div class="control"><a class="tags has-addons" href="/tags/svd/"><span class="tag">svd</span></a></div><div class="control"><a class="tags has-addons" href="/tags/big-data/"><span class="tag">big-data</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Spark/"><span class="tag">Spark</span></a></div><div class="control"><a class="tags has-addons" href="/tags/NLP/"><span class="tag">NLP</span></a></div><div class="control"><a class="tags has-addons" href="/tags/recommender-system/"><span class="tag">recommender-system</span></a></div></div></div></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="https://avatars.githubusercontent.com/u/144225184?s=400&amp;u=f62e0f37c00d8518afb213a36c81cd8428ce0a06&amp;v=4" alt="RichardF&#039;s Blog" height="28"></a><p class="is-size-7"><span>&copy; 2026 RichardF</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">RichardF</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="GitHub" href="https://github.com/RichardF123"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("zh-cn");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><a id="back-to-top" title="回到顶端" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/katex.min.css"><script src="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/katex.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/contrib/auto-render.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/contrib/mhchem.min.js" defer></script><script>window.addEventListener("load", function() {
+            document.querySelectorAll('[role="article"] > .content').forEach(function(element) {
+                renderMathInElement(element);
+            });
+        });</script><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="想要查找什么..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            var insightLoaded = false;
+            var enhancePalette = function () {
+                var container = document.querySelector('.searchbox-container');
+                var body = document.querySelector('.searchbox-body');
+                if (!container || !body || container.querySelector('.command-palette-intro')) return;
+                var intro = document.createElement('div');
+                intro.className = 'command-palette-intro';
+                intro.innerHTML = '<div class="command-palette-title"><span>学习 Command Center</span><small>搜索文章、跳转模块、快速进入训练路线</small></div><div class="command-palette-chips"><button type="button" data-query="Python">Python</button><button type="button" data-query="PyTorch">PyTorch</button><button type="button" data-query="NLP">NLP</button><button type="button" data-query="RAG">RAG</button><button type="button" data-query="SVD">SVD</button><button type="button" data-query="Spark">Spark</button></div><div class="command-palette-actions"><a href="/roadmap/">学习路线</a><a href="/projects/">项目作品集</a><a href="/knowledge-map/">知识图谱</a></div>';
+                container.insertBefore(intro, body);
+            };
+            var openSearch = function () {
+                var box = document.querySelector('.searchbox');
+                var input = document.querySelector('.searchbox-input');
+                enhancePalette();
+                if (box) box.classList.add('show');
+                if (input) setTimeout(function () { input.focus(); }, 0);
+                if (insightLoaded) return;
+                insightLoaded = true;
+                loadInsight({"contentUrl":"/content.json"}, {"hint":"想要查找什么...","untitled":"(无标题)","posts":"文章","pages":"页面","categories":"分类","tags":"标签"});
+            };
+            document.addEventListener('click', function (event) {
+                var trigger = event.target.closest && event.target.closest('.navbar-main .search');
+                var chip = event.target.closest && event.target.closest('.command-palette-chips button');
+                if (trigger) openSearch();
+                if (chip) {
+                    openSearch();
+                    var input = document.querySelector('.searchbox-input');
+                    if (input) {
+                        input.value = chip.getAttribute('data-query') || '';
+                        input.dispatchEvent(new Event('input', { bubbles: true }));
+                    }
+                }
+            }, true);
+            if (location.hash && location.hash.trim() === '#insight-search') openSearch();
+        });</script></body></html>
