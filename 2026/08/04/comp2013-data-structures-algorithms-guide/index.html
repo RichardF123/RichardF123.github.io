@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>COMP2013 数据结构与算法教程：从复杂度分析、排序、堆、哈希、搜索树到 DP、贪心与图 - RichardF&#039;s Blog</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="RichardF&#039;s Blog"><meta name="msapplication-TileImage" content="https://avatars.githubusercontent.com/u/144225184?s=400&amp;u=f62e0f37c00d8518afb213a36c81cd8428ce0a06&amp;v=4"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="RichardF&#039;s Blog"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="这篇文章根据 COMP2013 Data Structures and Algorithms 的课程资料整理。它不是单纯把 lecture 列出来，而是试图回答一个更重要的问题：  当我们说“学数据结构与算法”时，到底是在训练什么能力？  我的理解是三件事。第一，能判断一个程序会不会随着输入规模变大而崩掉，也就是复杂度分析。第二，能选择合适的数据组织方式，让查询、插入、删除、排序这些操作不至于低效"><meta property="og:type" content="blog"><meta property="og:title" content="COMP2013 数据结构与算法教程：从复杂度分析、排序、堆、哈希、搜索树到 DP、贪心与图"><meta property="og:url" content="https://richardf123.github.io/2026/08/04/comp2013-data-structures-algorithms-guide/"><meta property="og:site_name" content="RichardF&#039;s Blog"><meta property="og:description" content="这篇文章根据 COMP2013 Data Structures and Algorithms 的课程资料整理。它不是单纯把 lecture 列出来，而是试图回答一个更重要的问题：  当我们说“学数据结构与算法”时，到底是在训练什么能力？  我的理解是三件事。第一，能判断一个程序会不会随着输入规模变大而崩掉，也就是复杂度分析。第二，能选择合适的数据组织方式，让查询、插入、删除、排序这些操作不至于低效"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="d:/logo.jpg"><meta property="article:published_time" content="2026-08-04T09:05:00.000Z"><meta property="article:modified_time" content="2026-08-04T09:05:00.000Z"><meta property="article:author" content="RichardF"><meta property="article:tag" content="C++"><meta property="article:tag" content="data-structures"><meta property="article:tag" content="algorithms"><meta property="article:tag" content="sorting"><meta property="article:tag" content="dynamic-programming"><meta property="article:tag" content="graph"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="d:/logo.jpg"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://richardf123.github.io/2026/08/04/comp2013-data-structures-algorithms-guide/"},"headline":"COMP2013 数据结构与算法教程：从复杂度分析、排序、堆、哈希、搜索树到 DP、贪心与图","image":["d:/logo.jpg"],"datePublished":"2026-08-04T09:05:00.000Z","dateModified":"2026-08-04T09:05:00.000Z","author":{"@type":"Person","name":"RichardF"},"publisher":{"@type":"Organization","name":"D:/logo.jpg","logo":{"@type":"ImageObject","url":"d:/logo.jpg"}},"description":"这篇文章根据 COMP2013 Data Structures and Algorithms 的课程资料整理。它不是单纯把 lecture 列出来，而是试图回答一个更重要的问题：  当我们说“学数据结构与算法”时，到底是在训练什么能力？  我的理解是三件事。第一，能判断一个程序会不会随着输入规模变大而崩掉，也就是复杂度分析。第二，能选择合适的数据组织方式，让查询、插入、删除、排序这些操作不至于低效"}</script><link rel="canonical" href="https://richardf123.github.io/2026/08/04/comp2013-data-structures-algorithms-guide/"><link rel="icon" href="https://avatars.githubusercontent.com/u/144225184?s=400&amp;u=f62e0f37c00d8518afb213a36c81cd8428ce0a06&amp;v=4"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&amp;family=Noto+Serif+SC:wght@400;500;700&amp;family=Noto+Sans+SC:wght@400;500;700&amp;family=JetBrains+Mono:wght@400;600"><link rel="stylesheet" href="/css/default.css?v=20260624-interactive-map"><link rel="stylesheet" href="/css/site-overrides.css?v=20260803-db-epic-1"><!--!--><!--!--><!--!--><!--!--><!--!--><!--!--><!--!--><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head><body class="is-3-column"><a class="skip-link" href="#site-main">Skip to content</a><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="https://avatars.githubusercontent.com/u/144225184?s=400&amp;u=f62e0f37c00d8518afb213a36c81cd8428ce0a06&amp;v=4" alt="RichardF&#039;s Blog" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">主页</a><a class="navbar-item" href="/roadmap">学习路线</a><a class="navbar-item" href="/projects">项目作品集</a><a class="navbar-item" href="/archives">归档</a><a class="navbar-item" href="/categories">分类</a><a class="navbar-item" href="/tags">标签</a><a class="navbar-item" href="/knowledge-map">知识图谱</a><a class="navbar-item" href="/friends">友链</a><a class="navbar-item" href="/about">关于</a></div><div class="navbar-end"><a class="navbar-item search" title="搜索" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><main class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen" id="site-main"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item"><time dateTime="2026-08-04T09:05:00.000Z" title="2026/8/4 17:05:00">2026-08-04</time>发表</span><span class="level-item"><time dateTime="2026-08-04T09:05:00.000Z" title="2026/8/4 17:05:00">2026-08-04</time>更新</span><span class="level-item"><a class="link-muted" href="/categories/cs/">cs</a></span><span class="level-item">33 分钟读完 (大约4953个字)</span></div></div><h1 class="title is-3 is-size-4-mobile">COMP2013 数据结构与算法教程：从复杂度分析、排序、堆、哈希、搜索树到 DP、贪心与图</h1><div class="content"><p>这篇文章根据 COMP2013 Data Structures and Algorithms 的课程资料整理。它不是单纯把 lecture 列出来，而是试图回答一个更重要的问题：</p>
+<blockquote>
+<p>当我们说“学数据结构与算法”时，到底是在训练什么能力？</p>
+</blockquote>
+<p>我的理解是三件事。第一，能判断一个程序会不会随着输入规模变大而崩掉，也就是复杂度分析。第二，能选择合适的数据组织方式，让查询、插入、删除、排序这些操作不至于低效。第三，能把一个问题拆成可以证明正确的算法框架，比如分治、动态规划、贪心和图搜索。</p>
+<span id="more"></span>
+<h2 id="原始资料下载"><a class="markdownIt-Anchor" href="#原始资料下载"></a> 原始资料下载</h2>
+<ul>
+<li><a href="/files/comp2013-dsa-guide/comp2013-source-materials.zip">COMP2013 全部资料压缩包</a></li>
+<li><a href="/files/comp2013-dsa-guide/lecture-01-introduction.pdf">Lecture 1: Introduction</a></li>
+<li><a href="/files/comp2013-dsa-guide/lecture-02-analysis-merge-sort.pdf">Lecture 2: Analysis of Algorithms and Merge Sort</a></li>
+<li><a href="/files/comp2013-dsa-guide/lecture-03-divide-and-conquer.pdf">Lecture 3: Divide and Conquer</a></li>
+<li><a href="/files/comp2013-dsa-guide/lecture-04-sorting-algorithms.pdf">Lecture 4: Sorting Algorithms</a></li>
+<li><a href="/files/comp2013-dsa-guide/lecture-05-binary-heap.pdf">Lecture 5: Binary Heap</a></li>
+<li><a href="/files/comp2013-dsa-guide/lecture-06-elementary-data-structures.pdf">Lecture 6: Elementary Data Structures</a></li>
+<li><a href="/files/comp2013-dsa-guide/lecture-07-hashing-bst-i.pdf">Lecture 7: Hashing and BST I</a></li>
+<li><a href="/files/comp2013-dsa-guide/lecture-08-bst-ii.pdf">Lecture 8: BST II</a></li>
+<li><a href="/files/comp2013-dsa-guide/lecture-09-balanced-bst.pdf">Lecture 9: Balanced BST</a></li>
+<li><a href="/files/comp2013-dsa-guide/lecture-10-dynamic-programming.pdf">Lecture 10: Dynamic Programming</a></li>
+<li><a href="/files/comp2013-dsa-guide/lecture-11-greedy-algorithms.pdf">Lecture 11: Greedy Algorithms</a></li>
+<li><a href="/files/comp2013-dsa-guide/lecture-12-graphs.pdf">Lecture 12: Graphs</a></li>
+<li><a href="/files/comp2013-dsa-guide/assignment-01-recurrence-analysis.pdf">Assignment 1: Recurrence Analysis</a></li>
+<li><a href="/files/comp2013-dsa-guide/assignment-02-min-difference-merge-sort.cpp">Assignment 2 Code: Minimum Difference by Merge Sort</a></li>
+<li><a href="/files/comp2013-dsa-guide/assignment-03-trees-hashing.pdf">Assignment 3: Trees and Hashing</a></li>
+</ul>
+<h2 id="1-数据结构与算法的主线"><a class="markdownIt-Anchor" href="#1-数据结构与算法的主线"></a> 1. 数据结构与算法的主线</h2>
+<p>一个算法问题通常可以写成：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">input -&gt; data representation -&gt; operations -&gt; output</span><br></pre></td></tr></table></figure>
+<p>比如“给定一组整数，找出排序后相邻元素的最小差值”。输入是一个整数数组，数据表示可以是普通数组，核心操作是排序和扫描，输出是一个最小差值。这个问题看起来简单，但它已经包含算法课最重要的两层思维：</p>
+<ol>
+<li>如果暴力枚举任意两个数的差值，需要比较大约 (n(n-1)/2) 对，复杂度是 (O(n^2))。</li>
+<li>如果先排序，只需要比较相邻元素，排序 (O(n\log n))，扫描 (O(n))，总复杂度是 (O(n\log n))。</li>
+</ol>
+<p>为什么排序后只需要看相邻元素？因为在有序序列中，如果 (a_i \le a_j \le a_k)，那么 (a_k-a_i) 一定不会小于中间的相邻差值。最小差值一定被某一对相邻元素捕获。这就是算法里很常见的思路：先改变数据的结构，再让问题变简单。</p>
+<h2 id="2-复杂度算法为什么要关心增长率"><a class="markdownIt-Anchor" href="#2-复杂度算法为什么要关心增长率"></a> 2. 复杂度：算法为什么要关心增长率</h2>
+<p>算法分析关心的不是程序在某台电脑上跑了几秒，而是输入规模 (n) 增大时，运行时间如何增长。</p>
+<p>常见复杂度可以按增长速度理解：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">O(1) &lt; O(log n) &lt; O(n) &lt; O(n log n) &lt; O(n^2) &lt; O(2^n)</span><br></pre></td></tr></table></figure>
+<p>这几个级别的差异非常大。假设 (n=1,000,000)：</p>
+<ul>
+<li>(O(1))：常数次操作。</li>
+<li>(O(\log n))：大约二十次左右，二分搜索就是典型例子。</li>
+<li>(O(n))：一百万次，线性扫描。</li>
+<li>(O(n\log n))：两千万级别，归并排序、堆排序常见。</li>
+<li>(O(n^2))：一万亿级别，很多双重循环会到这里。</li>
+</ul>
+<p>算法课里的第一个转变，是不要只问“这段代码对不对”，还要问：</p>
+<blockquote>
+<p>这段代码在输入变大后还能不能活？</p>
+</blockquote>
+<h2 id="3-递推式递归算法的复杂度怎么推"><a class="markdownIt-Anchor" href="#3-递推式递归算法的复杂度怎么推"></a> 3. 递推式：递归算法的复杂度怎么推</h2>
+<p>分治算法经常产生递推式。比如归并排序：</p>
+<p class='katex-block'><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>T</mi><mo stretchy="false">(</mo><mi>n</mi><mo stretchy="false">)</mo><mo>=</mo><mn>2</mn><mi>T</mi><mo stretchy="false">(</mo><mi>n</mi><mi mathvariant="normal">/</mi><mn>2</mn><mo stretchy="false">)</mo><mo>+</mo><mi>O</mi><mo stretchy="false">(</mo><mi>n</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">T(n)=2T(n/2)+O(n)
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.13889em;">T</span><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">2</span><span class="mord mathnormal" style="margin-right:0.13889em;">T</span><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mord">/</span><span class="mord">2</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></p>
+<p>意思是：把数组分成两半，各自排序，然后用线性时间合并。递归树可以这样理解：</p>
+<ul>
+<li>第 0 层：一个规模 (n) 的问题，合并代价 (n)。</li>
+<li>第 1 层：两个规模 (n/2) 的问题，总合并代价 (2 \cdot n/2=n)。</li>
+<li>第 2 层：四个规模 (n/4) 的问题，总合并代价 (4 \cdot n/4=n)。</li>
+<li>一直到问题规模变成 1，层数是 (\log_2 n)。</li>
+</ul>
+<p>每一层代价都是 (n)，共有 (\log n) 层，所以：</p>
+<p class='katex-block'><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>T</mi><mo stretchy="false">(</mo><mi>n</mi><mo stretchy="false">)</mo><mo>=</mo><mi>O</mi><mo stretchy="false">(</mo><mi>n</mi><mi>log</mi><mo>⁡</mo><mi>n</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">T(n)=O(n\log n)
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.13889em;">T</span><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mop">lo<span style="margin-right:0.01389em;">g</span></span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></p>
+<p>作业里也有类似递推：</p>
+<p class='katex-block'><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>T</mi><mo stretchy="false">(</mo><mi>n</mi><mo stretchy="false">)</mo><mo>=</mo><mn>5</mn><mi>T</mi><mo stretchy="false">(</mo><mi>n</mi><mi mathvariant="normal">/</mi><mn>3</mn><mo stretchy="false">)</mo><mo>+</mo><mn>2</mn><mi>n</mi></mrow><annotation encoding="application/x-tex">T(n)=5T(n/3)+2n
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.13889em;">T</span><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">5</span><span class="mord mathnormal" style="margin-right:0.13889em;">T</span><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mord">/</span><span class="mord">3</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">2</span><span class="mord mathnormal">n</span></span></span></span></span></p>
+<p>递归树第 (i) 层有 (5^i) 个子问题，每个子问题规模是 (n/3^i)，每个子问题的非递归代价与规模成正比，所以第 (i) 层总代价是：</p>
+<p class='katex-block'><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msup><mn>5</mn><mi>i</mi></msup><mo>⋅</mo><mn>2</mn><mo stretchy="false">(</mo><mi>n</mi><mi mathvariant="normal">/</mi><msup><mn>3</mn><mi>i</mi></msup><mo stretchy="false">)</mo><mo>=</mo><mn>2</mn><mi>n</mi><mo stretchy="false">(</mo><mn>5</mn><mi mathvariant="normal">/</mi><mn>3</mn><msup><mo stretchy="false">)</mo><mi>i</mi></msup></mrow><annotation encoding="application/x-tex">5^i \cdot 2(n/3^i)=2n(5/3)^i
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8746639999999999em;vertical-align:0em;"></span><span class="mord"><span class="mord">5</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8746639999999999em;"><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1.1246639999999999em;vertical-align:-0.25em;"></span><span class="mord">2</span><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mord">/</span><span class="mord"><span class="mord">3</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8746639999999999em;"><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span></span></span></span></span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1.1246639999999999em;vertical-align:-0.25em;"></span><span class="mord">2</span><span class="mord mathnormal">n</span><span class="mopen">(</span><span class="mord">5</span><span class="mord">/</span><span class="mord">3</span><span class="mclose"><span class="mclose">)</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8746639999999999em;"><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span></span></span></span></span></span></span></span></span></p>
+<p>递归深度由 (n/3^k=1) 得到：</p>
+<p class='katex-block'><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>k</mi><mo>=</mo><msub><mo><mi>log</mi><mo>⁡</mo></mo><mn>3</mn></msub><mi>n</mi></mrow><annotation encoding="application/x-tex">k=\log_3 n
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord mathnormal" style="margin-right:0.03148em;">k</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.93858em;vertical-align:-0.24414em;"></span><span class="mop"><span class="mop">lo<span style="margin-right:0.01389em;">g</span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.20696799999999996em;"><span style="top:-2.4558600000000004em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">3</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.24414em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathnormal">n</span></span></span></span></span></p>
+<p>总成本是一个等比级数：</p>
+<p class='katex-block'><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>0</mn></mrow><mrow><msub><mo><mi>log</mi><mo>⁡</mo></mo><mn>3</mn></msub><mi>n</mi></mrow></munderover><mn>2</mn><mi>n</mi><mo stretchy="false">(</mo><mn>5</mn><mi mathvariant="normal">/</mi><mn>3</mn><msup><mo stretchy="false">)</mo><mi>i</mi></msup></mrow><annotation encoding="application/x-tex">\sum_{i=0}^{\log_3 n}2n(5/3)^i
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:3.21089em;vertical-align:-1.277669em;"></span><span class="mop op-limits"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.9332210000000003em;"><span style="top:-1.872331em;margin-left:0em;"><span class="pstrut" style="height:3.05em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">i</span><span class="mrel mtight">=</span><span class="mord mtight">0</span></span></span></span><span style="top:-3.050005em;"><span class="pstrut" style="height:3.05em;"></span><span><span class="mop op-symbol large-op">∑</span></span></span><span style="top:-4.397113em;margin-left:0em;"><span class="pstrut" style="height:3.05em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mop mtight"><span class="mop mtight"><span class="mtight">l</span><span class="mtight">o</span><span class="mtight" style="margin-right:0.01389em;">g</span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.19444571428571428em;"><span style="top:-2.2341314285714287em;margin-right:0.07142857142857144em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight">3</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.26586857142857145em;"><span></span></span></span></span></span></span><span class="mspace mtight" style="margin-right:0.19516666666666668em;"></span><span class="mord mathnormal mtight">n</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.277669em;"><span></span></span></span></span></span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord">2</span><span class="mord mathnormal">n</span><span class="mopen">(</span><span class="mord">5</span><span class="mord">/</span><span class="mord">3</span><span class="mclose"><span class="mclose">)</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8746639999999999em;"><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span></span></span></span></span></span></span></span></span></p>
+<p>最后一层占主导，因此：</p>
+<p class='katex-block'><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>T</mi><mo stretchy="false">(</mo><mi>n</mi><mo stretchy="false">)</mo><mo>=</mo><mi>O</mi><mo stretchy="false">(</mo><msup><mi>n</mi><mrow><msub><mo><mi>log</mi><mo>⁡</mo></mo><mn>3</mn></msub><mn>5</mn></mrow></msup><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">T(n)=O(n^{\log_3 5})
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.13889em;">T</span><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1.149108em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8991079999999999em;"><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mop mtight"><span class="mop mtight"><span class="mtight">l</span><span class="mtight">o</span><span class="mtight" style="margin-right:0.01389em;">g</span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.19444571428571428em;"><span style="top:-2.2341314285714287em;margin-right:0.07142857142857144em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight">3</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.26586857142857145em;"><span></span></span></span></span></span></span><span class="mspace mtight" style="margin-right:0.19516666666666668em;"></span><span class="mord mtight">5</span></span></span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span></span></p>
+<p>这个例子很重要，因为它说明递归不一定都是 (n\log n)。分裂数量、子问题规模和合并代价共同决定结果。</p>
+<h2 id="4-分治把大问题拆成同类小问题"><a class="markdownIt-Anchor" href="#4-分治把大问题拆成同类小问题"></a> 4. 分治：把大问题拆成同类小问题</h2>
+<p>分治算法有三个步骤：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Divide -&gt; Conquer -&gt; Combine</span><br></pre></td></tr></table></figure>
+<p>典型例子有：</p>
+<ul>
+<li>Binary Search：每次丢掉一半搜索空间。</li>
+<li>Merge Sort：把数组分成两半，分别排序后合并。</li>
+<li>Maximum Subarray：最大子数组要么在左边，要么在右边，要么跨过中点。</li>
+</ul>
+<p>二分搜索的复杂度是 (O(\log n))。如果一个有序数组长度为 (n)，每次搜索范围减半，经过 (k) 次后剩下 (n/2^k) 个元素。当只剩一个元素时：</p>
+<p class='katex-block'><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>n</mi><mi mathvariant="normal">/</mi><msup><mn>2</mn><mi>k</mi></msup><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">n/2^k=1
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.149108em;vertical-align:-0.25em;"></span><span class="mord mathnormal">n</span><span class="mord">/</span><span class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8991079999999999em;"><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.03148em;">k</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">1</span></span></span></span></span></p>
+<p>所以：</p>
+<p class='katex-block'><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>k</mi><mo>=</mo><msub><mo><mi>log</mi><mo>⁡</mo></mo><mn>2</mn></msub><mi>n</mi></mrow><annotation encoding="application/x-tex">k=\log_2 n
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord mathnormal" style="margin-right:0.03148em;">k</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.93858em;vertical-align:-0.24414em;"></span><span class="mop"><span class="mop">lo<span style="margin-right:0.01389em;">g</span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.20696799999999996em;"><span style="top:-2.4558600000000004em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.24414em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathnormal">n</span></span></span></span></span></p>
+<p>二分搜索的本质不是“取中点”，而是利用有序性排除大量不可能的答案。没有有序性，二分就没有基础。</p>
+<h2 id="5-排序为什么排序是算法课的核心"><a class="markdownIt-Anchor" href="#5-排序为什么排序是算法课的核心"></a> 5. 排序：为什么排序是算法课的核心</h2>
+<p>排序不只是为了把数字排好看。排序经常是很多问题的前置结构化步骤。</p>
+<p>常见排序可以这样比较：</p>
+<table>
+<thead>
+<tr>
+<th>算法</th>
+<th>思想</th>
+<th style="text-align:right">平均复杂度</th>
+<th style="text-align:right">最坏复杂度</th>
+<th>稳定性</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Insertion Sort</td>
+<td>维护已排序前缀</td>
+<td style="text-align:right">(O(n^2))</td>
+<td style="text-align:right">(O(n^2))</td>
+<td>稳定</td>
+</tr>
+<tr>
+<td>Merge Sort</td>
+<td>分治合并</td>
+<td style="text-align:right">(O(n\log n))</td>
+<td style="text-align:right">(O(n\log n))</td>
+<td>稳定</td>
+</tr>
+<tr>
+<td>Quick Sort</td>
+<td>选 pivot 分区</td>
+<td style="text-align:right">(O(n\log n))</td>
+<td style="text-align:right">(O(n^2))</td>
+<td>通常不稳定</td>
+</tr>
+<tr>
+<td>Heap Sort</td>
+<td>用堆反复取最大值</td>
+<td style="text-align:right">(O(n\log n))</td>
+<td style="text-align:right">(O(n\log n))</td>
+<td>不稳定</td>
+</tr>
+</tbody>
+</table>
+<p>比较排序有一个重要下界：</p>
+<p class='katex-block'><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi mathvariant="normal">Ω</mi><mo stretchy="false">(</mo><mi>n</mi><mi>log</mi><mo>⁡</mo><mi>n</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">\Omega(n\log n)
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">Ω</span><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mop">lo<span style="margin-right:0.01389em;">g</span></span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></p>
+<p>直观理解是：如果只通过比较判断元素顺序，那么所有可能排列有 (n!) 种。每次比较最多把可能性分成两部分，一棵比较决策树至少要有 (n!) 个叶子，所以高度至少是：</p>
+<p class='katex-block'><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mo><mi>log</mi><mo>⁡</mo></mo><mn>2</mn></msub><mo stretchy="false">(</mo><mi>n</mi><mo stretchy="false">!</mo><mo stretchy="false">)</mo><mo>=</mo><mi mathvariant="normal">Ω</mi><mo stretchy="false">(</mo><mi>n</mi><mi>log</mi><mo>⁡</mo><mi>n</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">\log_2(n!)=\Omega(n\log n)
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mop"><span class="mop">lo<span style="margin-right:0.01389em;">g</span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.20696799999999996em;"><span style="top:-2.4558600000000004em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.24414em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">!</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">Ω</span><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mop">lo<span style="margin-right:0.01389em;">g</span></span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></p>
+<p>这说明 Merge Sort 和 Heap Sort 在比较排序模型里已经达到渐进最优。除非利用额外信息，比如整数范围很小，才可能用 Counting Sort 这类非比较排序做到线性时间。</p>
+<h2 id="6-作业例子用-merge-sort-做最小相邻差值"><a class="markdownIt-Anchor" href="#6-作业例子用-merge-sort-做最小相邻差值"></a> 6. 作业例子：用 Merge Sort 做最小相邻差值</h2>
+<p>资料里有一份 C++ 作业代码，目标是从文件读入数字，排序后找最小相邻差值。核心思路可以整理成更干净的版本：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;fstream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;vector&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;algorithm&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">minDifference</span><span class="params">(<span class="type">const</span> string&amp; filename)</span> </span>&#123;</span><br><span class="line">    <span class="function">ifstream <span class="title">file</span><span class="params">(filename)</span></span>;</span><br><span class="line">    <span class="type">int</span> n;</span><br><span class="line">    file &gt;&gt; n;</span><br><span class="line"></span><br><span class="line">    <span class="function">vector&lt;<span class="type">int</span>&gt; <span class="title">a</span><span class="params">(n)</span></span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; ++i) &#123;</span><br><span class="line">        file &gt;&gt; a[i];</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">sort</span>(a.<span class="built_in">begin</span>(), a.<span class="built_in">end</span>());</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> ans = a[<span class="number">1</span>] - a[<span class="number">0</span>];</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">1</span>; i + <span class="number">1</span> &lt; n; ++i) &#123;</span><br><span class="line">        ans = <span class="built_in">min</span>(ans, a[i + <span class="number">1</span>] - a[i]);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> ans;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    string filename;</span><br><span class="line">    cin &gt;&gt; filename;</span><br><span class="line">    cout &lt;&lt; <span class="built_in">minDifference</span>(filename);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如果课程要求手写 Merge Sort，也可以不用 <code>std::sort</code>，但工程上优先使用标准库。这里真正要学的是：</p>
+<ol>
+<li>先排序，把“任意两数比较”变成“只比较相邻数”。</li>
+<li>排序是主成本，复杂度 (O(n\log n))。</li>
+<li>扫描只需要 (O(n))。</li>
+<li>文件输入要处理好数组大小和边界情况，例如 (n&lt;2) 时没有差值可算。</li>
+</ol>
+<p>这个例子也提醒一点：算法作业里经常会先训练“自己实现”，但真实项目里要知道什么时候用标准库。能手写是理解，能用库是工程能力。</p>
+<h2 id="7-堆优先级队列背后的数据结构"><a class="markdownIt-Anchor" href="#7-堆优先级队列背后的数据结构"></a> 7. 堆：优先级队列背后的数据结构</h2>
+<p>Binary Heap 可以理解成存在数组里的完全二叉树。对于下标从 1 开始的堆：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">parent(i) = floor(i / 2)</span><br><span class="line">left(i)   = 2i</span><br><span class="line">right(i)  = 2i + 1</span><br></pre></td></tr></table></figure>
+<p>Max-Heap 满足：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">每个节点的 key &gt;= 它的子节点 key</span><br></pre></td></tr></table></figure>
+<p>所以根节点永远是最大值。堆支持几个关键操作：</p>
+<ul>
+<li><code>Max</code>：取最大值，(O(1))。</li>
+<li><code>Extract-Max</code>：删除最大值并恢复堆，(O(\log n))。</li>
+<li><code>Insert</code>：插入新元素并向上调整，(O(\log n))。</li>
+<li><code>Build-Heap</code>：从数组建堆，(O(n))。</li>
+</ul>
+<p>为什么 <code>Build-Heap</code> 是 (O(n))，不是 (O(n\log n))？因为并不是每个节点都要下沉 (\log n) 层。底层节点很多，但下沉距离很短；顶层节点很少，虽然可能下沉很远。把所有节点的下沉成本加起来是线性的。</p>
+<p>堆最常见的应用是 Priority Queue，比如任务调度、Dijkstra 最短路、Top-K 问题。面试里如果看到“不断取当前最大/最小”，第一反应就应该想到堆。</p>
+<h2 id="8-基础数据结构数组-链表-栈-队列"><a class="markdownIt-Anchor" href="#8-基础数据结构数组-链表-栈-队列"></a> 8. 基础数据结构：数组、链表、栈、队列</h2>
+<p>Lecture 6 进入基础数据结构。它们看起来朴素，但几乎是所有复杂结构的零件。</p>
+<p>数组的特点：</p>
+<ul>
+<li>支持随机访问，<code>a[i]</code> 是 (O(1))。</li>
+<li>插入和删除中间元素通常是 (O(n))，因为要移动元素。</li>
+<li>适合连续存储、频繁按下标访问的场景。</li>
+</ul>
+<p>链表的特点：</p>
+<ul>
+<li>插入和删除已知节点可以是 (O(1))。</li>
+<li>访问第 (i) 个元素是 (O(n))，因为要从头走。</li>
+<li>适合频繁插入删除、但不需要随机访问的场景。</li>
+</ul>
+<p>栈是后进先出：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">push -&gt; push -&gt; pop</span><br></pre></td></tr></table></figure>
+<p>常见应用包括函数调用栈、括号匹配、DFS、表达式求值。</p>
+<p>队列是先进先出：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">enqueue -&gt; enqueue -&gt; dequeue</span><br></pre></td></tr></table></figure>
+<p>常见应用包括 BFS、任务队列、缓冲区。</p>
+<p>学这些结构时，不要只背接口，要问两个问题：</p>
+<ol>
+<li>它把什么操作变快了？</li>
+<li>它牺牲了什么操作？</li>
+</ol>
+<p>数据结构没有绝对好坏，只有是否适合当前操作模式。</p>
+<h2 id="9-哈希表用空间换平均常数时间"><a class="markdownIt-Anchor" href="#9-哈希表用空间换平均常数时间"></a> 9. 哈希表：用空间换平均常数时间</h2>
+<p>哈希表的目标是让搜索、插入、删除在平均情况下接近 (O(1))。核心是哈希函数：</p>
+<p class='katex-block'><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>h</mi><mo stretchy="false">(</mo><mi>k</mi><mo stretchy="false">)</mo><mo>=</mo><mi>k</mi><mtext> </mtext><mo lspace="0.22em" rspace="0.22em"><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow></mo><mtext> </mtext><mi>m</mi></mrow><annotation encoding="application/x-tex">h(k)=k \bmod m
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">h</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.03148em;">k</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord mathnormal" style="margin-right:0.03148em;">k</span><span class="mspace" style="margin-right:0.05555555555555555em;"></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin"><span class="mord"><span class="mord mathrm">m</span><span class="mord mathrm">o</span><span class="mord mathrm">d</span></span></span><span class="mspace" style="margin-right:0.05555555555555555em;"></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathnormal">m</span></span></span></span></span></p>
+<p>它把 key 映射到长度为 (m) 的表中。但不同 key 可能映射到同一位置，这叫 collision。</p>
+<p>解决冲突常见方法：</p>
+<ul>
+<li>Chaining：每个桶挂一个链表。</li>
+<li>Open Addressing：如果位置被占，就按探测序列找下一个位置。</li>
+<li>Linear Probing：线性探测。</li>
+<li>Quadratic Probing：平方探测。</li>
+<li>Double Hashing：用第二个哈希函数决定步长。</li>
+</ul>
+<p>哈希表的关键指标是 load factor：</p>
+<p class='katex-block'><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>α</mi><mo>=</mo><mi>n</mi><mi mathvariant="normal">/</mi><mi>m</mi></mrow><annotation encoding="application/x-tex">\alpha = n/m
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathnormal" style="margin-right:0.0037em;">α</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">n</span><span class="mord">/</span><span class="mord mathnormal">m</span></span></span></span></span></p>
+<p>其中 (n) 是元素数量，(m) 是表大小。负载因子太高，冲突会变多，哈希表会退化。工程里的 <code>unordered_map</code>、Python 的 <code>dict</code> 都会在必要时扩容，背后就是为了控制负载因子。</p>
+<p>哈希表适合回答“某个 key 是否存在”“某个 key 对应什么值”。但它不维护顺序。如果你需要 predecessor、successor、范围查询，搜索树通常更合适。</p>
+<h2 id="10-二叉搜索树用顺序结构支持动态查询"><a class="markdownIt-Anchor" href="#10-二叉搜索树用顺序结构支持动态查询"></a> 10. 二叉搜索树：用顺序结构支持动态查询</h2>
+<p>Binary Search Tree 满足：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">左子树 key &lt;= 当前节点 key &lt;= 右子树 key</span><br></pre></td></tr></table></figure>
+<p>它支持：</p>
+<ul>
+<li>Search</li>
+<li>Minimum / Maximum</li>
+<li>Predecessor / Successor</li>
+<li>Insert</li>
+<li>Delete</li>
+</ul>
+<p>这些操作的复杂度都是：</p>
+<p class='katex-block'><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>h</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(h)
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">h</span><span class="mclose">)</span></span></span></span></span></p>
+<p>其中 (h) 是树高。如果树平衡，(h=O(\log n))；如果不断插入递增序列，树会退化成链表，(h=O(n))。</p>
+<p>这就是为什么 Lecture 9 要讲 Balanced Binary Search Tree。平衡树的目标不是改变 BST 的有序性，而是控制树高，让操作稳定保持在 (O(\log n))。</p>
+<p>BST 的一个重要训练是中序遍历：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">inorder(left)</span><br><span class="line">visit(root)</span><br><span class="line">inorder(right)</span><br></pre></td></tr></table></figure>
+<p>对 BST 做中序遍历，会得到一个有序序列。这个性质经常用于验证 BST、找第 k 小元素、把树转成有序数组等问题。</p>
+<h2 id="11-动态规划把指数级枚举压成子问题复用"><a class="markdownIt-Anchor" href="#11-动态规划把指数级枚举压成子问题复用"></a> 11. 动态规划：把指数级枚举压成子问题复用</h2>
+<p>Lecture 10 讲 Dynamic Programming，例子是 Rod Cutting。问题是：一根长度为 (n) 的钢条，不同长度有不同价格，怎么切能收益最大？</p>
+<p>暴力方法会枚举所有切法。长度 (n) 的钢条，在每个位置都可以切或不切，所以可能方案大约是：</p>
+<p class='katex-block'><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msup><mn>2</mn><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow></msup></mrow><annotation encoding="application/x-tex">2^{n-1}
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.864108em;vertical-align:0em;"></span><span class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.864108em;"><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">n</span><span class="mbin mtight">−</span><span class="mord mtight">1</span></span></span></span></span></span></span></span></span></span></span></span></span></p>
+<p>动态规划的核心是最优子结构。设 (r_n) 是长度 (n) 的最大收益，则：</p>
+<p class='katex-block'><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mi>r</mi><mi>n</mi></msub><mo>=</mo><munder><mo><mi>max</mi><mo>⁡</mo></mo><mrow><mn>1</mn><mo>≤</mo><mi>i</mi><mo>≤</mo><mi>n</mi></mrow></munder><mo stretchy="false">(</mo><msub><mi>p</mi><mi>i</mi></msub><mo>+</mo><msub><mi>r</mi><mrow><mi>n</mi><mo>−</mo><mi>i</mi></mrow></msub><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">r_n=\max_{1\le i\le n}(p_i+r_{n-i})
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.58056em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.02778em;">r</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.151392em;"><span style="top:-2.5500000000000003em;margin-left:-0.02778em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">n</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1.572843em;vertical-align:-0.822843em;"></span><span class="mop op-limits"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.43055999999999994em;"><span style="top:-2.372336em;margin-left:0em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">1</span><span class="mrel mtight">≤</span><span class="mord mathnormal mtight">i</span><span class="mrel mtight">≤</span><span class="mord mathnormal mtight">n</span></span></span></span><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span><span class="mop">max</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.822843em;"><span></span></span></span></span></span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">p</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.31166399999999994em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.02778em;">r</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.311664em;"><span style="top:-2.5500000000000003em;margin-left:-0.02778em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">n</span><span class="mbin mtight">−</span><span class="mord mathnormal mtight">i</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.208331em;"><span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span></span></p>
+<p>含义是：第一段切出长度 (i)，收入 (p_i)，剩余长度 (n-i) 继续取最优。</p>
+<p>递归暴力会重复计算很多子问题。DP 的关键是：</p>
+<ol>
+<li>定义状态：<code>dp[n]</code> 表示长度为 (n) 的最优收益。</li>
+<li>写转移：<code>dp[n] = max(price[i] + dp[n-i])</code>。</li>
+<li>确定顺序：从小长度算到大长度。</li>
+<li>保存答案：避免重复计算。</li>
+</ol>
+<p>C++ 写法可以是：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">rodCutting</span><span class="params">(<span class="type">const</span> vector&lt;<span class="type">int</span>&gt;&amp; price, <span class="type">int</span> n)</span> </span>&#123;</span><br><span class="line">    <span class="function">vector&lt;<span class="type">int</span>&gt; <span class="title">dp</span><span class="params">(n + <span class="number">1</span>, <span class="number">0</span>)</span></span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> len = <span class="number">1</span>; len &lt;= n; ++len) &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> first = <span class="number">1</span>; first &lt;= len; ++first) &#123;</span><br><span class="line">            dp[len] = <span class="built_in">max</span>(dp[len], price[first] + dp[len - first]);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> dp[n];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>DP 难点通常不在代码，而在状态定义。一个实用判断是：如果问题里出现“最优”“方案数”“能否达到”，并且暴力搜索有大量重复子问题，就应该考虑 DP。</p>
+<h2 id="12-贪心每一步都选当前最好但必须证明"><a class="markdownIt-Anchor" href="#12-贪心每一步都选当前最好但必须证明"></a> 12. 贪心：每一步都选当前最好，但必须证明</h2>
+<p>Greedy Algorithms 和 DP 很像，都在做优化，但思路不同。</p>
+<p>DP 是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">枚举子问题 -&gt; 保存最优解 -&gt; 组合答案</span><br></pre></td></tr></table></figure>
+<p>贪心是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">每一步做当前看起来最好的选择 -&gt; 希望得到全局最优</span><br></pre></td></tr></table></figure>
+<p>关键区别是：贪心不是“感觉这样好”，而是要证明局部最优会导向全局最优。</p>
+<p>活动选择问题是经典例子。给定很多活动，每个活动有开始时间和结束时间，要求选出最多个互不重叠活动。贪心策略是：</p>
+<blockquote>
+<p>每次选择结束时间最早的活动。</p>
+</blockquote>
+<p>为什么对？因为结束越早，留给后面的空间越大。可以用交换论证：假设某个最优解第一项不是结束最早的活动，把它替换成结束最早的活动，不会减少后续可选空间，也不会让答案变差。因此存在一个以结束最早活动开头的最优解。</p>
+<p>贪心常见证明方法：</p>
+<ul>
+<li>Greedy choice property：存在一个最优解包含当前贪心选择。</li>
+<li>Exchange argument：把任意最优解改造成包含贪心选择的最优解。</li>
+<li>Staying ahead：证明贪心方案在每一步都不落后。</li>
+</ul>
+<p>Huffman Coding 也是贪心算法的经典应用：每次合并频率最低的两个节点，最终得到最优前缀编码。</p>
+<h2 id="13-图把关系建模成节点和边"><a class="markdownIt-Anchor" href="#13-图把关系建模成节点和边"></a> 13. 图：把关系建模成节点和边</h2>
+<p>Lecture 12 讲 Graphs。图是最通用的数据结构之一：</p>
+<ul>
+<li>社交网络：用户是节点，关注/好友是边。</li>
+<li>推荐系统：用户和物品构成二分图。</li>
+<li>网页网络：网页是节点，超链接是边。</li>
+<li>交通网络：地点是节点，道路是边。</li>
+</ul>
+<p>图可以分为：</p>
+<ul>
+<li>Directed / Undirected：有向图或无向图。</li>
+<li>Weighted / Unweighted：边是否有权重。</li>
+<li>Connected / Disconnected：是否连通。</li>
+<li>Cyclic / Acyclic：是否有环。</li>
+</ul>
+<p>存储图常见两种方式：</p>
+<ol>
+<li>Adjacency Matrix：用矩阵表示边，查询两点是否相连是 (O(1))，但空间是 (O(V^2))。</li>
+<li>Adjacency List：每个节点保存邻居列表，空间是 (O(V+E))，更适合稀疏图。</li>
+</ol>
+<p>大多数真实图是稀疏图，所以邻接表更常用。</p>
+<p>最基础的图遍历是 BFS 和 DFS。</p>
+<p>BFS 用队列，按层扩展，适合最短步数问题：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">start -&gt; all distance 1 nodes -&gt; all distance 2 nodes -&gt; ...</span><br></pre></td></tr></table></figure>
+<p>DFS 用递归或栈，沿着一条路径走到底，适合连通性、拓扑排序、环检测等问题。</p>
+<p>图算法的关键不是背很多名字，而是先把问题翻译成图：</p>
+<blockquote>
+<p>什么是节点？什么是边？边有没有方向？边有没有权重？我要求的是连通性、最短路、可达性，还是排序关系？</p>
+</blockquote>
+<h2 id="14-学这门课应该怎么练"><a class="markdownIt-Anchor" href="#14-学这门课应该怎么练"></a> 14. 学这门课应该怎么练</h2>
+<p>COMP2013 的内容非常适合作为算法基础训练。我的建议是按四层练：</p>
+<p>第一层：复杂度直觉。</p>
+<ul>
+<li>看见双重循环，能判断是否 (O(n^2))。</li>
+<li>看见每次减半，想到 (O(\log n))。</li>
+<li>看见分治，能写出递推式。</li>
+</ul>
+<p>第二层：数据结构接口。</p>
+<ul>
+<li>数组、链表、栈、队列分别适合什么操作。</li>
+<li>哈希表为什么平均 (O(1))。</li>
+<li>BST 为什么取决于树高。</li>
+<li>堆为什么适合 Top-K 和优先队列。</li>
+</ul>
+<p>第三层：算法范式。</p>
+<ul>
+<li>分治：拆成同类小问题。</li>
+<li>DP：重复子问题 + 最优子结构。</li>
+<li>贪心：局部选择 + 证明。</li>
+<li>图：关系建模 + 遍历。</li>
+</ul>
+<p>第四层：代码实现。</p>
+<ul>
+<li>能手写 merge sort、binary search、heapify。</li>
+<li>能用 STL 写 <code>vector</code>、<code>queue</code>、<code>stack</code>、<code>priority_queue</code>、<code>unordered_map</code>。</li>
+<li>能把伪代码翻译成 C++。</li>
+<li>能处理输入输出和边界条件。</li>
+</ul>
+<h2 id="15-面向算法实习的连接"><a class="markdownIt-Anchor" href="#15-面向算法实习的连接"></a> 15. 面向算法实习的连接</h2>
+<p>如果目标是算法或数据方向实习，这门课的价值不只是刷题。它会影响你之后学很多东西：</p>
+<ul>
+<li>搜索/推荐里的图结构、Top-K、哈希召回。</li>
+<li>机器学习工程里的优先队列、缓存、索引。</li>
+<li>大数据系统里的排序、哈希分区、图计算。</li>
+<li>NLP/LLM 应用里的检索、RAG 文档索引、向量召回。</li>
+<li>C++ 工程里的 STL 容器选择和复杂度判断。</li>
+</ul>
+<p>所以这门课可以看成“工程算法语言”的底层语法。你未必每天都手写红黑树，但你需要知道为什么 <code>map</code> 和 <code>unordered_map</code> 不一样，为什么 <code>priority_queue</code> 能维护最大值，为什么排序后很多问题会突然简单，为什么暴力递归会爆炸，而 DP 可以把它压下来。</p>
+<h2 id="16-一张总复习地图"><a class="markdownIt-Anchor" href="#16-一张总复习地图"></a> 16. 一张总复习地图</h2>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">Complexity</span><br><span class="line">  -&gt; O / Ω / Θ</span><br><span class="line">  -&gt; recursion tree</span><br><span class="line">  -&gt; master method</span><br><span class="line"></span><br><span class="line">Divide and Conquer</span><br><span class="line">  -&gt; binary search</span><br><span class="line">  -&gt; merge sort</span><br><span class="line">  -&gt; maximum subarray</span><br><span class="line"></span><br><span class="line">Sorting</span><br><span class="line">  -&gt; insertion sort</span><br><span class="line">  -&gt; merge sort</span><br><span class="line">  -&gt; quicksort</span><br><span class="line">  -&gt; heap sort</span><br><span class="line">  -&gt; comparison lower bound</span><br><span class="line"></span><br><span class="line">Data Structures</span><br><span class="line">  -&gt; array / linked list</span><br><span class="line">  -&gt; stack / queue</span><br><span class="line">  -&gt; heap / priority queue</span><br><span class="line">  -&gt; hash table</span><br><span class="line">  -&gt; BST / balanced BST</span><br><span class="line"></span><br><span class="line">Algorithm Paradigms</span><br><span class="line">  -&gt; dynamic programming</span><br><span class="line">  -&gt; greedy algorithms</span><br><span class="line">  -&gt; graph traversal</span><br></pre></td></tr></table></figure>
+<p>如果只记一句话，我会这样总结：</p>
+<blockquote>
+<p>算法不是背代码模板，而是先看清问题结构，再选择一种能让操作变便宜的数据表示和求解策略。</p>
+</blockquote>
+</div><div class="article-licensing box"><div class="licensing-title"><p>COMP2013 数据结构与算法教程：从复杂度分析、排序、堆、哈希、搜索树到 DP、贪心与图</p><p><a href="https://richardf123.github.io/2026/08/04/comp2013-data-structures-algorithms-guide/">https://richardf123.github.io/2026/08/04/comp2013-data-structures-algorithms-guide/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>作者</h6><p>RichardF</p></div></div><div class="level-item is-narrow"><div><h6>发布于</h6><p>2026-08-04</p></div></div><div class="level-item is-narrow"><div><h6>更新于</h6><p>2026-08-04</p></div></div><div class="level-item is-narrow"><div><h6>许可协议</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/C/">C++</a><a class="link-muted mr-2" rel="tag" href="/tags/data-structures/">data-structures</a><a class="link-muted mr-2" rel="tag" href="/tags/algorithms/">algorithms</a><a class="link-muted mr-2" rel="tag" href="/tags/sorting/">sorting</a><a class="link-muted mr-2" rel="tag" href="/tags/dynamic-programming/">dynamic-programming</a><a class="link-muted mr-2" rel="tag" href="/tags/graph/">graph</a></div><!--!--></article></div><!--!--><nav class="post-navigation mt-4 level is-mobile"><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2026/08/03/database-systems-from-er-to-transactions-guide/"><span class="level-item">数据库系统教程：从 ER 建模、关系代数、SQL 到事务、索引与恢复</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><!--!--></main><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar is-rounded" src="https://avatars.githubusercontent.com/u/144225184?s=400&amp;u=f62e0f37c00d8518afb213a36c81cd8428ce0a06&amp;v=4" alt="RichardF"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">RichardF</p><p class="is-size-6 is-block">大四学生</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Hong Kong</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">文章</p><a href="/archives"><p class="title">22</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">分类</p><a href="/categories"><p class="title">9</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">标签</p><a href="/tags"><p class="title">65</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/RichardF123" target="_blank" rel="noopener">关注我</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/RichardF123"><i class="fab fa-github"></i></a></div></div></div><!--!--><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">分类</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/Calculus/"><span class="level-start"><span class="level-item">Calculus</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Data-science/"><span class="level-start"><span class="level-item">Data science</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/categories/Linear-Algebra/"><span class="level-start"><span class="level-item">Linear Algebra</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/Machine-Learning/"><span class="level-start"><span class="level-item">Machine Learning</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Notes/"><span class="level-start"><span class="level-item">Notes</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Optimization/"><span class="level-start"><span class="level-item">Optimization</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Projects/"><span class="level-start"><span class="level-item">Projects</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Statistics/"><span class="level-start"><span class="level-item">Statistics</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/cs/"><span class="level-start"><span class="level-item">cs</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li></ul></div></div></div><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">最新文章</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-04T09:05:00.000Z">2026-08-04</time></p><p class="title"><a href="/2026/08/04/comp2013-data-structures-algorithms-guide/">COMP2013 数据结构与算法教程：从复杂度分析、排序、堆、哈希、搜索树到 DP、贪心与图</a></p><p class="categories"><a href="/categories/cs/">cs</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-03T10:20:00.000Z">2026-08-03</time></p><p class="title"><a href="/2026/08/03/database-systems-from-er-to-transactions-guide/">数据库系统教程：从 ER 建模、关系代数、SQL 到事务、索引与恢复</a></p><p class="categories"><a href="/categories/Data-science/">Data science</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-06-29T11:10:00.000Z">2026-06-29</time></p><p class="title"><a href="/2026/06/29/comp4204-data-mining-practical-guide/">COMP4204 数据挖掘教程：从数据仓库、预处理、关联规则到分类与聚类</a></p><p class="categories"><a href="/categories/Data-science/">Data science</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-06-29T02:30:00.000Z">2026-06-29</time></p><p class="title"><a href="/2026/06/29/ama3724-linear-algebra-differential-equations-guide/">AMA3724 线性代数与微分方程基础教程：从向量空间、投影、特征值到 ODE/PDE</a></p><p class="categories"><a href="/categories/Linear-Algebra/">Linear Algebra</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-06-24T20:05:00.000Z">2026-06-25</time></p><p class="title"><a href="/2026/06/25/ama4680-statistical-machine-learning-guide/">AMA4680 统计机器学习教程：从正则化、核方法、分类器到聚类与 MDP</a></p><p class="categories"><a href="/categories/Machine-Learning/">Machine Learning</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">归档</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2026/"><span class="level-start"><span class="level-item">2026</span></span><span class="level-end"><span class="level-item tag">15</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/"><span class="level-start"><span class="level-item">2024</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/"><span class="level-start"><span class="level-item">2023</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">标签</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/machine-learning/"><span class="tag">machine-learning</span></a></div><div class="control"><a class="tags has-addons" href="/tags/linear-algebra/"><span class="tag">linear-algebra</span></a></div><div class="control"><a class="tags has-addons" href="/tags/python/"><span class="tag">python</span></a></div><div class="control"><a class="tags has-addons" href="/tags/programming/"><span class="tag">programming</span></a></div><div class="control"><a class="tags has-addons" href="/tags/algorithm/"><span class="tag">algorithm</span></a></div><div class="control"><a class="tags has-addons" href="/tags/pandas/"><span class="tag">pandas</span></a></div><div class="control"><a class="tags has-addons" href="/tags/C/"><span class="tag">C++</span></a></div><div class="control"><a class="tags has-addons" href="/tags/clustering/"><span class="tag">clustering</span></a></div><div class="control"><a class="tags has-addons" href="/tags/svd/"><span class="tag">svd</span></a></div><div class="control"><a class="tags has-addons" href="/tags/big-data/"><span class="tag">big-data</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Spark/"><span class="tag">Spark</span></a></div><div class="control"><a class="tags has-addons" href="/tags/NLP/"><span class="tag">NLP</span></a></div></div></div></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="https://avatars.githubusercontent.com/u/144225184?s=400&amp;u=f62e0f37c00d8518afb213a36c81cd8428ce0a06&amp;v=4" alt="RichardF&#039;s Blog" height="28"></a><p class="is-size-7"><span>&copy; 2026 RichardF</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">RichardF</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="GitHub" href="https://github.com/RichardF123"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><div class="bgm-control" data-audio-src="/audio/the-immigrant.ogg" aria-live="polite"><button class="bgm-control__button" type="button" aria-pressed="false" title="背景音乐"><i class="fas fa-music" aria-hidden="true"></i><span class="bgm-control__text">BGM</span></button><span class="bgm-control__hint">Click to play</span></div><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("zh-cn");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><a id="back-to-top" title="回到顶端" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/katex.min.css"><script src="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/katex.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/contrib/auto-render.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/contrib/mhchem.min.js" defer></script><script>window.addEventListener("load", function() {
+            document.querySelectorAll('[role="article"] > .content').forEach(function(element) {
+                renderMathInElement(element);
+            });
+        });</script><!--!--><!--!--><script src="/js/site-pjax.js?v=20260804-persistent-bgm-1" defer></script><script src="/js/bg-music.js?v=20260804-bgm-mobile-safe-1" defer></script><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="想要查找什么..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            var insightLoaded = false;
+            var enhancePalette = function () {
+                var container = document.querySelector('.searchbox-container');
+                var body = document.querySelector('.searchbox-body');
+                if (!container || !body || container.querySelector('.command-palette-intro')) return;
+                var intro = document.createElement('div');
+                intro.className = 'command-palette-intro';
+                intro.innerHTML = '<div class="command-palette-title"><span>学习 Command Center</span><small>搜索文章、跳转模块、快速进入训练路线</small></div><div class="command-palette-chips"><button type="button" data-query="Python">Python</button><button type="button" data-query="PyTorch">PyTorch</button><button type="button" data-query="NLP">NLP</button><button type="button" data-query="RAG">RAG</button><button type="button" data-query="SVD">SVD</button><button type="button" data-query="Spark">Spark</button></div><div class="command-palette-actions"><a href="/roadmap/">学习路线</a><a href="/projects/">项目作品集</a><a href="/knowledge-map/">知识图谱</a></div>';
+                container.insertBefore(intro, body);
+            };
+            var openSearch = function () {
+                var box = document.querySelector('.searchbox');
+                var input = document.querySelector('.searchbox-input');
+                enhancePalette();
+                if (box) box.classList.add('show');
+                if (input) setTimeout(function () { input.focus(); }, 0);
+                if (insightLoaded) return;
+                insightLoaded = true;
+                loadInsight({"contentUrl":"/content.json"}, {"hint":"想要查找什么...","untitled":"(无标题)","posts":"文章","pages":"页面","categories":"分类","tags":"标签"});
+            };
+            document.addEventListener('click', function (event) {
+                var trigger = event.target.closest && event.target.closest('.navbar-main .search');
+                var chip = event.target.closest && event.target.closest('.command-palette-chips button');
+                if (trigger) openSearch();
+                if (chip) {
+                    openSearch();
+                    var input = document.querySelector('.searchbox-input');
+                    if (input) {
+                        input.value = chip.getAttribute('data-query') || '';
+                        input.dispatchEvent(new Event('input', { bubbles: true }));
+                    }
+                }
+            }, true);
+            if (location.hash && location.hash.trim() === '#insight-search') openSearch();
+        });</script></body></html>
