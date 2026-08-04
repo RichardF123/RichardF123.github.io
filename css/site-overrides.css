@@ -4641,6 +4641,75 @@ article.article .article-meta ~ .content::before {
   content: none !important;
   display: none !important;
 }
+/* Optional background music toggle. The audio file itself must be licensed by the site owner. */
+.bgm-control {
+  align-items: center;
+  background: linear-gradient(135deg, rgba(49,27,18,0.94), rgba(96,36,27,0.92)), var(--arcane-paper-texture);
+  border: 1px solid rgba(230,194,110,0.42);
+  border-radius: 999px;
+  bottom: 1.35rem;
+  box-shadow: 0 18px 36px rgba(25,14,9,0.32), inset 0 0 0 1px rgba(255,241,190,0.12);
+  color: #fff3cc;
+  display: flex;
+  gap: 0.6rem;
+  max-width: calc(100vw - 2rem);
+  padding: 0.42rem 0.78rem 0.42rem 0.42rem;
+  position: fixed;
+  right: 1.25rem;
+  z-index: 60;
+}
+.bgm-control__button {
+  align-items: center;
+  background: linear-gradient(180deg, #fff1bd, #b9853b) !important;
+  border: 1px solid rgba(47,25,12,0.48) !important;
+  border-radius: 999px !important;
+  box-shadow: 0 8px 18px rgba(20,10,7,0.22);
+  color: #351b11 !important;
+  cursor: pointer;
+  display: inline-flex;
+  font-family: "Cinzel", "Noto Serif SC", serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  gap: 0.38rem;
+  height: 2.35rem;
+  justify-content: center;
+  letter-spacing: 0.04em;
+  min-width: 5.45rem;
+  padding: 0 0.75rem;
+  text-transform: uppercase;
+}
+.bgm-control__button:hover {
+  filter: brightness(1.06);
+}
+.bgm-control__hint {
+  color: rgba(255,243,204,0.86);
+  font-family: "Noto Serif SC", Georgia, serif;
+  font-size: 0.78rem;
+  line-height: 1;
+  white-space: nowrap;
+}
+.bgm-control.is-playing {
+  border-color: rgba(255,226,158,0.72);
+  box-shadow: 0 18px 38px rgba(25,14,9,0.34), 0 0 24px rgba(185,138,58,0.18);
+}
+.bgm-control.is-playing .bgm-control__button {
+  background: linear-gradient(180deg, #ffe6a1, #d09a45) !important;
+}
+@media screen and (max-width: 700px) {
+  .bgm-control {
+    bottom: 0.85rem;
+    right: 0.75rem;
+    padding-right: 0.55rem;
+  }
+  .bgm-control__button {
+    min-width: 2.45rem;
+    padding: 0 0.7rem;
+  }
+  .bgm-control__text,
+  .bgm-control__hint {
+    display: none;
+  }
+}
 @-moz-keyframes soft-float {
   0%, 100% {
     transform: translateY(0);
