@@ -12,6 +12,8 @@
     let audioFailed = false;
     let synth = null;
     let playing = false;
+    let warmed = false;
+    const isTouchDevice = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
 
     function setState(isPlaying, message) {
         playing = isPlaying;
@@ -26,14 +28,31 @@
         if (!audio && audioSrc) {
             audio = new Audio(audioSrc);
             audio.loop = true;
-            audio.preload = 'none';
+            audio.preload = 'metadata';
             audio.volume = 0.34;
+            audio.setAttribute('playsinline', '');
             audio.addEventListener('error', function() {
                 audioFailed = true;
                 if (playing) startSynth();
             });
+            audio.addEventListener('canplaythrough', function() {
+                if (!playing) hint.textContent = 'Ready';
+            }, { once: true });
         }
         return audio;
+    }
+
+    function warmAudio() {
+        const track = createAudio();
+        if (!track || warmed) return;
+        warmed = true;
+        track.preload = 'auto';
+        hint.textContent = 'Loading';
+        try {
+            track.load();
+        } catch (e) {
+            hint.textContent = 'Click to play';
+        }
     }
 
     function makeSynth() {
@@ -114,13 +133,27 @@
         });
     }
 
-    function play() {
+    function isAutoplayBlocked(error) {
+        return error && (error.name === 'NotAllowedError' || error.name === 'AbortError');
+    }
+
+    function play(options) {
+        const opts = options || {};
         const track = createAudio();
         if (track && !audioFailed) {
+            hint.textContent = 'Loading';
             return track.play().then(function() {
                 setState(true, 'Playing');
                 return true;
-            }).catch(function() {
+            }).catch(function(error) {
+                if (isAutoplayBlocked(error)) {
+                    if (opts.autoplay) {
+                        setState(false, 'Click to play');
+                        return false;
+                    }
+                    hint.textContent = 'Click again';
+                    return false;
+                }
                 audioFailed = true;
                 return startSynth();
             });
@@ -145,7 +178,23 @@
         play();
     });
 
-    if (localStorage.getItem(stateKey) === 'on') {
-        hint.textContent = 'Click to resume';
+    const savedState = localStorage.getItem(stateKey);
+    if (savedState === 'off') {
+        hint.textContent = 'Paused';
+    } else {
+        window.addEventListener('load', function() {
+            const prepareMusic = function() {
+                warmAudio();
+                window.setTimeout(function() {
+                    play({ autoplay: true });
+                }, isTouchDevice ? 1800 : 500);
+            };
+
+            if ('requestIdleCallback' in window) {
+                window.requestIdleCallback(prepareMusic, { timeout: 2500 });
+            } else {
+                window.setTimeout(prepareMusic, 1200);
+            }
+        }, { once: true });
     }
 }());

@@ -4695,6 +4695,10 @@ article.article .article-meta ~ .content::before {
 .bgm-control.is-playing .bgm-control__button {
   background: linear-gradient(180deg, #ffe6a1, #d09a45) !important;
 }
+html.is-pjax-loading .section {
+  opacity: 0.72;
+  transition: opacity 0.16s ease;
+}
 @media screen and (max-width: 700px) {
   .bgm-control {
     bottom: 0.85rem;
