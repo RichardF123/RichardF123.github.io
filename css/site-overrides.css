@@ -4699,7 +4699,44 @@ html.is-pjax-loading .section {
   opacity: 0.72;
   transition: opacity 0.16s ease;
 }
+#back-to-top {
+  align-items: center;
+  background: linear-gradient(180deg, #fff1bd, #c08a3f), var(--arcane-paper-texture);
+  border: 1px solid rgba(65,34,18,0.42);
+  border-radius: 999px;
+  bottom: 5.15rem;
+  box-shadow: 0 14px 28px rgba(28,15,10,0.28), inset 0 0 0 1px rgba(255,245,203,0.28);
+  color: #351b11 !important;
+  display: flex;
+  height: 2.75rem;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  position: fixed;
+  right: 1.45rem;
+  transform: translateY(10px);
+  transition: opacity 0.18s ease, transform 0.18s ease, filter 0.18s ease;
+  width: 2.75rem;
+  z-index: 61;
+}
+#back-to-top.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+#back-to-top:hover {
+  filter: brightness(1.06);
+}
+#back-to-top i {
+  font-size: 0.95rem;
+}
 @media screen and (max-width: 700px) {
+  #back-to-top {
+    bottom: 4.25rem;
+    height: 2.45rem;
+    right: 0.85rem;
+    width: 2.45rem;
+  }
   .bgm-control {
     bottom: 0.85rem;
     right: 0.75rem;
