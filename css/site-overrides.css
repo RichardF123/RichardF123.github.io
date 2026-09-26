@@ -2570,7 +2570,7 @@ body::before {
   border-color: rgba(155,107,47,0.32);
   border-radius: 50%;
   box-shadow: 0 12px 26px rgba(62,45,24,0.16);
-  filter: sepia(0.18) saturate(0.92);
+  filter: sepia(.18) saturate(.92);
 }
 .navbar .navbar-item {
   color: #4f463a;
@@ -2840,7 +2840,7 @@ article.article .article-tags a:hover,
 .widget.profile .image img {
   border: 1px solid rgba(155,107,47,0.26);
   border-radius: 50% !important;
-  filter: sepia(0.2) saturate(0.88);
+  filter: sepia(.2) saturate(.88);
 }
 .widget.profile .author {
   color: #2b251e;
@@ -2883,7 +2883,7 @@ article.article .article-tags a:hover,
 .friend-item-avatar,
 .friend-avatar {
   border-radius: 50%;
-  filter: sepia(0.16) saturate(0.9);
+  filter: sepia(.16) saturate(.9);
 }
 .footer {
   border-top: 1px solid rgba(155,107,47,0.2);
@@ -3684,7 +3684,7 @@ body::before {
 .navbar-logo img {
   border: 1px solid rgba(185,138,58,0.45);
   box-shadow: 0 0 0 3px rgba(247,236,207,0.1);
-  filter: sepia(0.18) saturate(0.9);
+  filter: sepia(.18) saturate(.9);
 }
 .card,
 .widget,
@@ -4207,7 +4207,7 @@ code,
 .widget[data-type="profile"] .avatar,
 .widget.profile .avatar {
   border: 1px solid rgba(83,49,24,0.16);
-  filter: sepia(0.18) contrast(0.98);
+  filter: sepia(.18) contrast(.98);
 }
 .widget[data-type="profile"] .title,
 .widget.profile .title {
