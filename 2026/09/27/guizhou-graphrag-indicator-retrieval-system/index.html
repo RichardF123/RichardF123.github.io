@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>贵州统计指标 GraphRAG：从自然语言问题到可解释的混合检索系统 - RichardF&#039;s Blog</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="RichardF&#039;s Blog"><meta name="msapplication-TileImage" content="https://avatars.githubusercontent.com/u/144225184?s=400&amp;u=f62e0f37c00d8518afb213a36c81cd8428ce0a06&amp;v=4"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="RichardF&#039;s Blog"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="这篇文章复盘我的 Guizhou-GraphRAG 项目。它面向贵州统计指标检索场景：用户不需要记住正式指标名称，只要用自然语言描述“想分析什么”，系统就会在已有指标库中召回最相关的指标，并返回定义、类别、匹配原因与图谱路径。 它并不是一个让大模型自由生成答案的聊天机器人。项目真正要解决的问题是：如何把口语化、带方言和不完整条件的问题，可靠地映射到一组真实存在、口径明确的结构化统计指标。"><meta property="og:type" content="blog"><meta property="og:title" content="贵州统计指标 GraphRAG：从自然语言问题到可解释的混合检索系统"><meta property="og:url" content="https://richardf123.github.io/2026/09/27/guizhou-graphrag-indicator-retrieval-system/"><meta property="og:site_name" content="RichardF&#039;s Blog"><meta property="og:description" content="这篇文章复盘我的 Guizhou-GraphRAG 项目。它面向贵州统计指标检索场景：用户不需要记住正式指标名称，只要用自然语言描述“想分析什么”，系统就会在已有指标库中召回最相关的指标，并返回定义、类别、匹配原因与图谱路径。 它并不是一个让大模型自由生成答案的聊天机器人。项目真正要解决的问题是：如何把口语化、带方言和不完整条件的问题，可靠地映射到一组真实存在、口径明确的结构化统计指标。"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="d:/logo.jpg"><meta property="article:published_time" content="2026-09-26T18:30:00.000Z"><meta property="article:modified_time" content="2026-09-26T18:30:00.000Z"><meta property="article:author" content="RichardF"><meta property="article:tag" content="NLP"><meta property="article:tag" content="GraphRAG"><meta property="article:tag" content="RAG"><meta property="article:tag" content="knowledge-graph"><meta property="article:tag" content="information-retrieval"><meta property="article:tag" content="Flask"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="d:/logo.jpg"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://richardf123.github.io/2026/09/27/guizhou-graphrag-indicator-retrieval-system/"},"headline":"贵州统计指标 GraphRAG：从自然语言问题到可解释的混合检索系统","image":["d:/logo.jpg"],"datePublished":"2026-09-26T18:30:00.000Z","dateModified":"2026-09-26T18:30:00.000Z","author":{"@type":"Person","name":"RichardF"},"publisher":{"@type":"Organization","name":"D:/logo.jpg","logo":{"@type":"ImageObject","url":"d:/logo.jpg"}},"description":"这篇文章复盘我的 Guizhou-GraphRAG 项目。它面向贵州统计指标检索场景：用户不需要记住正式指标名称，只要用自然语言描述“想分析什么”，系统就会在已有指标库中召回最相关的指标，并返回定义、类别、匹配原因与图谱路径。 它并不是一个让大模型自由生成答案的聊天机器人。项目真正要解决的问题是：如何把口语化、带方言和不完整条件的问题，可靠地映射到一组真实存在、口径明确的结构化统计指标。"}</script><link rel="canonical" href="https://richardf123.github.io/2026/09/27/guizhou-graphrag-indicator-retrieval-system/"><link rel="icon" href="https://avatars.githubusercontent.com/u/144225184?s=400&amp;u=f62e0f37c00d8518afb213a36c81cd8428ce0a06&amp;v=4"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&amp;family=Noto+Serif+SC:wght@400;500;700&amp;family=Noto+Sans+SC:wght@400;500;700&amp;family=JetBrains+Mono:wght@400;600"><link rel="stylesheet" href="/css/default.css?v=20260624-interactive-map"><link rel="stylesheet" href="/css/site-overrides.css?v=20260803-db-epic-1"><!--!--><!--!--><!--!--><!--!--><!--!--><!--!--><!--!--><!--!--><!--!--><!-- hexo injector head_end start --><script>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>从规则检索到 GraphRAG：贵州统计指标系统的架构、混合召回与工程优化 - RichardF&#039;s Blog</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="RichardF&#039;s Blog"><meta name="msapplication-TileImage" content="https://avatars.githubusercontent.com/u/144225184?s=400&amp;u=f62e0f37c00d8518afb213a36c81cd8428ce0a06&amp;v=4"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="RichardF&#039;s Blog"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="本文是 Guizhou-GraphRAG 的技术复盘。项目面向贵州统计指标检索：输入一句口语问题，系统需要从 2000 多条结构相似的指标中找出正确实体，并返回定义、类别、匹配证据和图谱关系。 这里最难的并不是接入 LLM，而是同时处理三类冲突：召回率与精确率的冲突、语义相似与统计口径的冲突、模型能力与结果可控性的冲突。 项目最终采用“指标知识图谱 + 多路召回 + 规则排序 + 可选模型精排”的"><meta property="og:type" content="blog"><meta property="og:title" content="从规则检索到 GraphRAG：贵州统计指标系统的架构、混合召回与工程优化"><meta property="og:url" content="https://richardf123.github.io/2026/09/27/guizhou-graphrag-indicator-retrieval-system/"><meta property="og:site_name" content="RichardF&#039;s Blog"><meta property="og:description" content="本文是 Guizhou-GraphRAG 的技术复盘。项目面向贵州统计指标检索：输入一句口语问题，系统需要从 2000 多条结构相似的指标中找出正确实体，并返回定义、类别、匹配证据和图谱关系。 这里最难的并不是接入 LLM，而是同时处理三类冲突：召回率与精确率的冲突、语义相似与统计口径的冲突、模型能力与结果可控性的冲突。 项目最终采用“指标知识图谱 + 多路召回 + 规则排序 + 可选模型精排”的"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="d:/logo.jpg"><meta property="article:published_time" content="2026-09-26T18:30:00.000Z"><meta property="article:modified_time" content="2026-09-26T19:20:00.000Z"><meta property="article:author" content="RichardF"><meta property="article:tag" content="NLP"><meta property="article:tag" content="GraphRAG"><meta property="article:tag" content="RAG"><meta property="article:tag" content="knowledge-graph"><meta property="article:tag" content="information-retrieval"><meta property="article:tag" content="Flask"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="d:/logo.jpg"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://richardf123.github.io/2026/09/27/guizhou-graphrag-indicator-retrieval-system/"},"headline":"从规则检索到 GraphRAG：贵州统计指标系统的架构、混合召回与工程优化","image":["d:/logo.jpg"],"datePublished":"2026-09-26T18:30:00.000Z","dateModified":"2026-09-26T19:20:00.000Z","author":{"@type":"Person","name":"RichardF"},"publisher":{"@type":"Organization","name":"D:/logo.jpg","logo":{"@type":"ImageObject","url":"d:/logo.jpg"}},"description":"本文是 Guizhou-GraphRAG 的技术复盘。项目面向贵州统计指标检索：输入一句口语问题，系统需要从 2000 多条结构相似的指标中找出正确实体，并返回定义、类别、匹配证据和图谱关系。 这里最难的并不是接入 LLM，而是同时处理三类冲突：召回率与精确率的冲突、语义相似与统计口径的冲突、模型能力与结果可控性的冲突。 项目最终采用“指标知识图谱 + 多路召回 + 规则排序 + 可选模型精排”的"}</script><link rel="canonical" href="https://richardf123.github.io/2026/09/27/guizhou-graphrag-indicator-retrieval-system/"><link rel="icon" href="https://avatars.githubusercontent.com/u/144225184?s=400&amp;u=f62e0f37c00d8518afb213a36c81cd8428ce0a06&amp;v=4"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&amp;family=Noto+Serif+SC:wght@400;500;700&amp;family=Noto+Sans+SC:wght@400;500;700&amp;family=JetBrains+Mono:wght@400;600"><link rel="stylesheet" href="/css/default.css?v=20260624-interactive-map"><link rel="stylesheet" href="/css/site-overrides.css?v=20260803-db-epic-1"><!--!--><!--!--><!--!--><!--!--><!--!--><!--!--><!--!--><!--!--><!--!--><!-- hexo injector head_end start --><script>
   (function () {
       function switchTab() {
           if (!location.hash) {
@@ -29,192 +29,327 @@
       switchTab();
       window.addEventListener('hashchange', switchTab, false);
   })();
-  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head><body class="is-3-column"><a class="skip-link" href="#site-main">Skip to content</a><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="https://avatars.githubusercontent.com/u/144225184?s=400&amp;u=f62e0f37c00d8518afb213a36c81cd8428ce0a06&amp;v=4" alt="RichardF&#039;s Blog" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">主页</a><a class="navbar-item" href="/roadmap">学习路线</a><a class="navbar-item" href="/projects">项目作品集</a><a class="navbar-item" href="/archives">归档</a><a class="navbar-item" href="/categories">分类</a><a class="navbar-item" href="/tags">标签</a><a class="navbar-item" href="/knowledge-map">知识图谱</a><a class="navbar-item" href="/friends">友链</a><a class="navbar-item" href="/about">关于</a></div><div class="navbar-end"><a class="navbar-item search" title="搜索" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><main class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen" id="site-main"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item"><time dateTime="2026-09-26T18:30:00.000Z" title="2026/9/27 02:30:00">2026-09-27</time>发表</span><span class="level-item"><time dateTime="2026-09-26T18:30:00.000Z" title="2026/9/27 02:30:00">2026-09-27</time>更新</span><span class="level-item"><a class="link-muted" href="/categories/Projects/">Projects</a></span><span class="level-item">30 分钟读完 (大约4530个字)</span></div></div><h1 class="title is-3 is-size-4-mobile">贵州统计指标 GraphRAG：从自然语言问题到可解释的混合检索系统</h1><div class="content"><p>这篇文章复盘我的 <a target="_blank" rel="noopener" href="https://github.com/RichardF123/Guizhou-GraphRAG">Guizhou-GraphRAG</a> 项目。它面向贵州统计指标检索场景：用户不需要记住正式指标名称，只要用自然语言描述“想分析什么”，系统就会在已有指标库中召回最相关的指标，并返回定义、类别、匹配原因与图谱路径。</p>
-<p>它并不是一个让大模型自由生成答案的聊天机器人。项目真正要解决的问题是：<strong>如何把口语化、带方言和不完整条件的问题，可靠地映射到一组真实存在、口径明确的结构化统计指标。</strong></p>
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head><body class="is-3-column"><a class="skip-link" href="#site-main">Skip to content</a><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="https://avatars.githubusercontent.com/u/144225184?s=400&amp;u=f62e0f37c00d8518afb213a36c81cd8428ce0a06&amp;v=4" alt="RichardF&#039;s Blog" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">主页</a><a class="navbar-item" href="/roadmap">学习路线</a><a class="navbar-item" href="/projects">项目作品集</a><a class="navbar-item" href="/archives">归档</a><a class="navbar-item" href="/categories">分类</a><a class="navbar-item" href="/tags">标签</a><a class="navbar-item" href="/knowledge-map">知识图谱</a><a class="navbar-item" href="/friends">友链</a><a class="navbar-item" href="/about">关于</a></div><div class="navbar-end"><a class="navbar-item search" title="搜索" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><main class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen" id="site-main"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item"><time dateTime="2026-09-26T18:30:00.000Z" title="2026/9/27 02:30:00">2026-09-27</time>发表</span><span class="level-item"><time dateTime="2026-09-26T19:20:00.000Z" title="2026/9/27 03:20:00">2026-09-27</time>更新</span><span class="level-item"><a class="link-muted" href="/categories/Projects/">Projects</a></span><span class="level-item">31 分钟读完 (大约4672个字)</span></div></div><h1 class="title is-3 is-size-4-mobile">从规则检索到 GraphRAG：贵州统计指标系统的架构、混合召回与工程优化</h1><div class="content"><p>本文是 <a target="_blank" rel="noopener" href="https://github.com/RichardF123/Guizhou-GraphRAG">Guizhou-GraphRAG</a> 的技术复盘。项目面向贵州统计指标检索：输入一句口语问题，系统需要从 2000 多条结构相似的指标中找出正确实体，并返回定义、类别、匹配证据和图谱关系。</p>
+<p>这里最难的并不是接入 LLM，而是同时处理三类冲突：<strong>召回率与精确率的冲突、语义相似与统计口径的冲突、模型能力与结果可控性的冲突。</strong> 项目最终采用“指标知识图谱 + 多路召回 + 规则排序 + 可选模型精排”的架构，并通过单字保护、候选门控、动态权重、向量缓存和服务降级等工程优化建立可用闭环。</p>
 <span id="more"></span>
 <p><img src="/images/guizhou-graphrag-overview.png" alt="贵州统计指标 Agent 界面" /></p>
-<h2 id="1-为什么要做指标检索而不是普通问答"><a class="markdownIt-Anchor" href="#1-为什么要做指标检索而不是普通问答"></a> 1. 为什么要做“指标检索”，而不是普通问答</h2>
-<p>统计分析的第一步通常不是立刻计算，而是先回答：<strong>应该用哪些指标？</strong></p>
-<p>例如，用户问：</p>
-<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">我想看村里没人照顾的老人有多少。</span><br></pre></td></tr></table></figure>
-<p>正式指标库里未必存在这句原话，可能只有“留守老人数量”或相近的规范名称。用户还可能把“马铃薯”说成“洋芋”，把“公共厕所”说成“公厕”，或者在语音输入中把“马铃薯”识别为“马玲薯”。</p>
-<p>如果只做字符串匹配，系统会漏掉口语和同义表达；如果只做向量检索，又可能因为语义接近而把父指标、子指标和同类指标混在一起。更麻烦的是，统计指标中存在大量“数量、面积、是否、情况”这样的通用词，仅凭这些词相同并不能证明两个指标相关。</p>
-<p>因此，这个任务需要同时满足四个目标：</p>
-<ol>
-<li><strong>高召回</strong>：口语、简称、方言和不完整问题也能找到候选指标。</li>
-<li><strong>高精度</strong>：完整名称、对象、属性与限定条件必须被尊重。</li>
-<li><strong>可解释</strong>：用户要知道为什么匹配，以及指标采用什么统计口径。</li>
-<li><strong>可约束</strong>：模型只能选择真实指标，不能凭空创造一个听起来合理的名称。</li>
-</ol>
-<p>这正是知识图谱与混合检索适合介入的地方。</p>
-<h2 id="2-系统总体架构"><a class="markdownIt-Anchor" href="#2-系统总体架构"></a> 2. 系统总体架构</h2>
-<p>项目采用“结构化解析 + 指标知识图谱 + 混合召回 + 规则排序 + 可选模型重排”的方案：</p>
-<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">指标 JSON / TXT / CSV</span><br><span class="line">        |</span><br><span class="line">        v</span><br><span class="line">解析、清洗与语义结构化</span><br><span class="line">        |</span><br><span class="line">        +--&gt; 指标知识图谱</span><br><span class="line">        +--&gt; 类别社区摘要</span><br><span class="line">        +--&gt; 关键词索引</span><br><span class="line">        +--&gt; Embedding 索引</span><br><span class="line"></span><br><span class="line">用户自然语言问题</span><br><span class="line">        |</span><br><span class="line">        +--&gt; 查询规范化与纠错</span><br><span class="line">        +--&gt; local / global / cross-category 路由</span><br><span class="line">        +--&gt; LLM 查询规划（可选）</span><br><span class="line">        |</span><br><span class="line">        +--&gt; 精确召回</span><br><span class="line">        +--&gt; 别名与关键词召回</span><br><span class="line">        +--&gt; 向量召回（可选）</span><br><span class="line">        +--&gt; 图谱邻居扩展</span><br><span class="line">        |</span><br><span class="line">候选融合、相关性门控与保护规则</span><br><span class="line">        |</span><br><span class="line">规则排序 -&gt; LLM / Cross-Encoder 重排（可选）</span><br><span class="line">        |</span><br><span class="line">Top-K 指标 + 定义 + 类别 + 匹配原因 + 图谱路径</span><br></pre></td></tr></table></figure>
-<p>这套设计里，大模型是一个可插拔增强模块，而不是系统唯一的“判断者”。即使 LLM 或远程 Embedding 服务不可用，精确匹配、别名匹配、关键词召回和图谱检索仍然可以工作。</p>
-<h2 id="3-从原始指标到结构化语义"><a class="markdownIt-Anchor" href="#3-从原始指标到结构化语义"></a> 3. 从原始指标到结构化语义</h2>
-<p>每条指标不能只保存一个名称。系统会把原始文本解析为更细的语义字段：</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;metric_name&quot;</span><span class="punctuation">:</span> <span class="string">&quot;生活垃圾是否进行分类&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;category&quot;</span><span class="punctuation">:</span> <span class="string">&quot;垃圾处理&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;definition&quot;</span><span class="punctuation">:</span> <span class="string">&quot;指标口径说明&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;source&quot;</span><span class="punctuation">:</span> <span class="string">&quot;填报来源&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;aliases&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="string">&quot;垃圾有没有分类&quot;</span><span class="punctuation">,</span> <span class="string">&quot;生活垃圾分类情况&quot;</span><span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;objects&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="string">&quot;生活垃圾&quot;</span><span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;properties&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="string">&quot;是否分类&quot;</span><span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;conditions&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;value_type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;boolean&quot;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
-<p>其中最关键的拆分是：</p>
+<h2 id="1-任务定义这不是一个普通聊天机器人"><a class="markdownIt-Anchor" href="#1-任务定义这不是一个普通聊天机器人"></a> 1. 任务定义：这不是一个普通聊天机器人</h2>
+<p>输入：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">村里没人照顾的老人有多少？</span><br></pre></td></tr></table></figure>
+<p>期望输出不是模型自由生成的“老龄化分析”，而是指标库中真实存在的实体，例如：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;metric&quot;</span><span class="punctuation">:</span> <span class="string">&quot;留守老人&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;category&quot;</span><span class="punctuation">:</span> <span class="string">&quot;人口状况&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;definition&quot;</span><span class="punctuation">:</span> <span class="string">&quot;...&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;reason&quot;</span><span class="punctuation">:</span> <span class="string">&quot;对象、数量意图和无人照顾条件一致&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;graph_relation&quot;</span><span class="punctuation">:</span> <span class="string">&quot;直接召回&quot;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>因此，这个项目本质上更接近一个 <strong>Entity Retrieval / Semantic Search</strong> 系统，而不是生成式问答：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Natural Language Query -&gt; Constrained Retrieval -&gt; Ranked Metric Entities</span><br></pre></td></tr></table></figure>
+<p>它必须满足以下约束：</p>
 <ul>
-<li><code>Object</code>：统计对象，例如人口、老人、耕地、生活垃圾。</li>
-<li><code>Property</code>：统计属性，例如数量、面积、类型、是否分类。</li>
-<li><code>Condition</code>：限定条件，例如常住、户籍、当年、公共、无人照顾。</li>
-<li><code>ValueType</code>：结果类型，例如 count、area、boolean。</li>
+<li>返回的指标一定存在于授权指标库，不能由 LLM 创造。</li>
+<li>“数量、面积、情况、是否”等高频属性不能单独构成相关性。</li>
+<li>“马铃薯”和“土豆”需要互相召回，但用户原词仍要优先。</li>
+<li>“马”不能因为字符串包含关系召回“马铃薯”。</li>
+<li>指标库或模型服务不可用时，系统要有明确的降级路径。</li>
 </ul>
-<p>为什么要拆这么细？因为“垃圾数量”和“垃圾是否分类”共享对象，却不是同一个问题；“常住人口”和“户籍人口”共享属性，却有不同统计条件。把指标拆成语义骨架以后，排序器才能判断候选究竟是“真的匹配”，还是只碰巧包含几个相同词。</p>
-<p>项目当前的前端演示资产包含 2098 条指标，覆盖 26 个类别。正式部署时，授权指标数据、Embedding 缓存和图谱运行产物应由后端在运行时挂载，不应把密钥、内网地址或受限数据写入前端和代码仓库。</p>
-<h2 id="4-如何构建指标知识图谱"><a class="markdownIt-Anchor" href="#4-如何构建指标知识图谱"></a> 4. 如何构建指标知识图谱</h2>
-<p>图谱使用 <code>NetworkX MultiDiGraph</code> 构建。主要节点包括：</p>
+<h2 id="2-技术栈与模块划分"><a class="markdownIt-Anchor" href="#2-技术栈与模块划分"></a> 2. 技术栈与模块划分</h2>
+<h3 id="后端与检索"><a class="markdownIt-Anchor" href="#后端与检索"></a> 后端与检索</h3>
 <table>
 <thead>
 <tr>
-<th>节点类型</th>
-<th>含义</th>
+<th>技术</th>
+<th>用途</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>Category</code></td>
-<td>指标大类，也是全局检索中的社区</td>
+<td>Python 3.11</td>
+<td>主开发语言</td>
 </tr>
 <tr>
-<td><code>Metric</code></td>
-<td>正式指标实体</td>
+<td>Flask</td>
+<td><code>/api/search</code>、<code>/api/voice-query</code> 与健康检查</td>
 </tr>
 <tr>
-<td><code>Alias</code></td>
-<td>方言、简称、同义词与口语表达</td>
+<td>NetworkX <code>MultiDiGraph</code></td>
+<td>指标实体、别名、定义、类别和父子关系图</td>
 </tr>
 <tr>
-<td><code>Definition</code></td>
-<td>指标定义和统计口径</td>
+<td>NumPy</td>
+<td>Embedding 矩阵归一化与余弦相似度计算</td>
 </tr>
 <tr>
-<td><code>Source</code></td>
-<td>指标填报或发布来源</td>
+<td>Pandas</td>
+<td>评测集读取、明细汇总和指标计算</td>
 </tr>
 <tr>
-<td><code>Object</code></td>
-<td>统计对象</td>
+<td>RapidFuzz</td>
+<td>中文指标名称与口语表达的模糊匹配</td>
 </tr>
 <tr>
-<td><code>Property</code></td>
-<td>统计属性</td>
+<td>pypinyin</td>
+<td>同音字、ASR 错音与拼音候选生成</td>
 </tr>
 <tr>
-<td><code>Condition</code></td>
-<td>时间、范围、身份等限定条件</td>
+<td>Requests</td>
+<td>调用 LLM、Embedding、Reranker 和远程 ASR 服务</td>
 </tr>
 </tbody>
 </table>
-<p>图谱关系包括：</p>
-<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">Category -HAS_METRIC-&gt; Metric</span><br><span class="line">Metric -HAS_ALIAS-&gt; Alias</span><br><span class="line">Metric -HAS_DEFINITION-&gt; Definition</span><br><span class="line">Metric -HAS_SOURCE-&gt; Source</span><br><span class="line">Metric -HAS_OBJECT-&gt; Object</span><br><span class="line">Metric -HAS_PROPERTY-&gt; Property</span><br><span class="line">Metric -HAS_CONDITION-&gt; Condition</span><br><span class="line">Metric -PARENT_METRIC-&gt; Metric</span><br><span class="line">Metric -HAS_SUB_METRIC-&gt; Metric</span><br><span class="line">Metric -SAME_OBJECT-&gt; Metric</span><br><span class="line">Metric -SAME_PROPERTY-&gt; Metric</span><br></pre></td></tr></table></figure>
-<p>图谱的作用不是把所有指标连接成一张越大越好的网，而是提供<strong>受控扩展</strong>。系统只沿父子、别名、同对象、同属性和类别关系扩展候选。如果扩展过宽，GraphRAG 反而会把大量弱相关节点带入结果。</p>
-<p>例如，精确命中“马铃薯”以后，图谱可以补充“鲜薯产量”等子指标；但这些扩展结果不能越过完整名称的精确命中。图结构提供召回证据，保护规则决定最终秩序。</p>
-<h2 id="5-查询规范化方言-错字与语音识别"><a class="markdownIt-Anchor" href="#5-查询规范化方言-错字与语音识别"></a> 5. 查询规范化：方言、错字与语音识别</h2>
-<p>这个项目很有地方场景特色的一层，是保守的查询规范化。</p>
-<p>系统先从指标名、别名和农村口语词典建立候选词表，再组合几类信号：</p>
-<ul>
-<li>精确别名：<code>洋芋 -&gt; 马铃薯</code>。</li>
-<li>拼音一致：处理同音字和语音识别结果。</li>
-<li>形近字：<code>马玲薯 -&gt; 马铃薯</code>。</li>
-<li>字符顺序：处理少量顺序错乱。</li>
-<li>模糊相似度：使用 <code>RapidFuzz</code> 生成候选。</li>
-</ul>
-<p>但纠错不是“看到相似词就强行替换”。候选必须映射到指标库中已经存在的正式名称或别名，并满足置信度阈值。低置信别名只参与候选召回，不自动改写原问题。</p>
-<p>仓库中的回归测试覆盖了几个关键边界：</p>
-<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">洋芋     -&gt; 马铃薯       自动规范化</span><br><span class="line">马玲薯   -&gt; 马铃薯       修复形近/语音混淆</span><br><span class="line">马       -&gt; 马           单字不扩展</span><br><span class="line">低置信词 -&gt; 保留原输入    不做激进改写</span><br></pre></td></tr></table></figure>
-<p>这类保护看似只是几个规则，实际上非常重要。一个典型反例是查询“马”：如果直接使用字符串包含或宽泛向量召回，“马铃薯”也可能进入高位候选。系统因此规定，单字实体只能精确命中，不进行模糊邻居扩展。</p>
-<h2 id="6-local-global-与跨类别路由"><a class="markdownIt-Anchor" href="#6-local-global-与跨类别路由"></a> 6. Local、Global 与跨类别路由</h2>
-<p>用户问题并不都在问同一层级。项目将查询分成三类：</p>
+<h3 id="模型与语音"><a class="markdownIt-Anchor" href="#模型与语音"></a> 模型与语音</h3>
 <table>
 <thead>
 <tr>
-<th>路由</th>
+<th>技术</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>OpenAI-compatible LLM / Qwen</td>
+<td>查询规划、候选重排和匹配解释</td>
+</tr>
+<tr>
+<td>Remote Embedding API</td>
+<td>Bi-Encoder 语义召回</td>
+</tr>
+<tr>
+<td><code>sentence-transformers</code> CrossEncoder</td>
+<td>可选二阶段精排，默认关闭</td>
+</tr>
+<tr>
+<td>FunASR</td>
+<td>本地中文 ASR，可选依赖</td>
+</tr>
+<tr>
+<td>Windows SAPI / Browser Speech API</td>
+<td>语音识别降级方案</td>
+</tr>
+</tbody>
+</table>
+<h3 id="前端与部署"><a class="markdownIt-Anchor" href="#前端与部署"></a> 前端与部署</h3>
+<table>
+<thead>
+<tr>
+<th>技术</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Vanilla JavaScript + CSS</td>
+<td>对话界面、指标概览、语音上传和结果渲染</td>
+</tr>
+<tr>
+<td>Lucide Icons</td>
+<td>交互图标</td>
+</tr>
+<tr>
+<td>GitHub Pages</td>
+<td>公开静态页面</td>
+</tr>
+<tr>
+<td>环境变量</td>
+<td>运行时注入指标路径、模型地址和密钥</td>
+</tr>
+</tbody>
+</table>
+<p>仓库中的核心文件：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">Guizhou-GraphRAG/</span><br><span class="line">├── backend/</span><br><span class="line">│   ├── indicator_graphrag_core.py  # 图谱、召回、排序、评测</span><br><span class="line">│   ├── query_normalizer.py         # 方言、拼音和错字纠正</span><br><span class="line">│   ├── api_server.py               # Flask API</span><br><span class="line">│   ├── reranker_server.py          # Cross-Encoder 独立服务</span><br><span class="line">│   ├── speech_service.py           # 多级 ASR adapter</span><br><span class="line">│   └── run_api_100_tests.py        # 100 条端到端评测</span><br><span class="line">├── assets/</span><br><span class="line">│   ├── app.js                      # 前端状态和 API 调用</span><br><span class="line">│   └── indicators.json             # 公开演示指标资产</span><br><span class="line">├── TECHNICAL_DESIGN.md</span><br><span class="line">└── PUBLIC_DEPLOYMENT.md</span><br></pre></td></tr></table></figure>
+<h2 id="3-端到端请求链路"><a class="markdownIt-Anchor" href="#3-端到端请求链路"></a> 3. 端到端请求链路</h2>
+<p>一次查询会经历以下阶段：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">用户文本 / 语音</span><br><span class="line">      |</span><br><span class="line">      v</span><br><span class="line">ASR（仅语音）</span><br><span class="line">      |</span><br><span class="line">      v</span><br><span class="line">指标库约束的 Query Normalization</span><br><span class="line">      |</span><br><span class="line">      v</span><br><span class="line">local / global / cross_category 路由</span><br><span class="line">      |</span><br><span class="line">      +--&gt; Exact Match</span><br><span class="line">      +--&gt; Alias / Fuzzy Match</span><br><span class="line">      +--&gt; Embedding Recall</span><br><span class="line">      +--&gt; LLM Query Plan</span><br><span class="line">      |</span><br><span class="line">      v</span><br><span class="line">Graph Expansion</span><br><span class="line">      |</span><br><span class="line">      v</span><br><span class="line">Candidate Gate + Weighted Ranking</span><br><span class="line">      |</span><br><span class="line">      v</span><br><span class="line">Cross-Encoder / LLM Rerank（可选）</span><br><span class="line">      |</span><br><span class="line">      v</span><br><span class="line">精确命中保护 + Top-K Response</span><br></pre></td></tr></table></figure>
+<p>与常见的“文档切块 -&gt; 向量库 -&gt; LLM 回答”不同，这里检索的是结构化指标实体。向量相似度只是证据之一，最终排序还必须考虑对象、属性、条件、图关系与统计口径。</p>
+<h2 id="4-数据建模先把指标拆成语义骨架"><a class="markdownIt-Anchor" href="#4-数据建模先把指标拆成语义骨架"></a> 4. 数据建模：先把指标拆成语义骨架</h2>
+<p>原始指标文本会被解析成结构化记录：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;raw_text&quot;</span><span class="punctuation">:</span> <span class="string">&quot;是否有村（居）规民约：指约束规范村民行为的...&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;metric_name&quot;</span><span class="punctuation">:</span> <span class="string">&quot;是否有村规民约&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;category&quot;</span><span class="punctuation">:</span> <span class="string">&quot;基本情况&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;definition&quot;</span><span class="punctuation">:</span> <span class="string">&quot;指约束规范村民行为的统一规章制度&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;source&quot;</span><span class="punctuation">:</span> <span class="string">&quot;&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;aliases&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="string">&quot;有没有村规民约&quot;</span><span class="punctuation">,</span> <span class="string">&quot;有无村规民约&quot;</span><span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;objects&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="string">&quot;村规民约&quot;</span><span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;properties&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="string">&quot;是否&quot;</span><span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;conditions&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="string">&quot;布尔判断&quot;</span><span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;value_type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;boolean&quot;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>解析过程包括类别识别、“其中”子指标处理、名称与定义拆分、填报来源提取，以及 <code>object / property / condition</code> 抽取。随后系统基于规范名和语义骨架生成受控别名。</p>
+<p>这一步直接影响检索精度。例如“生活垃圾数量”和“生活垃圾是否进行分类”对象相同，但属性不同。只计算 embedding 或字符串重合，很容易把它们排得过近；显式建模对象和属性后，排序器才能识别统计口径差异。</p>
+<h2 id="5-图谱设计networkx-multidigraph"><a class="markdownIt-Anchor" href="#5-图谱设计networkx-multidigraph"></a> 5. 图谱设计：NetworkX MultiDiGraph</h2>
+<p>项目使用 <code>nx.MultiDiGraph()</code>，因为同一对节点之间可能存在多种关系。节点类型包括：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Category / Metric / Alias / Definition / Source</span><br><span class="line">Object / Property / Condition</span><br></pre></td></tr></table></figure>
+<p>主要边类型：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">Category -HAS_METRIC-&gt; Metric</span><br><span class="line">Metric -HAS_ALIAS-&gt; Alias</span><br><span class="line">Metric -HAS_DEFINITION-&gt; Definition</span><br><span class="line">Metric -HAS_SOURCE-&gt; Source</span><br><span class="line">Metric -HAS_OBJECT-&gt; Object</span><br><span class="line">Metric -HAS_PROPERTY-&gt; Property</span><br><span class="line">Metric -HAS_CONDITION-&gt; Condition</span><br><span class="line">Metric -PARENT_METRIC-&gt; Metric</span><br><span class="line">Metric -HAS_SUB_METRIC-&gt; Metric</span><br><span class="line">Metric -SAME_OBJECT-&gt; Metric</span><br><span class="line">Metric -SAME_PROPERTY-&gt; Metric</span><br></pre></td></tr></table></figure>
+<p>图谱不是越密越好。项目只允许沿有业务意义的关系扩展候选，并给不同边设置不同证据强度：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">add_candidate(parent,  <span class="number">0.85</span>, <span class="string">&quot;父指标扩展&quot;</span>)</span><br><span class="line">add_candidate(child,   <span class="number">0.85</span>, <span class="string">&quot;子指标扩展&quot;</span>)</span><br><span class="line">add_candidate(sibling, <span class="number">0.55</span>, <span class="string">&quot;同对象扩展&quot;</span>)</span><br><span class="line">add_candidate(sibling, <span class="number">0.45</span>, <span class="string">&quot;同属性扩展&quot;</span>)</span><br><span class="line">add_candidate(sibling, <span class="number">0.35</span>, <span class="string">&quot;同大类扩展&quot;</span>)</span><br></pre></td></tr></table></figure>
+<p>父子关系比“同类别”更强，因此权重更高。这个设计避免同一大类中的大量指标被无差别扩展出来。</p>
+<h2 id="6-查询规范化只能纠正到指标库中的实体"><a class="markdownIt-Anchor" href="#6-查询规范化只能纠正到指标库中的实体"></a> 6. 查询规范化：只能纠正到指标库中的实体</h2>
+<p>通用纠错模型可能把地方口语改成语言上更常见、业务上却不存在的词。项目因此使用 <strong>metric-library constrained normalization</strong>：任何自动改写结果都必须对应一个已存在的指标名或别名。</p>
+<p>候选生成组合了五类信号：</p>
+<ul>
+<li>Exact alias：<code>洋芋 -&gt; 马铃薯</code>。</li>
+<li>Pinyin exact：处理同音字。</li>
+<li>Shape confusion：<code>马玲薯 -&gt; 马铃薯</code>。</li>
+<li>Missing character / pinyin prefix：处理 ASR 漏字。</li>
+<li>RapidFuzz：处理轻微编辑距离。</li>
+</ul>
+<p>API 不会直接采用第一条模糊候选，而是经过安全门槛：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> confidence == <span class="string">&quot;low&quot;</span> <span class="keyword">or</span> score &lt; <span class="number">0.82</span>:</span><br><span class="line">    <span class="keyword">return</span> original, <span class="literal">None</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> exact_alias <span class="keyword">or</span> score &gt;= <span class="number">0.94</span> <span class="keyword">or</span> likely_missing_char:</span><br><span class="line">    <span class="keyword">return</span> canonical, candidate</span><br><span class="line"></span><br><span class="line"><span class="keyword">return</span> original, <span class="literal">None</span></span><br></pre></td></tr></table></figure>
+<p>设计原则是“不确定时保留原问题，优于自信地改成错误指标”。仓库中的测试覆盖了 <code>洋芋 -&gt; 马铃薯</code>、<code>马玲薯 -&gt; 马铃薯</code>、单字不扩展和低置信别名不改写。</p>
+<h2 id="7-local-global-与跨类别路由"><a class="markdownIt-Anchor" href="#7-local-global-与跨类别路由"></a> 7. Local、Global 与跨类别路由</h2>
+<p>系统首先判断问题粒度：</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
 <th>示例</th>
-<th>检索目标</th>
+<th>检索对象</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>local</code></td>
 <td>村里没人照顾的老人有多少</td>
-<td>找到具体指标，优化 Top-1</td>
+<td>Metric</td>
 </tr>
 <tr>
 <td><code>global</code></td>
 <td>农田水利有哪些指标</td>
-<td>找到相关类别与类别内代表指标</td>
+<td>Category Community</td>
 </tr>
 <tr>
 <td><code>cross_category</code></td>
-<td>产业发展和集体经济有哪些指标</td>
-<td>覆盖多个相关类别</td>
+<td>产业发展和经济发展有哪些指标</td>
+<td>Multiple Communities</td>
 </tr>
 </tbody>
 </table>
-<p><code>local</code> 查询主要在指标实体层检索；<code>global</code> 查询会优先对类别社区进行排序；跨类别查询则合并多个社区结果。这比把所有问题都丢进同一个向量索引更合理，因为“找一个指标”和“介绍一个指标体系”本来就是不同任务。</p>
-<p>每个类别社区保存类别名称、指标数量、代表指标和摘要。GraphRAG 在这里不仅是“图上的向量搜索”，还承担了从实体级检索切换到社区级检索的作用。</p>
-<h2 id="7-混合召回为什么比单路检索更稳"><a class="markdownIt-Anchor" href="#7-混合召回为什么比单路检索更稳"></a> 7. 混合召回为什么比单路检索更稳</h2>
-<p>第一阶段会并行收集多路候选：</p>
+<p>早期版本把所有问题都送进同一套指标排序，导致“有哪些指标”这类概览问题得到几个零散实体。增加路由后，具体问题优化 Top-1，概览问题返回类别摘要，多主题问题则合并多个社区。路由还返回置信度，低置信问题不会被过早硬分流。</p>
+<h2 id="8-混合召回实现"><a class="markdownIt-Anchor" href="#8-混合召回实现"></a> 8. 混合召回实现</h2>
+<h3 id="81-exact-fuzzy-vector"><a class="markdownIt-Anchor" href="#81-exact-fuzzy-vector"></a> 8.1 Exact + Fuzzy + Vector</h3>
+<p><code>hybrid_search_metrics</code> 合并三路结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> item <span class="keyword">in</span> exact_core_search_metrics(G, query, top_k=<span class="number">20</span>):</span><br><span class="line">    merge(item)</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> item <span class="keyword">in</span> fuzzy_search_metrics(G, query, top_k=<span class="number">30</span>):</span><br><span class="line">    merge(item)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> metric_embeddings <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">    <span class="keyword">for</span> item <span class="keyword">in</span> vector_search_metrics(query, top_k=<span class="number">30</span>):</span><br><span class="line">        merge(item)</span><br></pre></td></tr></table></figure>
+<p>Exact 负责精度，Fuzzy 负责字面变化，Vector 负责语义改写。候选使用指标名去重，同一路得分取最大值。</p>
+<h3 id="82-embedding-索引与缓存"><a class="markdownIt-Anchor" href="#82-embedding-索引与缓存"></a> 8.2 Embedding 索引与缓存</h3>
+<p>指标卡片由名称、类别、别名、对象、属性、条件和定义拼接而成。向量生成使用 batch 请求，之后做 L2 normalization：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">matrix = np.asarray(matrix, dtype=np.float32)</span><br><span class="line">norms = np.linalg.norm(matrix, axis=<span class="number">1</span>, keepdims=<span class="literal">True</span>)</span><br><span class="line">matrix = matrix / np.maximum(norms, <span class="number">1e-12</span>)</span><br></pre></td></tr></table></figure>
+<p>在线查询通过一次矩阵乘法计算余弦相似度：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">query_vector = normalize_matrix(query_vector.reshape(<span class="number">1</span>, -<span class="number">1</span>))[<span class="number">0</span>]</span><br><span class="line">scores = np.dot(metric_embeddings, query_vector)</span><br><span class="line">indices = np.argsort(scores)[::-<span class="number">1</span>][:top_k]</span><br></pre></td></tr></table></figure>
+<p>为了避免每次启动重新编码全部指标，索引写入 <code>metric_embeddings.npz</code>，同时保存 <code>metric_embedding_texts.json</code>。只有当当前指标文本与缓存文本完全一致时才复用向量，避免数据变化后使用过期索引。</p>
+<h2 id="9-candidate-relevance-gate先挡噪声再打分"><a class="markdownIt-Anchor" href="#9-candidate-relevance-gate先挡噪声再打分"></a> 9. Candidate Relevance Gate：先挡噪声，再打分</h2>
+<p>仅靠加权评分无法可靠处理所有短词。项目在排序前增加候选门控：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> query_norm == metric_norm:</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line"><span class="keyword">if</span> exact_phrase_or_alias:</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line"><span class="keyword">if</span> query_bigrams &amp; candidate_bigrams:</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line"><span class="keyword">if</span> vector_score &gt;= <span class="number">0.78</span>:</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line"><span class="keyword">return</span> <span class="literal">False</span></span><br></pre></td></tr></table></figure>
+<p>候选至少要满足完全相等、长度不少于 2 的短语/别名证据、共享中文字 bigram，或者向量相似度达到 <code>0.78</code>。这项优化解决了“只共享一个汉字也进入候选池”的问题，过滤放在图扩展和排序之前还能减少后续计算。</p>
+<h2 id="10-排序函数与动态权重"><a class="markdownIt-Anchor" href="#10-排序函数与动态权重"></a> 10. 排序函数与动态权重</h2>
+<p>开启 Embedding 时，局部 GraphRAG 排序为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">score =</span><br><span class="line">    0.20 * fuzzy_score</span><br><span class="line">  + 0.25 * coverage_score</span><br><span class="line">  + 0.25 * vector_score</span><br><span class="line">  + 0.15 * graph_score</span><br><span class="line">  + 0.10 * semantic_score</span><br><span class="line">  + 0.08 * intent_score</span><br><span class="line">  + 0.10 * plan_score</span><br><span class="line">  + route_score</span><br><span class="line">  - penalty_score</span><br></pre></td></tr></table></figure>
+<p>关闭 Embedding 时，权重重新分配给可观测信号：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">score =</span><br><span class="line">    0.35 * fuzzy_score</span><br><span class="line">  + 0.30 * coverage_score</span><br><span class="line">  + 0.16 * graph_score</span><br><span class="line">  + 0.09 * semantic_score</span><br><span class="line">  + 0.08 * intent_score</span><br><span class="line">  + 0.10 * plan_score</span><br><span class="line">  + route_score</span><br><span class="line">  - penalty_score</span><br></pre></td></tr></table></figure>
+<p><code>semantic_score</code> 是对象、属性、条件组成的语义骨架匹配；<code>plan_score</code> 来自可选 LLM 查询规划；<code>penalty_score</code> 用于压低“基本情况、数量、面积”等宽泛指标。</p>
+<p>高覆盖候选会额外加分，但只有指标长度相对查询足够长时才生效：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> coverage &gt;= <span class="number">0.92</span> <span class="keyword">and</span> metric_length &gt;= <span class="built_in">max</span>(<span class="number">2</span>, query_length * <span class="number">0.45</span>):</span><br><span class="line">    score += <span class="number">0.10</span></span><br><span class="line"><span class="keyword">elif</span> coverage &gt;= <span class="number">0.80</span> <span class="keyword">and</span> metric_length &gt;= <span class="number">3</span>:</span><br><span class="line">    score += <span class="number">0.05</span></span><br></pre></td></tr></table></figure>
+<p>长度约束是为了防止短通用指标仅凭子串重合超过更具体的指标。</p>
+<h2 id="11-最棘手的优化单字实体保护"><a class="markdownIt-Anchor" href="#11-最棘手的优化单字实体保护"></a> 11. 最棘手的优化：单字实体保护</h2>
+<p>查询“马”是典型 failure case：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">错误：马 -&gt; 马铃薯、马铃薯种植面积、马铃薯产量</span><br><span class="line">正确：马 -&gt; 马</span><br></pre></td></tr></table></figure>
+<p>项目没有继续微调模糊权重，而是为长度为 1 的实体建立独立路径：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> <span class="built_in">len</span>(short_query) == <span class="number">1</span>:</span><br><span class="line">    <span class="keyword">for</span> metric <span class="keyword">in</span> get_all_metrics(G):</span><br><span class="line">        <span class="keyword">if</span> normalize_for_match(metric) == short_query:</span><br><span class="line">            exact_short.append(metric)</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> exact_short:</span><br><span class="line">        <span class="keyword">return</span> []</span><br></pre></td></tr></table></figure>
+<p>单字必须先命中同名实体。图谱扩展只能在该实体所属类别内发生，并经过“总量、产量、存栏、出栏、养殖”等领域聚合词过滤。</p>
+<p>LLM 重排以后还会把精确实体插回首位，避免模型因为语义丰富度偏爱更长候选。这说明明确的业务不变量应该写成保护规则，而不是期待模型每次推理时自己悟出来。</p>
+<h2 id="12-llm-与-cross-encoder-的边界"><a class="markdownIt-Anchor" href="#12-llm-与-cross-encoder-的边界"></a> 12. LLM 与 Cross-Encoder 的边界</h2>
+<p>LLM 查询规划输出结构化 JSON：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;objects&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="string">&quot;老人&quot;</span><span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;properties&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="string">&quot;数量&quot;</span><span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;conditions&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="string">&quot;无人照顾&quot;</span><span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;intent&quot;</span><span class="punctuation">:</span> <span class="string">&quot;count&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;categories&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="string">&quot;人口状况&quot;</span><span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;candidate_phrases&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="string">&quot;留守老人&quot;</span><span class="punctuation">]</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>这些字段只提供召回线索，最终指标必须来自候选集合。</p>
+<p><code>reranker_server.py</code> 使用 <code>sentence_transformers.CrossEncoder</code>，默认模型可配置为 <code>BAAI/bge-reranker-v2-m3</code>。它作为独立 Flask 服务部署：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">混合召回 Top-30 -&gt; POST /v1/rerank -&gt; 规则分与 CE 分数融合</span><br><span class="line">                    -&gt; 精确命中保护 -&gt; Top-5</span><br></pre></td></tr></table></figure>
+<p>模型使用 <code>@lru_cache(maxsize=1)</code> 懒加载，避免每次请求重新载入权重。Cross-Encoder 当前默认关闭，因为更复杂的模型不代表线上指标一定更好；只有同口径测试中 Top-1 提升且关键样例不退化，才适合成为默认排序器。</p>
+<h2 id="13-后端工程优化"><a class="markdownIt-Anchor" href="#13-后端工程优化"></a> 13. 后端工程优化</h2>
+<h3 id="131-图谱单例与并发加载锁"><a class="markdownIt-Anchor" href="#131-图谱单例与并发加载锁"></a> 13.1 图谱单例与并发加载锁</h3>
+<p>图谱构建和索引准备成本较高，API 使用进程内单例：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">_load_lock = threading.Lock()</span><br><span class="line">_graph_ns = <span class="literal">None</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">load_graphrag</span>():</span><br><span class="line">    <span class="keyword">if</span> _graph_ns <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">        <span class="keyword">return</span> _graph_ns</span><br><span class="line">    <span class="keyword">with</span> _load_lock:</span><br><span class="line">        <span class="keyword">if</span> _graph_ns <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">            <span class="keyword">return</span> _graph_ns</span><br><span class="line">        _graph_ns = build_graph_runtime()</span><br><span class="line">    <span class="keyword">return</span> _graph_ns</span><br></pre></td></tr></table></figure>
+<p>双重检查避免并发首请求重复构图，后续请求直接复用内存图。</p>
+<h3 id="132-可选服务与自动降级"><a class="markdownIt-Anchor" href="#132-可选服务与自动降级"></a> 13.2 可选服务与自动降级</h3>
+<p>Embedding 和 Cross-Encoder 通过环境变量显式开启，默认关闭。向量服务调用失败时，系统继续使用 exact、fuzzy 和 graph 结果；前端请求后端失败时，也会退回本地 matcher。设计目标是“增强能力可以失败，基础检索不能一起消失”。</p>
+<h3 id="133-参数与密钥隔离"><a class="markdownIt-Anchor" href="#133-参数与密钥隔离"></a> 13.3 参数与密钥隔离</h3>
+<p>运行时通过环境变量配置指标路径、LLM、Embedding、Reranker 和 ASR。生产前端不直接持有密钥，授权指标、Embedding 缓存和图谱快照也不提交到公开仓库。</p>
+<h2 id="14-语音查询的三级-fallback"><a class="markdownIt-Anchor" href="#14-语音查询的三级-fallback"></a> 14. 语音查询的三级 fallback</h2>
+<p>语音链路复用文本检索：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Audio -&gt; ASR -&gt; normalized_query -&gt; 原 GraphRAG pipeline</span><br></pre></td></tr></table></figure>
+<p>ASR adapter 按优先级选择：</p>
 <ol>
-<li>指标名称精确匹配。</li>
-<li>别名和同义词匹配。</li>
-<li>字面相似与关键词覆盖。</li>
-<li>Embedding 语义召回。</li>
-<li>父子、同对象和同属性图谱扩展。</li>
-<li>类别路由与查询规划召回。</li>
+<li><code>ASR_URL</code> 指向的远程服务。</li>
+<li>本地 FunASR：<code>paraformer-zh + fsmn-vad + ct-punc</code>。</li>
+<li>Windows Chinese SAPI。</li>
 </ol>
-<p>不同召回器解决的是不同失败模式：</p>
-<ul>
-<li>精确匹配精度高，但无法理解口语。</li>
-<li>关键词检索可解释，但不擅长语义改写。</li>
-<li>Embedding 能发现语义相似，却容易混淆相邻概念。</li>
-<li>图谱能补充结构关系，但扩展过多会引入噪声。</li>
-</ul>
-<p>混合检索的关键不是简单把结果拼起来，而是让多种证据进入统一评分，并在排序前做相关性门控。系统的基础思想可以写成：</p>
-<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">Score =</span><br><span class="line">    w1 * 字面匹配</span><br><span class="line">  + w2 * 查询词覆盖</span><br><span class="line">  + w3 * 向量语义</span><br><span class="line">  + w4 * 图谱关系</span><br><span class="line">  + w5 * 对象/属性/条件匹配</span><br><span class="line">  + w6 * 查询意图</span><br><span class="line">  + w7 * LLM 查询规划</span><br><span class="line">  + 类别路由奖励</span><br><span class="line">  - 宽泛指标惩罚</span><br></pre></td></tr></table></figure>
-<p>当远程 Embedding 开启时，代码中的一组权重为：</p>
-<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">0.20 * fuzzy</span><br><span class="line">+ 0.25 * coverage</span><br><span class="line">+ 0.25 * vector</span><br><span class="line">+ 0.15 * graph</span><br><span class="line">+ 0.10 * semantic skeleton</span><br><span class="line">+ 0.08 * intent</span><br><span class="line">+ 0.10 * query plan</span><br><span class="line">+ route bonus</span><br><span class="line">- broad metric penalty</span><br></pre></td></tr></table></figure>
-<p>当 Embedding 关闭时，系统会提高字面与覆盖分数的权重，让本地规则链路仍然可用。权重并不是理论上的固定真理，而是需要用同一批测试问题持续校准的工程参数。</p>
-<h2 id="8-三条精度保护规则"><a class="markdownIt-Anchor" href="#8-三条精度保护规则"></a> 8. 三条精度保护规则</h2>
-<h3 id="81-原词优先"><a class="markdownIt-Anchor" href="#81-原词优先"></a> 8.1 原词优先</h3>
-<p>同义词可以互相召回，但用户输入的完整原词应当优先：</p>
-<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">搜索“马铃薯” -&gt; 马铃薯第一，土豆作为关联候选</span><br><span class="line">搜索“土豆”   -&gt; 土豆原词优先，再关联马铃薯</span><br></pre></td></tr></table></figure>
-<h3 id="82-通用属性不能单独证明相关"><a class="markdownIt-Anchor" href="#82-通用属性不能单独证明相关"></a> 8.2 通用属性不能单独证明相关</h3>
-<p>“数量、面积、是否、情况”在指标库中出现频率很高。候选只有同时满足对象、属性、条件、别名或定义等多项证据，才能获得高分。</p>
-<h3 id="83-宽泛指标降权"><a class="markdownIt-Anchor" href="#83-宽泛指标降权"></a> 8.3 宽泛指标降权</h3>
-<p>像“基本情况”“人口情况”“数量”这样的宽泛指标很容易与许多问题产生弱匹配。系统会施加惩罚，避免它们长期占据前排。</p>
-<p>这些规则体现了搜索系统中的一个重要经验：<strong>召回模型负责尽量不漏，排序和保护规则负责不要胡来。</strong></p>
-<h2 id="9-llm-bi-encoder-与-cross-encoder-各做什么"><a class="markdownIt-Anchor" href="#9-llm-bi-encoder-与-cross-encoder-各做什么"></a> 9. LLM、Bi-Encoder 与 Cross-Encoder 各做什么</h2>
-<p>LLM 在当前系统中主要有两个可选职责：</p>
-<ol>
-<li>从问题中提取对象、属性、条件、意图、类别和候选短语。</li>
-<li>在候选集合内给出重排与匹配解释。</li>
-</ol>
-<p>它不能创造候选集合以外的指标。这样即使模型产生幻觉，也无法把不存在的名称混入最终结果。</p>
-<p>向量召回通常使用 Bi-Encoder：问题和指标卡片分别编码，适合从大量指标中快速取 Top-K。Cross-Encoder 则把 <code>query + candidate</code> 一起输入模型，逐对判断相关性，精度潜力更高，但计算成本也更高。因此合理的两阶段流程是：</p>
-<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">Bi-Encoder / 混合召回 Top-30</span><br><span class="line">            |</span><br><span class="line">            v</span><br><span class="line">Cross-Encoder 精排</span><br><span class="line">            |</span><br><span class="line">            v</span><br><span class="line">原词与精确匹配保护</span><br><span class="line">            |</span><br><span class="line">            v</span><br><span class="line">Top-5</span><br></pre></td></tr></table></figure>
-<p>项目目前把 Cross-Encoder 作为实验功能，默认关闭。只有在同口径离线评估中稳定提升 Top-1，并且不损害 Recall@5、短词精度和类别召回时，才适合进入默认链路。这比“加了一个模型，看起来更先进”更符合真实系统的迭代方式。</p>
-<h2 id="10-api-前端与语音输入"><a class="markdownIt-Anchor" href="#10-api-前端与语音输入"></a> 10. API、前端与语音输入</h2>
-<p>后端使用 Flask 提供服务，核心接口是：</p>
-<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">POST /api/search</span><br><span class="line"><span class="attribute">Content-Type</span><span class="punctuation">: </span>application/json</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">  &quot;query&quot;: &quot;村里没人照顾的老人有多少&quot;,</span><br><span class="line">  &quot;top_k&quot;: 5,</span><br><span class="line">  &quot;use_llm&quot;: true</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>返回结果不仅包含指标名称，还包含分数、类别、定义、匹配理由、规范化后的查询和候选纠错证据。前端以对话形式展示结果，同时保留指标库概览、公开来源入口和服务配置区域。</p>
-<p>项目还提供 <code>/api/voice-query</code>。音频先经过 ASR 转为文本，再复用同一条查询规范化与 GraphRAG 检索链路。这里最重要的设计不是“多做一个语音按钮”，而是让语音输入和键盘输入共享相同的指标约束、纠错逻辑和评估标准。</p>
-<h2 id="11-如何评价一个指标检索系统"><a class="markdownIt-Anchor" href="#11-如何评价一个指标检索系统"></a> 11. 如何评价一个指标检索系统</h2>
-<p>仅仅展示几个成功案例不够，检索系统必须有固定测试集和量化指标。项目使用以下指标：</p>
-<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Top1 = 正确指标排在第一位的局部问题数 / 局部问题总数</span><br><span class="line"></span><br><span class="line">Recall@5 = 正确指标出现在前五位的问题数 / 局部问题总数</span><br><span class="line"></span><br><span class="line">MRR@5 = mean(1 / 正确指标首次出现的排名)</span><br><span class="line"></span><br><span class="line">类别召回率 = 正确类别被召回的问题数 / 类别问题总数</span><br></pre></td></tr></table></figure>
-<p>当前 100 条测试基线为：</p>
+<p>通过 <code>ASR_HOTWORDS</code> 注入“马铃薯、洋芋、包谷、红苕”等领域词。即使 ASR 仍产生“马玲薯”，后续 normalizer 还会进行指标库约束纠错，形成“领域热词 + 检索词纠错”的两层容错。</p>
+<h2 id="15-从初版到当前版本做了哪些优化"><a class="markdownIt-Anchor" href="#15-从初版到当前版本做了哪些优化"></a> 15. 从初版到当前版本，做了哪些优化</h2>
+<p>根据仓库提交历史，系统经历了以下演进：</p>
 <table>
 <thead>
 <tr>
-<th>指标</th>
-<th style="text-align:right">结果</th>
+<th>阶段</th>
+<th>问题</th>
+<th>优化</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Top-1 命中率</td>
+<td>前端离线 matcher</td>
+<td>仅靠名称和关键词</td>
+<td>加入对象、属性、路由与覆盖度</td>
+</tr>
+<tr>
+<td>后端化</td>
+<td>浏览器难以保护数据和凭据</td>
+<td>增加 Flask API，前端只消费受控结果</td>
+</tr>
+<tr>
+<td>Qwen 接入</td>
+<td>规则难理解复杂口语</td>
+<td>LLM 只做查询规划和候选内重排</td>
+</tr>
+<tr>
+<td>图谱扩展</td>
+<td>直接召回漏掉父子指标</td>
+<td>增加父子、同对象、同属性和类别扩展</td>
+</tr>
+<tr>
+<td>短词噪声</td>
+<td>“马”误命中“马铃薯”</td>
+<td>单字独立路径、bigram gate、精确命中置顶</td>
+</tr>
+<tr>
+<td>路由混乱</td>
+<td>概览问题返回零散指标</td>
+<td>增加 local/global/cross-category 路由和置信度</td>
+</tr>
+<tr>
+<td>拼写与方言</td>
+<td>口语、错音和形近字难匹配</td>
+<td>指标库约束纠错、pinyin、RapidFuzz、农村口语词典</td>
+</tr>
+<tr>
+<td>向量成本</td>
+<td>启动时重复生成向量</td>
+<td>batch encoding、L2 归一化、<code>.npz</code> 缓存与一致性校验</td>
+</tr>
+<tr>
+<td>服务稳定性</td>
+<td>模型故障会阻塞检索</td>
+<td>可选服务默认关闭，异常时降级</td>
+</tr>
+<tr>
+<td>语音输入</td>
+<td>录音格式和识别环境不统一</td>
+<td>Remote ASR、FunASR、Browser/SAPI 多级 fallback</td>
+</tr>
+<tr>
+<td>回归风险</td>
+<td>修一个 case 容易破坏另一个</td>
+<td>100 条 API 评测 + 关键特殊样例</td>
+</tr>
+</tbody>
+</table>
+<h2 id="16-评测方法与当前结果"><a class="markdownIt-Anchor" href="#16-评测方法与当前结果"></a> 16. 评测方法与当前结果</h2>
+<p>评测脚本通过真实 <code>/api/search</code> 发送问题，让查询规范化、路由、图谱、LLM 和序列化全部进入测试范围。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Top1      = 正确指标排第一的问题比例</span><br><span class="line">Recall@5  = 正确指标出现在前五的问题比例</span><br><span class="line">MRR@5     = mean(1 / first_correct_rank)</span><br><span class="line">Category Recall = 正确类别被召回的比例</span><br></pre></td></tr></table></figure>
+<p>当前 100 条测试基线：</p>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th style="text-align:right">Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Top-1 Accuracy</td>
 <td style="text-align:right">89.58%</td>
 </tr>
 <tr>
@@ -226,44 +361,34 @@
 <td style="text-align:right">94.44%</td>
 </tr>
 <tr>
-<td>类别召回率</td>
+<td>Category Recall</td>
 <td style="text-align:right">96.15%</td>
 </tr>
 </tbody>
 </table>
-<p>这组结果说明第一阶段召回已经比较完整，因为 Recall@5 达到 100%；下一步优化重点应放在前五名内部的顺序，也就是提升 Top-1 与 MRR，而不是继续无边界地扩张候选集合。</p>
-<p>同时要保留专门的回归样例，例如“马”“马铃薯”“土豆”“留守老人”和“生活垃圾是否分类”。一个新模型即使总体分数更高，只要破坏这些关键边界，也不应直接替换当前链路。</p>
-<h2 id="12-部署与安全边界"><a class="markdownIt-Anchor" href="#12-部署与安全边界"></a> 12. 部署与安全边界</h2>
-<p>公开前端可以部署在 GitHub Pages，但 Python API、授权指标文件和模型服务应部署在受控服务器。生产环境需要遵守以下边界：</p>
-<ul>
-<li>指标文件通过 <code>INDICATOR_PATH</code> 在运行时挂载。</li>
-<li>图谱、三元组和 Embedding 缓存写入独立运行目录。</li>
-<li>LLM、Embedding 和 Reranker 的地址与密钥使用环境变量注入。</li>
-<li>浏览器只访问自己的后端代理，不直接保存长期有效密钥。</li>
-<li>外部网页资料只能作为补充来源，必须保留 URL、时间和可信度说明。</li>
-<li>模型生成的解释、授权指标与公开补充资料需要明确区分。</li>
-</ul>
-<p>这种设计让代码可以公开展示，同时把真正需要保护的数据和凭据留在部署环境中。</p>
-<h2 id="13-这个项目让我学到什么"><a class="markdownIt-Anchor" href="#13-这个项目让我学到什么"></a> 13. 这个项目让我学到什么</h2>
-<p>这个项目最重要的收获，不是“会调用一个 GraphRAG 库”，而是开始用搜索系统的方式思考 LLM 应用：</p>
+<p>测试还显式记录 <code>short_exact_hit</code> 和 <code>potato_noise_free</code>，分别检查“马”是否精确命中，以及搜索“马铃薯”时是否错误混入“马”。</p>
+<p>Recall@5 已达到 100%，说明当前主要瓶颈不是“有没有召回”，而是前五名内部顺序。下一阶段应优先优化 Top-1 和 MRR，而不是继续扩大候选池。</p>
+<p>仓库没有保存每个优化提交对应的完整消融结果，因此这里只报告最终同口径基线，不虚构每项规则带来的百分比提升。后续应建立版本化 evaluation artifact，才能回答“哪项优化贡献最大”。</p>
+<h2 id="17-本地运行"><a class="markdownIt-Anchor" href="#17-本地运行"></a> 17. 本地运行</h2>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">py <span class="literal">-3</span>.<span class="number">11</span> <span class="literal">-m</span> venv .venv</span><br><span class="line">.venv\Scripts\Activate.ps1</span><br><span class="line">py <span class="literal">-3</span>.<span class="number">11</span> <span class="literal">-m</span> pip install <span class="literal">-r</span> backend\requirements.txt</span><br><span class="line"></span><br><span class="line"><span class="variable">$env:INDICATOR_PATH</span> = <span class="string">&quot;data\approved-indicators.json&quot;</span></span><br><span class="line"><span class="variable">$env:INDICATOR_DATA_DIR</span> = <span class="string">&quot;data&quot;</span></span><br><span class="line"><span class="variable">$env:GRAPHRAG_RUNTIME_DIR</span> = <span class="string">&quot;runtime&quot;</span></span><br><span class="line"><span class="variable">$env:PORT</span> = <span class="string">&quot;8090&quot;</span></span><br><span class="line"></span><br><span class="line">py <span class="literal">-3</span>.<span class="number">11</span> backend\api_server.py</span><br></pre></td></tr></table></figure>
+<p>调用接口：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$body</span> = <span class="selector-tag">@</span>&#123;</span><br><span class="line">  query = <span class="string">&quot;生活垃圾做没做分类&quot;</span></span><br><span class="line">  top_k = <span class="number">5</span></span><br><span class="line">  use_llm = <span class="variable">$false</span></span><br><span class="line">&#125; | <span class="built_in">ConvertTo-Json</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">Invoke-RestMethod</span> `</span><br><span class="line">  <span class="literal">-Method</span> Post `</span><br><span class="line">  <span class="literal">-Uri</span> <span class="string">&quot;http://127.0.0.1:8090/api/search&quot;</span> `</span><br><span class="line">  <span class="literal">-ContentType</span> <span class="string">&quot;application/json&quot;</span> `</span><br><span class="line">  <span class="literal">-Body</span> <span class="variable">$body</span></span><br></pre></td></tr></table></figure>
+<h2 id="18-仍然存在的技术债务"><a class="markdownIt-Anchor" href="#18-仍然存在的技术债务"></a> 18. 仍然存在的技术债务</h2>
 <ol>
-<li><strong>先定义真实任务。</strong> 这里的目标不是生成一段流畅回答，而是从指标库中找到正确实体。</li>
-<li><strong>把召回和排序分开。</strong> 第一阶段尽量不漏，第二阶段再解决精确顺序。</li>
-<li><strong>让模型处在约束中。</strong> LLM 可以理解和解释，但最终实体必须来自受控集合。</li>
-<li><strong>结构化信息仍然重要。</strong> 对象、属性、条件和父子关系是单纯向量相似度无法稳定替代的。</li>
-<li><strong>评估决定是否上线。</strong> 新增 Reranker、别名或图谱边，必须经过同口径测试，而不是凭几次人工体验判断。</li>
+<li><code>indicator_graphrag_core.py</code> 体积较大，解析、图构建、召回、排序与评测应拆成独立 package。</li>
+<li>规则权重仍依赖人工调参，可引入标注数据训练 Learning-to-Rank。</li>
+<li>NetworkX 适合当前内存图；数据和并发增长后应评估持久化图数据库或关系数据库。</li>
+<li>Embedding 当前使用全量 NumPy 点积；指标达到百万级时应替换为 FAISS、Milvus 或 pgvector ANN。</li>
+<li>缺少版本化消融实验，需要保存每次提交的评测配置、结果和失败样例。</li>
+<li>CORS 默认值是 <code>*</code>，生产环境应配置明确来源并加入认证、限流与审计日志。</li>
+<li>后端通过动态加载核心脚本复用 notebook 风格代码，后续应改成正常模块导入和配置注入。</li>
 </ol>
-<p>从作品集角度看，它把 NLP、信息检索、知识图谱、RAG、后端 API、前端交互、语音输入和离线评估连成了一个完整闭环。它也比“上传 PDF 然后问答”的基础 RAG 更接近真实业务：数据有权限边界，实体有严格口径，查询有地方语言差异，结果还必须可解释和可回归测试。</p>
-<h2 id="14-下一步改进方向"><a class="markdownIt-Anchor" href="#14-下一步改进方向"></a> 14. 下一步改进方向</h2>
-<p>接下来可以沿四条路线继续打磨：</p>
-<ul>
-<li><strong>检索评估</strong>：扩充困难负样本，按短词、别名、父子指标、跨类别问题分别统计结果。</li>
-<li><strong>学习排序</strong>：使用人工标注或点击反馈训练轻量 Learning-to-Rank 模型，减少手工权重依赖。</li>
-<li><strong>图谱存储</strong>：数据规模扩大后，将离线 <code>NetworkX</code> 图迁移到更适合持久化查询的图数据库或关系存储。</li>
-<li><strong>Agent 报告</strong>：在本地指标不足时，检索贵州省统计局、统计年鉴和统计公报等公开来源，并对口径差异做明确提示。</li>
-</ul>
-<p>项目代码与部署文档： <a target="_blank" rel="noopener" href="https://github.com/RichardF123/Guizhou-GraphRAG">RichardF123/Guizhou-GraphRAG</a></p>
-</div><div class="article-licensing box"><div class="licensing-title"><p>贵州统计指标 GraphRAG：从自然语言问题到可解释的混合检索系统</p><p><a href="https://richardf123.github.io/2026/09/27/guizhou-graphrag-indicator-retrieval-system/">https://richardf123.github.io/2026/09/27/guizhou-graphrag-indicator-retrieval-system/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>作者</h6><p>RichardF</p></div></div><div class="level-item is-narrow"><div><h6>发布于</h6><p>2026-09-27</p></div></div><div class="level-item is-narrow"><div><h6>更新于</h6><p>2026-09-27</p></div></div><div class="level-item is-narrow"><div><h6>许可协议</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/NLP/">NLP</a><a class="link-muted mr-2" rel="tag" href="/tags/GraphRAG/">GraphRAG</a><a class="link-muted mr-2" rel="tag" href="/tags/RAG/">RAG</a><a class="link-muted mr-2" rel="tag" href="/tags/knowledge-graph/">knowledge-graph</a><a class="link-muted mr-2" rel="tag" href="/tags/information-retrieval/">information-retrieval</a><a class="link-muted mr-2" rel="tag" href="/tags/Flask/">Flask</a></div><!--!--></article></div><!--!--><nav class="post-navigation mt-4 level is-mobile"><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2026/08/04/comp2013-data-structures-algorithms-guide/"><span class="level-item">COMP2013 数据结构与算法教程：从复杂度分析、排序、堆、哈希、搜索树到 DP、贪心与图</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><!--!--></main><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar is-rounded" src="https://avatars.githubusercontent.com/u/144225184?s=400&amp;u=f62e0f37c00d8518afb213a36c81cd8428ce0a06&amp;v=4" alt="RichardF"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">RichardF</p><p class="is-size-6 is-block">大四学生</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Hong Kong</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">文章</p><a href="/archives"><p class="title">23</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">分类</p><a href="/categories"><p class="title">9</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">标签</p><a href="/tags"><p class="title">70</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/RichardF123" target="_blank" rel="noopener">关注我</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/RichardF123"><i class="fab fa-github"></i></a></div></div></div><!--!--><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">分类</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/Calculus/"><span class="level-start"><span class="level-item">Calculus</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Data-science/"><span class="level-start"><span class="level-item">Data science</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/categories/Linear-Algebra/"><span class="level-start"><span class="level-item">Linear Algebra</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/Machine-Learning/"><span class="level-start"><span class="level-item">Machine Learning</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Notes/"><span class="level-start"><span class="level-item">Notes</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Optimization/"><span class="level-start"><span class="level-item">Optimization</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Projects/"><span class="level-start"><span class="level-item">Projects</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Statistics/"><span class="level-start"><span class="level-item">Statistics</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/cs/"><span class="level-start"><span class="level-item">cs</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li></ul></div></div></div><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">最新文章</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-09-26T18:30:00.000Z">2026-09-27</time></p><p class="title"><a href="/2026/09/27/guizhou-graphrag-indicator-retrieval-system/">贵州统计指标 GraphRAG：从自然语言问题到可解释的混合检索系统</a></p><p class="categories"><a href="/categories/Projects/">Projects</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-04T09:05:00.000Z">2026-08-04</time></p><p class="title"><a href="/2026/08/04/comp2013-data-structures-algorithms-guide/">COMP2013 数据结构与算法教程：从复杂度分析、排序、堆、哈希、搜索树到 DP、贪心与图</a></p><p class="categories"><a href="/categories/cs/">cs</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-03T10:20:00.000Z">2026-08-03</time></p><p class="title"><a href="/2026/08/03/database-systems-from-er-to-transactions-guide/">数据库系统教程：从 ER 建模、关系代数、SQL 到事务、索引与恢复</a></p><p class="categories"><a href="/categories/Data-science/">Data science</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-06-29T11:10:00.000Z">2026-06-29</time></p><p class="title"><a href="/2026/06/29/comp4204-data-mining-practical-guide/">COMP4204 数据挖掘教程：从数据仓库、预处理、关联规则到分类与聚类</a></p><p class="categories"><a href="/categories/Data-science/">Data science</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-06-29T02:30:00.000Z">2026-06-29</time></p><p class="title"><a href="/2026/06/29/ama3724-linear-algebra-differential-equations-guide/">AMA3724 线性代数与微分方程基础教程：从向量空间、投影、特征值到 ODE/PDE</a></p><p class="categories"><a href="/categories/Linear-Algebra/">Linear Algebra</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">归档</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2026/"><span class="level-start"><span class="level-item">2026</span></span><span class="level-end"><span class="level-item tag">16</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/"><span class="level-start"><span class="level-item">2024</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/"><span class="level-start"><span class="level-item">2023</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">标签</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/machine-learning/"><span class="tag">machine-learning</span></a></div><div class="control"><a class="tags has-addons" href="/tags/linear-algebra/"><span class="tag">linear-algebra</span></a></div><div class="control"><a class="tags has-addons" href="/tags/python/"><span class="tag">python</span></a></div><div class="control"><a class="tags has-addons" href="/tags/programming/"><span class="tag">programming</span></a></div><div class="control"><a class="tags has-addons" href="/tags/algorithm/"><span class="tag">algorithm</span></a></div><div class="control"><a class="tags has-addons" href="/tags/NLP/"><span class="tag">NLP</span></a></div><div class="control"><a class="tags has-addons" href="/tags/pandas/"><span class="tag">pandas</span></a></div><div class="control"><a class="tags has-addons" href="/tags/clustering/"><span class="tag">clustering</span></a></div><div class="control"><a class="tags has-addons" href="/tags/C/"><span class="tag">C++</span></a></div><div class="control"><a class="tags has-addons" href="/tags/svd/"><span class="tag">svd</span></a></div><div class="control"><a class="tags has-addons" href="/tags/big-data/"><span class="tag">big-data</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Spark/"><span class="tag">Spark</span></a></div></div></div></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="https://avatars.githubusercontent.com/u/144225184?s=400&amp;u=f62e0f37c00d8518afb213a36c81cd8428ce0a06&amp;v=4" alt="RichardF&#039;s Blog" height="28"></a><p class="is-size-7"><span>&copy; 2026 RichardF</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">RichardF</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="GitHub" href="https://github.com/RichardF123"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><div class="bgm-control" data-audio-src="/audio/the-immigrant.ogg" aria-live="polite"><button class="bgm-control__button" type="button" aria-pressed="false" title="背景音乐"><i class="fas fa-music" aria-hidden="true"></i><span class="bgm-control__text">BGM</span></button><span class="bgm-control__hint">Click to play</span></div><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("zh-cn");</script><script>var IcarusThemeSettings = {
+<h2 id="19-总结"><a class="markdownIt-Anchor" href="#19-总结"></a> 19. 总结</h2>
+<p>Guizhou-GraphRAG 建立了一条受约束、可解释、可评测的检索链路：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">口语 / 方言 / 语音</span><br><span class="line">    -&gt; 安全规范化</span><br><span class="line">    -&gt; 分层路由</span><br><span class="line">    -&gt; 多路召回</span><br><span class="line">    -&gt; 图谱扩展</span><br><span class="line">    -&gt; 候选门控</span><br><span class="line">    -&gt; 动态加权排序</span><br><span class="line">    -&gt; 可选模型精排</span><br><span class="line">    -&gt; 业务保护规则</span><br><span class="line">    -&gt; 可追溯指标结果</span><br></pre></td></tr></table></figure>
+<p>这个项目让我更明确地认识到：LLM 应用的可靠性通常不来自某一个更大的模型，而来自任务约束、检索设计、降级策略、回归测试和持续误差分析共同形成的工程系统。</p>
+<p>项目仓库：<a target="_blank" rel="noopener" href="https://github.com/RichardF123/Guizhou-GraphRAG">RichardF123/Guizhou-GraphRAG</a></p>
+</div><div class="article-licensing box"><div class="licensing-title"><p>从规则检索到 GraphRAG：贵州统计指标系统的架构、混合召回与工程优化</p><p><a href="https://richardf123.github.io/2026/09/27/guizhou-graphrag-indicator-retrieval-system/">https://richardf123.github.io/2026/09/27/guizhou-graphrag-indicator-retrieval-system/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>作者</h6><p>RichardF</p></div></div><div class="level-item is-narrow"><div><h6>发布于</h6><p>2026-09-27</p></div></div><div class="level-item is-narrow"><div><h6>更新于</h6><p>2026-09-27</p></div></div><div class="level-item is-narrow"><div><h6>许可协议</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/NLP/">NLP</a><a class="link-muted mr-2" rel="tag" href="/tags/GraphRAG/">GraphRAG</a><a class="link-muted mr-2" rel="tag" href="/tags/RAG/">RAG</a><a class="link-muted mr-2" rel="tag" href="/tags/knowledge-graph/">knowledge-graph</a><a class="link-muted mr-2" rel="tag" href="/tags/information-retrieval/">information-retrieval</a><a class="link-muted mr-2" rel="tag" href="/tags/Flask/">Flask</a></div><!--!--></article></div><!--!--><nav class="post-navigation mt-4 level is-mobile"><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2026/08/04/comp2013-data-structures-algorithms-guide/"><span class="level-item">COMP2013 数据结构与算法教程：从复杂度分析、排序、堆、哈希、搜索树到 DP、贪心与图</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><!--!--></main><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar is-rounded" src="https://avatars.githubusercontent.com/u/144225184?s=400&amp;u=f62e0f37c00d8518afb213a36c81cd8428ce0a06&amp;v=4" alt="RichardF"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">RichardF</p><p class="is-size-6 is-block">大四学生</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Hong Kong</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">文章</p><a href="/archives"><p class="title">23</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">分类</p><a href="/categories"><p class="title">9</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">标签</p><a href="/tags"><p class="title">70</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/RichardF123" target="_blank" rel="noopener">关注我</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/RichardF123"><i class="fab fa-github"></i></a></div></div></div><!--!--><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">分类</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/Calculus/"><span class="level-start"><span class="level-item">Calculus</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Data-science/"><span class="level-start"><span class="level-item">Data science</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/categories/Linear-Algebra/"><span class="level-start"><span class="level-item">Linear Algebra</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/categories/Machine-Learning/"><span class="level-start"><span class="level-item">Machine Learning</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Notes/"><span class="level-start"><span class="level-item">Notes</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Optimization/"><span class="level-start"><span class="level-item">Optimization</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Projects/"><span class="level-start"><span class="level-item">Projects</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Statistics/"><span class="level-start"><span class="level-item">Statistics</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/cs/"><span class="level-start"><span class="level-item">cs</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li></ul></div></div></div><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">最新文章</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-09-26T18:30:00.000Z">2026-09-27</time></p><p class="title"><a href="/2026/09/27/guizhou-graphrag-indicator-retrieval-system/">从规则检索到 GraphRAG：贵州统计指标系统的架构、混合召回与工程优化</a></p><p class="categories"><a href="/categories/Projects/">Projects</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-04T09:05:00.000Z">2026-08-04</time></p><p class="title"><a href="/2026/08/04/comp2013-data-structures-algorithms-guide/">COMP2013 数据结构与算法教程：从复杂度分析、排序、堆、哈希、搜索树到 DP、贪心与图</a></p><p class="categories"><a href="/categories/cs/">cs</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-03T10:20:00.000Z">2026-08-03</time></p><p class="title"><a href="/2026/08/03/database-systems-from-er-to-transactions-guide/">数据库系统教程：从 ER 建模、关系代数、SQL 到事务、索引与恢复</a></p><p class="categories"><a href="/categories/Data-science/">Data science</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-06-29T11:10:00.000Z">2026-06-29</time></p><p class="title"><a href="/2026/06/29/comp4204-data-mining-practical-guide/">COMP4204 数据挖掘教程：从数据仓库、预处理、关联规则到分类与聚类</a></p><p class="categories"><a href="/categories/Data-science/">Data science</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-06-29T02:30:00.000Z">2026-06-29</time></p><p class="title"><a href="/2026/06/29/ama3724-linear-algebra-differential-equations-guide/">AMA3724 线性代数与微分方程基础教程：从向量空间、投影、特征值到 ODE/PDE</a></p><p class="categories"><a href="/categories/Linear-Algebra/">Linear Algebra</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">归档</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2026/"><span class="level-start"><span class="level-item">2026</span></span><span class="level-end"><span class="level-item tag">16</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/"><span class="level-start"><span class="level-item">2024</span></span><span class="level-end"><span class="level-item tag">4</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/"><span class="level-start"><span class="level-item">2023</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">标签</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/machine-learning/"><span class="tag">machine-learning</span></a></div><div class="control"><a class="tags has-addons" href="/tags/linear-algebra/"><span class="tag">linear-algebra</span></a></div><div class="control"><a class="tags has-addons" href="/tags/python/"><span class="tag">python</span></a></div><div class="control"><a class="tags has-addons" href="/tags/programming/"><span class="tag">programming</span></a></div><div class="control"><a class="tags has-addons" href="/tags/algorithm/"><span class="tag">algorithm</span></a></div><div class="control"><a class="tags has-addons" href="/tags/NLP/"><span class="tag">NLP</span></a></div><div class="control"><a class="tags has-addons" href="/tags/pandas/"><span class="tag">pandas</span></a></div><div class="control"><a class="tags has-addons" href="/tags/clustering/"><span class="tag">clustering</span></a></div><div class="control"><a class="tags has-addons" href="/tags/C/"><span class="tag">C++</span></a></div><div class="control"><a class="tags has-addons" href="/tags/svd/"><span class="tag">svd</span></a></div><div class="control"><a class="tags has-addons" href="/tags/big-data/"><span class="tag">big-data</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Spark/"><span class="tag">Spark</span></a></div></div></div></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="https://avatars.githubusercontent.com/u/144225184?s=400&amp;u=f62e0f37c00d8518afb213a36c81cd8428ce0a06&amp;v=4" alt="RichardF&#039;s Blog" height="28"></a><p class="is-size-7"><span>&copy; 2026 RichardF</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">RichardF</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="GitHub" href="https://github.com/RichardF123"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><div class="bgm-control" data-audio-src="/audio/the-immigrant.ogg" aria-live="polite"><button class="bgm-control__button" type="button" aria-pressed="false" title="背景音乐"><i class="fas fa-music" aria-hidden="true"></i><span class="bgm-control__text">BGM</span></button><span class="bgm-control__hint">Click to play</span></div><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("zh-cn");</script><script>var IcarusThemeSettings = {
             article: {
                 highlight: {
                     clipboard: true,
