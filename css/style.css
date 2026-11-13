@@ -17337,7 +17337,7 @@ body.is-home-list main.column-main > .card:has(> article.article):nth-of-type(10
   --home-article-art: url("/images/remixed-classics/milk-dragon-last-supper.jpg");
 }
 body.is-home-list main.column-main > .card:has(> article.article):nth-of-type(10n + 1) {
-  --home-article-art: url("/images/remixed-classics/milk-dragon-bandaged-ear.jpg");
+  --home-article-art: url("/images/remixed-classics/milk-dragon-liberty-leading-the-people.jpg");
 }
 body.is-home-list main.column-main > .card:has(> article.article) .article-meta,
 body.is-home-list main.column-main > .card:has(> article.article) .article .title,

@@ -4751,19 +4751,29 @@ html.is-pjax-loading .section {
     display: none;
   }
 }
-/* Personal homepage: one introduction, then writing. */
-body.is-personal-home .column-left,
+/* Personal homepage: identity at left, writing in the main column. */
 body.is-personal-home .column-right {
   display: none !important;
 }
 body.is-personal-home .column-main {
-  flex: none !important;
-  margin: 0 auto;
-  max-width: 1080px;
-  width: 100% !important;
+  margin-right: 0;
+  max-width: none;
 }
 body.is-personal-home > .section > .container {
-  max-width: 1180px;
+  max-width: 1280px;
+}
+@media screen and (min-width: 769px) {
+  body.is-personal-home .column-left {
+    flex: 0 0 17.5rem;
+    max-width: 17.5rem;
+    width: 17.5rem;
+  }
+  body.is-personal-home .column-main {
+    flex: 1 1 0 !important;
+    margin-left: 0;
+    min-width: 0;
+    width: auto !important;
+  }
 }
 .home-personal-intro {
   align-items: stretch;
