@@ -17312,29 +17312,32 @@ body.is-home-list main.column-main > .card:has(> article.article.is-art-open):ho
     transition: none;
   }
 }
-body.is-home-list main.column-main > .card:has(> article.article):nth-of-type(9n + 2) {
+body.is-home-list main.column-main > .card:has(> article.article):nth-of-type(10n + 2) {
   --home-article-art: url("/images/remixed-classics/girl-with-pearl-earring.jpg");
 }
-body.is-home-list main.column-main > .card:has(> article.article):nth-of-type(9n + 3) {
+body.is-home-list main.column-main > .card:has(> article.article):nth-of-type(10n + 3) {
   --home-article-art: url("/images/remixed-classics/coronation-of-napoleon.jpg");
 }
-body.is-home-list main.column-main > .card:has(> article.article):nth-of-type(9n + 4) {
+body.is-home-list main.column-main > .card:has(> article.article):nth-of-type(10n + 4) {
   --home-article-art: url("/images/remixed-classics/pere-tanguy.jpg");
 }
-body.is-home-list main.column-main > .card:has(> article.article):nth-of-type(9n + 5) {
+body.is-home-list main.column-main > .card:has(> article.article):nth-of-type(10n + 5) {
   --home-article-art: url("/images/remixed-classics/ramesses-anubis.jpg");
 }
-body.is-home-list main.column-main > .card:has(> article.article):nth-of-type(9n + 6) {
+body.is-home-list main.column-main > .card:has(> article.article):nth-of-type(10n + 6) {
   --home-article-art: url("/images/remixed-classics/orpheus-eurydice.jpg");
 }
-body.is-home-list main.column-main > .card:has(> article.article):nth-of-type(9n + 7) {
+body.is-home-list main.column-main > .card:has(> article.article):nth-of-type(10n + 7) {
   --home-article-art: url("/images/remixed-classics/ascension-of-christ.jpg");
 }
-body.is-home-list main.column-main > .card:has(> article.article):nth-of-type(9n + 8) {
+body.is-home-list main.column-main > .card:has(> article.article):nth-of-type(10n + 8) {
   --home-article-art: url("/images/remixed-classics/milk-dragon-starry-night.jpg");
 }
-body.is-home-list main.column-main > .card:has(> article.article):nth-of-type(9n) {
+body.is-home-list main.column-main > .card:has(> article.article):nth-of-type(10n + 9) {
   --home-article-art: url("/images/remixed-classics/milk-dragon-last-supper.jpg");
+}
+body.is-home-list main.column-main > .card:has(> article.article):nth-of-type(10n + 1) {
+  --home-article-art: url("/images/remixed-classics/milk-dragon-bandaged-ear.jpg");
 }
 body.is-home-list main.column-main > .card:has(> article.article) .article-meta,
 body.is-home-list main.column-main > .card:has(> article.article) .article .title,

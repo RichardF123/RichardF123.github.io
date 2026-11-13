@@ -44,6 +44,11 @@
             image: '/images/remixed-classics/sargent-lantern-garden.jpg',
             credit: 'John Singer Sargent · Carnation, Lily, Lily, Rose',
             url: 'https://www.tate.org.uk/art/artworks/sargent-carnation-lily-lily-rose-n01615'
+        },
+        {
+            image: '/images/remixed-classics/milk-dragon-liberty-leading-the-people.jpg',
+            credit: 'Eugene Delacroix · Liberty Leading the People',
+            url: 'https://collections.louvre.fr/en/ark:/53355/cl010065872'
         }
     ];
 
