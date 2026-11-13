@@ -2,6 +2,7 @@
     const contentSelector = '.section';
     const loadingClass = 'is-pjax-loading';
     const cache = new Map();
+    const cacheTtl = 30000;
 
     function isPlainLeftClick(event) {
         return event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey;
@@ -70,9 +71,15 @@
 
     function fetchPage(url) {
         const key = url.href;
-        if (cache.has(key)) return Promise.resolve(cache.get(key));
+        const isHome = url.pathname === '/' || url.pathname === '/index.html';
+        const cached = cache.get(key);
+        if (!isHome && cached && Date.now() - cached.savedAt < cacheTtl) {
+            return Promise.resolve(cached.doc);
+        }
+        cache.delete(key);
 
         return fetch(key, {
+            cache: 'no-cache',
             headers: { 'X-Requested-With': 'fetch' },
             credentials: 'same-origin'
         }).then(function(response) {
@@ -80,7 +87,7 @@
             return response.text();
         }).then(function(html) {
             const doc = parsePage(html);
-            cache.set(key, doc);
+            if (!isHome) cache.set(key, { doc, savedAt: Date.now() });
             return doc;
         });
     }
@@ -118,6 +125,14 @@
 
     window.addEventListener('popstate', function() {
         navigate(new URL(window.location.href), { history: false });
+    });
+
+    window.addEventListener('pageshow', function(event) {
+        if (event.persisted) cache.clear();
+    });
+
+    document.addEventListener('visibilitychange', function() {
+        if (document.visibilityState === 'visible') cache.clear();
     });
 
     if (!window.history.state) {
