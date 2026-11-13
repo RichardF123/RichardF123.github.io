@@ -16839,6 +16839,105 @@ body.is-personal-home main.column-main > .card .article .title {
   object-position: center 25%;
   transform: none;
 }
+.art-index-heading--course-notes .classic-remix--thumb img {
+  object-position: center 44%;
+  transform: none;
+}
+.course-note-groups {
+  display: grid;
+  gap: 2.2rem;
+}
+.course-note-group {
+  border-top: 1px solid rgba(108,72,40,0.3);
+  padding-top: 1.15rem;
+}
+.course-note-group__header {
+  align-items: end;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+.course-note-group__header h2 {
+  color: #2c1d15;
+  font-family: "Noto Serif SC", Georgia, serif;
+  font-size: 1.32rem;
+  margin: 0;
+}
+.course-note-group__header p {
+  color: #755947;
+  font-size: 0.84rem;
+  line-height: 1.65;
+  margin: 0;
+  max-width: 34rem;
+  text-align: right;
+}
+.course-note-grid {
+  display: grid;
+  gap: 0.9rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.course-note-card {
+  background: rgba(255,250,232,0.84);
+  border: 1px solid rgba(108,72,40,0.24);
+  border-left: 3px solid #984f43;
+  border-radius: 4px;
+  box-sizing: border-box;
+  box-shadow: 0 8px 20px rgba(68,43,24,0.06);
+  color: inherit;
+  display: block;
+  min-height: 9.2rem;
+  min-width: 0;
+  padding: 1.05rem 1.1rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+  width: 100%;
+}
+.course-note-card:hover {
+  border-color: rgba(120,59,49,0.56);
+  box-shadow: 0 12px 26px rgba(68,43,24,0.12);
+  transform: translateY(-2px);
+}
+.course-note-card__code {
+  color: #984f43;
+  display: block;
+  font-family: "Cinzel", Georgia, serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.5rem;
+}
+.course-note-card h3 {
+  color: #35231a;
+  font-family: "Noto Serif SC", Georgia, serif;
+  font-size: 1rem;
+  line-height: 1.55;
+  margin: 0 0 0.8rem;
+}
+.course-note-card__meta {
+  color: #7a6252;
+  display: block;
+  font-size: 0.74rem;
+}
+@media screen and (max-width: 768px) {
+  .art-index-heading--course-notes figcaption {
+    font-size: 0.52rem;
+    max-width: 72%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .course-note-group__header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+  .course-note-group__header p {
+    text-align: left;
+  }
+  .course-note-grid {
+    grid-template-columns: 1fr;
+  }
+}
 .classic-remix--thumb figcaption {
   bottom: 0.35rem;
   max-width: calc(100% - 0.7rem);
