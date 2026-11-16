@@ -6438,6 +6438,8 @@ body.is-reading-post .column-right-shadow {
   display: none !important;
 }
 body.is-reading-post main.column-main {
+  display: block !important;
+  grid-template-columns: none !important;
   min-width: 0;
   max-width: 100% !important;
   width: auto !important;
