@@ -9,12 +9,13 @@
 
     function setOpen(open, restoreFocus) {
         if (!state) return;
-        open = wide.matches || open;
+        const host = document.getElementById('site-main');
+        if (host && state.panel.parentElement !== host) host.appendChild(state.panel);
         state.open = open;
         document.body.classList.toggle('has-reading-toc-open', open);
         state.panel.hidden = !open;
         state.toggle.setAttribute('aria-expanded', String(open));
-        if (restoreFocus && !wide.matches) state.toggle.focus({ preventScroll: true });
+        if (restoreFocus) state.toggle.focus({ preventScroll: true });
         dirty = true;
         schedule();
     }
@@ -27,15 +28,22 @@
     function update() {
         frame = 0;
         if (!state) return;
+        const profile = document.querySelector('.column-left');
+        if (wide.matches && profile) {
+            // Keep the floating panel below the visible profile, then let it grow as the profile scrolls away.
+            const top = Math.max(96, profile.getBoundingClientRect().bottom + 16);
+            const height = Math.max(160, window.innerHeight - 74 - top);
+            state.panel.style.maxHeight = height + 'px';
+            state.list.style.maxHeight = Math.max(80, height - 80) + 'px';
+        } else {
+            state.panel.style.removeProperty('max-height');
+            state.list.style.removeProperty('max-height');
+        }
         if (dirty) {
-            if (wide.matches) {
-                const container = document.getElementById('site-main');
-                const main = container.getBoundingClientRect();
-                const inset = parseFloat(window.getComputedStyle(container).paddingLeft) || 0;
-                state.panel.style.left = (main.left + inset) + 'px';
-            } else {
-                state.panel.style.removeProperty('left');
-            }
+            state.panel.style.removeProperty('left');
+            const rail = document.querySelector('.column-left');
+            if (rail) rail.style.removeProperty('left');
+            if (wide.matches && rail) state.panel.style.left = rail.getBoundingClientRect().left + 'px';
             state.positions = state.headings.map(h => h.getBoundingClientRect().top + window.scrollY);
             dirty = false;
         }
@@ -98,7 +106,7 @@
         state = { panel, toggle, list, headings, links, active: -1, positions: [], open: false };
         document.body.classList.add('has-reading-toc');
         toggle.hidden = false;
-        setOpen(wide.matches);
+        setOpen(false);
         dirty = true;
         if (window.ResizeObserver) {
             observer = new ResizeObserver(() => { dirty = true; schedule(); });

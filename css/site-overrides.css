@@ -6432,12 +6432,15 @@ body.is-home-list main.column-main > .card:has(> article.article):hover {
 /* Reading navigation is independent of the homepage profile sidebar. */
 body.is-reading-post .column-left,
 body.is-reading-post .column-right {
+  display: block !important;
+}
+body.is-reading-post .column-right-shadow {
   display: none !important;
 }
 body.is-reading-post main.column-main {
-  flex: 1 1 100% !important;
+  min-width: 0;
   max-width: 100% !important;
-  width: 100% !important;
+  width: auto !important;
 }
 .reading-toc[hidden],
 .reading-toc-toggle[hidden] {
@@ -6534,35 +6537,57 @@ h3) {
   scroll-margin-top: 100px;
 }
 @media screen and (min-width: 1100px) {
-  body.has-reading-toc.has-reading-toc-open main.column-main {
+  body.is-reading-post > .section > .container > .columns {
     display: grid;
-    gap: 0 1.75rem;
-    grid-template-columns: 244px minmax(0, 1fr);
+    gap: 1rem;
+    grid-template-columns: 224px minmax(0, 1fr) 190px;
   }
-  body.has-reading-toc main.column-main > :not(.reading-toc) {
+  body.is-reading-post main.column-main {
     grid-column: 2;
-    min-width: 0;
+    grid-row: 1;
   }
-  .reading-toc {
+  body.is-reading-post .column-left {
     grid-column: 1;
     grid-row: 1;
+    position: static;
     align-self: start;
+    max-height: none;
+    overflow: visible;
+    width: 224px !important;
+    padding: 0;
+  }
+  body.is-reading-post .column-right {
+    grid-column: 3;
+    grid-row: 1;
+    width: 100% !important;
+    padding: 0;
+  }
+  .reading-toc {
     position: fixed;
-    top: 6rem;
-    bottom: 5.5rem;
-    width: 244px;
+    bottom: 4.6rem;
+    width: 224px;
+    max-height: calc(100dvh - 12rem);
   }
   .reading-toc__list {
-    max-height: calc(100dvh - 15rem);
-  }
-  .reading-toc__header button {
-    display: none;
-  }
-  body.has-reading-toc-open .reading-toc-toggle {
-    display: none;
+    max-height: calc(100dvh - 17rem);
   }
 }
 @media screen and (max-width: 1099px) {
+  body.is-reading-post > .section > .container > .columns {
+    display: flex;
+    flex-direction: column;
+  }
+  body.is-reading-post main.column-main {
+    width: 100% !important;
+  }
+  body.is-reading-post .column-left,
+  body.is-reading-post .column-right {
+    width: 100% !important;
+    max-height: none;
+    overflow: visible;
+    position: static;
+    order: 3;
+  }
   .reading-toc {
     position: fixed;
     left: 1rem;
