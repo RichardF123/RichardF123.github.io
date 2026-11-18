@@ -39,8 +39,9 @@ if (renderer) {
   }
   function label(x,z,y,title,value,kind='',small='') {
     const el=document.createElement('div');el.className='block-label '+kind;
-    const caption=document.createElement('span');caption.textContent=title;
+    const caption=document.createElement('span');caption.textContent=typeof title==='object'?title.text:title;
     el.append(caption);
+    if(typeof title==='object'){const symbol=document.createElement('div');symbol.className='block-label__symbol';symbol.dataset.symbol=title.tex;window.katex.render(title.tex,symbol,{throwOnError:false,output:'htmlAndMathml'});el.append(symbol);}
     (Array.isArray(value)?value:[value]).forEach(v=>{const number=document.createElement('strong');number.textContent=v;el.append(number);});
     if(Array.isArray(value))el.classList.add('multi-value');
     if(small){const note=document.createElement('small');note.textContent=small;el.append(note);}
@@ -65,24 +66,27 @@ if (renderer) {
     labelItems.length=0;labels.replaceChildren();tokens=[];
   }
   function build(s) {
-    current=s;disposeGroup();host.hidden=s.lesson===3;
-    sceneHost.classList.toggle('has-blocks',s.lesson!==3);
+    current=s;disposeGroup();host.hidden=s.lesson===3||s.lesson===2;
+    camera.lookAt(0,s.lesson===0?1.9:.9,0);
+    sceneHost.classList.toggle('has-blocks',s.lesson!==3&&s.lesson!==2);
     host.classList.toggle('is-timeline',s.lesson===1||s.lesson===2||s.lesson===5);
     host.classList.toggle('is-variance',s.lesson===2);
     host.classList.toggle('is-variance-few',s.lesson===2&&s.n<=4);
-    if(s.lesson===3)return;
+    if(s.lesson===3||s.lesson===2)return;
     if(s.lesson===0||s.lesson===4){
       const previous=s.n?s.values[s.n-1]:0;
       const previous2=s.n>1?s.values[s.n-2]:0;
       const shock=s.n?s.sigma*s.innovations[s.n-1]:0;
-      node(-3.8,1,0xd7c392,s.lesson===4?'过去两刻':'上一刻',s.lesson===4?[`X${Math.max(0,s.n-1)}: ${compact(previous)}`,`X${Math.max(0,s.n-2)}: ${compact(previous2)}`]:s.n?compact(previous):'—','positive',s.lesson===4?'两阶滞后':s.n?`X${s.n-1}`:'尚未递推');
-      node(0,1,0xc8b58b,s.lesson===4?'两份记忆相加':`× φ = ${s.phi.toFixed(2)}`,s.n?compact(s.phi*previous+(s.lesson===4?s.phi2*previous2:0)):'—','positive',s.lesson===4?'φ₁Xₜ₋₁ + φ₂Xₜ₋₂':'过去留下的部分');
-      node(0,-3.8,0xdba69a,'新冲击 + 常数',s.n?compact(shock+s.c):'—','negative',`ε${s.n} + c`);
-      node(3.8,1,0xb9c2cf,'这一刻',compact(s.values[s.n]),'',`X${s.n}`);
+      node(-3.8,1,0xd7c392,s.lesson===4?'过去两刻':{text:'上一刻',tex:String.raw`X_{t-1}`},s.lesson===4?[`X${Math.max(0,s.n-1)}: ${compact(previous)}`,`X${Math.max(0,s.n-2)}: ${compact(previous2)}`]:s.n?compact(previous):'—','positive',s.lesson===4?'两阶滞后':`本次 t = ${s.n}`);
+      node(0,1,0xc8b58b,s.lesson===4?'两份记忆相加':{text:'过去留下的部分',tex:String.raw`\phi X_{t-1}`},s.n?compact(s.phi*previous+(s.lesson===4?s.phi2*previous2:0)):'—','positive',s.lesson===4?'φ₁Xₜ₋₁ + φ₂Xₜ₋₂':`φ = ${s.phi.toFixed(2)}`);
+      node(0,-3.8,0xdba69a,s.lesson===4?'新冲击 + 常数':{text:'本期新噪声',tex:String.raw`\varepsilon_t`},s.n?compact(shock+(s.lesson===4?s.c:0)):'—','negative',s.lesson===4?`ε${s.n} + c`:`本次 t = ${s.n}`);
+      if(s.lesson===0){labelItems.at(-1).lift=56;labelItems.at(-1).el.classList.add('has-leader');}
+      node(3.8,1,0xb9c2cf,s.lesson===4?'这一刻':{text:'这一刻',tex:String.raw`X_t`},compact(s.values[s.n]),'',s.lesson===4?`X${s.n}`:`本次 t = ${s.n}`);
+      if(s.lesson===0){node(3.8,-3.8,0xd9c49a,{text:'单独的常数项',tex:'c'},compact(s.c),'','每一步相同');labelItems.at(-1).lift=56;labelItems.at(-1).el.classList.add('has-leader');connect([3.8,-2.8],[3.8,0],0x96763e);}
       connect([-2.75,1],[-1.05,1],0x96763e);
       connect([0,-2.8],[2.8,.55],0x9e594a);
       connect([1.05,1],[2.75,1],0x96763e);
-      canvas.setAttribute('aria-label',`AR(1)方块图。上一刻 ${compact(previous)}，乘以 ${s.phi} 留下 ${compact(s.phi*previous)}，新冲击与常数合计 ${compact(shock+s.c)}，得到 ${compact(s.values[s.n])}。`);
+      canvas.setAttribute('aria-label',s.lesson===0?`AR(1)方块图与公式使用同一组符号 X_t、X_(t-1)、phi X_(t-1)、epsilon_t、c。当前噪声 ${compact(shock)} 和常数 ${compact(s.c)} 分开显示。`:`AR(2) 递推方块图：过去两刻、新冲击和常数共同生成当前值。`);
     }else{
       const pacf=s.lesson===5,isVariance=s.lesson===2,defined=!pacf||(s.moments.stable&&s.sigma>0);
       const contributions=isVariance?window.ARModel.varianceTerms(s.phi,s.sigma,s.n):[];
@@ -109,14 +113,14 @@ if (renderer) {
     if(!current||host.hidden)return;
     renderer.render(scene,camera);tick++;
     const w=host.clientWidth,h=host.clientHeight;
-    labelItems.forEach(item=>{const p=item.position.clone().project(camera);item.el.style.left=((p.x+1)*w/2)+'px';item.el.style.top=((-p.y+1)*h/2)+'px';});
+    labelItems.forEach(item=>{const p=item.position.clone().project(camera),anchor=(-p.y+1)*h/2;item.el.style.left=((p.x+1)*w/2)+'px';const bottom=Math.max(item.el.offsetHeight+8,anchor-(item.lift||0));item.el.style.top=bottom+'px';item.el.style.setProperty('--leader-height',Math.max(0,anchor-bottom)+'px');});
   }
   function resize() {
     if(host.hidden)return;
     const w=host.clientWidth,h=host.clientHeight;
     if(!w||!h)return;
     renderer.setSize(w,h,false);
-    const halfW=Math.max(6.7,4.8*w/h),halfH=halfW*h/w;
+    const halfW=Math.max(current?.lesson===0?7.2:6.7,4.8*w/h),halfH=halfW*h/w;
     camera.left=-halfW;camera.right=halfW;camera.top=halfH;camera.bottom=-halfH;camera.updateProjectionMatrix();render();
   }
   function animate() {
