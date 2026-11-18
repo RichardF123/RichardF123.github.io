@@ -10,6 +10,7 @@
 
     function isSkippableLink(link, url) {
         if (!link || !url) return true;
+        if (link.hasAttribute('data-no-pjax') || url.pathname.startsWith('/interactive/')) return true;
         if (link.target && link.target !== '_self') return true;
         if (link.hasAttribute('download')) return true;
         if (link.classList.contains('gallery-item') || link.classList.contains('copy')) return true;

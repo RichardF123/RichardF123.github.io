@@ -6429,6 +6429,92 @@ body.is-home-list main.column-main > .card:has(> article.article):hover {
     aspect-ratio: 4/3;
   }
 }
+/* Course entry points stay compact beside the existing personal introduction. */
+.interactive-course-entry {
+  align-items: center;
+  border-bottom: 1px solid #c6ae84;
+  border-top: 1px solid #c6ae84;
+  color: #694330 !important;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.8rem;
+  line-height: 1.7;
+  padding: 0.8rem 0.15rem;
+  text-decoration: none !important;
+}
+.interactive-course-entry:hover {
+  border-color: #966f43;
+  background: rgba(169,126,64,0.06);
+}
+.interactive-course-entry__type {
+  color: #86483c;
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+.interactive-course-entry__title {
+  color: #4f3425;
+  font-size: 0.92rem;
+  font-weight: 600;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.interactive-course-entry small {
+  color: #765d43;
+  font-size: 0.72rem;
+}
+.interactive-course-entry__arrow {
+  margin-left: auto;
+}
+.interactive-course-entry--home {
+  margin: -0.2rem 0 1.7rem;
+}
+.interactive-course-entry--article {
+  margin: 0.5rem 0 1.25rem;
+}
+.course-note-item {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.course-note-item > .course-note-card {
+  flex: 1;
+}
+.course-note-interactive {
+  align-items: center;
+  color: #7a4436 !important;
+  display: flex;
+  font-size: 0.75rem;
+  gap: 0.5rem;
+  line-height: 1.7;
+  margin-top: 0.55rem;
+  padding: 0.2rem 0.1rem;
+  text-decoration: none !important;
+}
+.course-note-interactive:hover {
+  color: #4c3025 !important;
+  text-decoration: underline !important;
+}
+.course-note-interactive i:last-child {
+  margin-left: auto;
+}
+.interactive-course-entry:focus-visible,
+.course-note-interactive:focus-visible {
+  outline: 2px solid #884e3b;
+  outline-offset: 4px;
+}
+@media screen and (max-width: 520px) {
+  .interactive-course-entry {
+    gap: 0.35rem 0.6rem;
+    padding: 0.75rem 0.1rem;
+  }
+  .interactive-course-entry small {
+    flex-basis: 100%;
+    padding-left: 1.5rem;
+  }
+  .interactive-course-entry__arrow {
+    display: none;
+  }
+}
 /* Reading navigation is independent of the homepage profile sidebar. */
 body.is-reading-post .column-left,
 body.is-reading-post .column-right {

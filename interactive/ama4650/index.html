@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <base href="/interactive/ar1/">
+  <link rel="canonical" href="https://richardf123.github.io/interactive/ama4650/">
+  <title>AMA4650 · AR 模型交互课程 | RichardF</title>
+  <link rel="stylesheet" href="./vendor/katex/katex.min.css">
+  <link rel="stylesheet" href="./ar-course.css?v=5">
+  <script src="./vendor/katex/katex.min.js" defer></script>
+  <script src="./ar-model.js?v=5" defer></script>
+  <script src="./ar-course-data.js?v=5" defer></script>
+  <script src="./ar-unit.js?v=5" defer></script>
+  <script src="./blocks.js?v=5" type="module"></script>
+</head>
+<body>
+  <header class="site-header">
+    <a class="wordmark" href="/">RichardF<span> / 课程笔记</span></a>
+    <a class="back-link" href="/2026/11/16/ama4650-time-series-forecasting-guide/"><img src="./icons/arrow-left.svg" alt="">时间序列与预测</a>
+  </header>
+  <main>
+    <aside class="course-rail">
+      <p class="eyebrow">AMA4650 / 时间序列</p>
+      <div class="course-title">时间序列<br>与预测<span>第 06 单元 · AR 模型</span></div>
+      <nav class="chapters" aria-label="教学章节">
+        <button data-lesson="0" aria-current="step"><span>06.1</span><div>AR(1) 递推<small>一阶记忆怎样进入当前值</small></div></button>
+        <button data-lesson="1"><span>06.1</span><div>冲击响应<small>同一课 · 一次影响留多久</small></div></button>
+        <button data-lesson="2"><span>06.2</span><div>均值与方差<small>固定初始化与平稳解</small></div></button>
+        <button data-lesson="3"><span>06.2</span><div>AR(1) 的 ACF<small>同一课 · 相关的递推</small></div></button>
+        <button data-lesson="4"><span>06.3</span><div>Yule–Walker<small>从相关性反解 AR 参数</small></div></button>
+        <button data-lesson="5"><span>06.4</span><div>PACF 与截尾<small>排除中间滞后的影响</small></div></button>
+      </nav>
+      <div class="unit-progress"><span id="unit-progress">已完成 0 / 4 课</span><progress id="course-progress" max="4" value="0"></progress></div>
+      <details class="full-outline"><summary>完整课程大纲</summary><div id="course-outline"></div><div class="outline-row"><span>综合建模实践 · 1 课</span><small>待制作</small></div></details>
+    </aside>
+    <div class="lesson-page">
+    <section class="lesson-grid" aria-label="交互教学">
+      <div class="narrative">
+        <p class="section-index" id="lesson-index">01 / 04</p>
+        <h1 id="lesson-title"></h1>
+      </div>
+      <div class="experiment">
+        <div class="experiment-heading"><span id="scene-title">过去留下的部分，与新的冲击相加</span><span id="stability" class="status"></span></div>
+        <div class="formula-strip" aria-label="本节核心公式"><p class="formula-label">核心公式</p><div id="core-formula" class="core-formula"></div><div id="formula-limit" class="formula-limit" hidden></div><p id="formula-condition"></p></div>
+        <div class="visual-scene">
+          <div id="block-stage" class="block-stage" hidden><canvas id="blocks" role="img" aria-label="AR(1) 方块演示"></canvas><div id="block-labels"></div></div>
+          <div id="process-diagram" class="process-diagram" role="img" aria-label="一次 AR(1) 递推的计算过程">
+            <div class="previous-node"><span id="previous-caption">上一刻</span><strong id="previous-value">0.479</strong><small id="previous-symbol">X₃₁</small></div>
+            <div class="memory-edge"><span id="memory-caption">× 0.65</span><div class="connector"></div><strong id="memory-value">0.311</strong><small>过去留下的部分</small></div>
+            <div class="addition-node"><div class="shock-node"><span>新的冲击 ε<span id="shock-time">₃₂</span></span><strong id="shock-value">−0.206</strong><small id="drift-value">常数 c = 0</small></div><div class="vertical-connector"></div><span class="sum-sign">+</span></div>
+            <div class="result-edge"><div class="connector"></div></div>
+            <div class="result-node"><span>这一刻</span><strong id="result-value">0.105</strong><small id="result-symbol">X₃₂</small></div>
+          </div>
+          <figure class="acf-figure"><figcaption><span id="secondary-title">自相关 ACF</span><span class="legend"><i class="theory"></i>理论 <i class="sample"></i>样本</span></figcaption><div class="plot-frame"><canvas id="secondary" role="img" aria-label="理论与样本自相关图"></canvas></div><p id="secondary-note" class="chart-note"></p></figure>
+        </div>
+        <div id="yw-worked" class="worked-matrix" hidden><p>由总体相关反解系数 <span>数值显示经过舍入，求解使用完整精度</span></p><div id="yw-numbers"></div></div>
+        <div class="calculation"><span id="calculation-label">当前一步</span><div id="calculation"></div></div>
+        <div class="transport">
+          <button id="play" class="play-button" title="播放" aria-label="播放" aria-pressed="false"><img src="./icons/play.svg" alt=""><span id="play-label">播放递推</span></button>
+          <button id="step" class="icon-button" title="生成下一时刻" aria-label="生成下一时刻"><img src="./icons/skip-forward.svg" alt=""></button>
+          <button id="reset" class="icon-button" title="回到 t = 0" aria-label="回到 t = 0"><img src="./icons/rotate-ccw.svg" alt=""></button>
+          <input id="time" type="range" min="0" max="100" value="32" step="1" aria-label="当前时刻">
+          <output id="time-value">t = 32</output>
+          <button id="resample" class="text-button">换一组冲击</button>
+        </div>
+        <div class="parameter-workbench">
+          <div class="parameters primary-parameter"><label for="phi"><span>AR 系数 <b id="phi-symbol">φ</b><output id="phi-value">0.65</output></span><input id="phi" type="range" min="-1.2" max="1.2" step="0.05" value="0.65"><span class="range-endpoints"><small>−1.2</small><small>0</small><small>1.2</small></span></label><p id="parameter-hint">过去的 65% 会进入下一刻。</p></div>
+          <fieldset class="presets"><legend>换一种记忆</legend><button type="button" data-phi="0">φ = 0</button><button type="button" data-phi="0.65" aria-pressed="true">φ = 0.65</button><button type="button" data-phi="-0.65">φ = −0.65</button><button type="button" data-phi="1">φ = 1</button><button type="button" data-phi="1.1">φ = 1.1</button></fieldset>
+        </div>
+        <div id="ar2-controls" class="parameters ar2-controls" hidden><label for="phi2"><span>第二阶 AR 系数 <b>φ<sub>2</sub></b><output id="phi2-value">0.20</output></span><input id="phi2" type="range" min="-0.8" max="0.8" step="0.05" value="0.2"></label></div>
+        <details class="extra-parameters"><summary>冲击大小与常数项</summary><div class="parameters"><label for="sigma"><span>冲击标准差 <b>σ<sub>ε</sub></b><output id="sigma-value">1.0</output></span><input id="sigma" type="range" min="0" max="2" step="0.1" value="1"></label><label for="constant"><span>常数项 <b>c</b><output id="constant-value">0.0</output></span><input id="constant" type="range" min="-1" max="1" step="0.1" value="0"></label></div></details>
+        <details class="evidence"><summary>样本序列与数值</summary>
+        <div class="plots"><figure class="series-figure"><figcaption><span>刚才的每一步，连起来就是这条序列</span><span class="legend"><i></i>固定标准正态样本</span></figcaption><div class="plot-frame"><canvas id="series" role="img" aria-label="AR(1)模拟序列图"></canvas></div><p class="chart-note">X₀ = 0；纵轴自动缩放，比较幅度时请看刻度。</p></figure></div>
+        <div class="metrics"><div><span>平稳解的均值 μ</span><strong id="mean"></strong></div><div><span>平稳解的方差 γ(0)</span><strong id="variance"></strong></div><div><span id="metric-label">当前观测 X₃₂</span><strong id="current"></strong></div></div>
+        </details>
+      </div>
+    </section>
+    <section class="understanding" aria-labelledby="question"><div><p class="eyebrow">停一下，想一想</p><h2 id="question"></h2></div><div class="answers"><div id="choices" role="group" aria-labelledby="question"></div><p id="feedback" aria-live="polite"></p></div></section>
+    <details class="derivation" open><summary>数学推导<span>从图回到公式</span></summary><div class="derivation-label"><h2 id="derivation-title"></h2></div><div id="derivation-body"></div><div class="lesson-detail" id="lesson-detail"></div></details>
+    <details class="coding"><summary>Python 复现代码</summary><pre><code id="code-example"></code></pre></details>
+    <details class="notation"><summary>全课程记号约定</summary><dl><dt>Xₜ / xₜ</dt><dd>随机变量 / 实际观测值。</dd><dt>t / T</dt><dd>当前时刻 / 已观测样本的最后时刻。</dd><dt>k / h / s</dt><dd>相关的滞后阶数 / 预测或冲击响应步数 / 固定冲击时刻。</dd><dt>c / μ</dt><dd>递推常数项 / 过程均值；AR(p) 中 c = (1 − Σφᵢ)μ。</dd><dt>φ / φᵢ / φₖ,ⱼ</dt><dd>AR(1) 系数 / AR(p) 模型参数 / k 阶线性投影中第 j 个系数。</dd><dt>σ<sub>ε</sub>² / γ(0)</dt><dd>创新方差 / 平稳过程方差，不混用。</dd><dt>ρ(k) / ρ̂(k)</dt><dd>总体 ACF / 样本 ACF；PACF(k) = φₖ,ₖ。</dd></dl></details>
+    <div class="lesson-resources"><a href="/files/ama4650-time-series/chapter-04b-arima.pdf">AR 模型原讲义 PDF</a><a href="/files/ama4650-time-series/chapter-05-model-analysis.pdf">模型分析原讲义 PDF</a></div>
+    </div>
+    <aside class="guide-rail"><p class="guide-eyebrow">当前概念</p><h2 id="guide-title">一次递推</h2><div id="lesson-body" class="lesson-body"></div><div class="scene-explanation" id="scene-explanation"></div><div class="takeaway"><span>关键点</span><p id="takeaway"></p></div><div class="lesson-navigation"><button id="previous" class="icon-button" aria-label="上一节" title="上一节"><img src="./icons/chevron-left.svg" alt=""></button><span id="lesson-progress">1 / 4</span><button id="next" class="next-button">下一节<img src="./icons/chevron-right.svg" alt=""></button></div></aside>
+    <footer><span>RichardF · AMA4650</span><a href="/2026/11/16/ama4650-time-series-forecasting-guide/">继续阅读完整推导 <span aria-hidden="true">↗</span></a></footer>
+  </main>
+</body>
+</html>
