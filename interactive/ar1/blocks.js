@@ -68,6 +68,8 @@ if (renderer) {
     current=s;disposeGroup();host.hidden=s.lesson===3;
     sceneHost.classList.toggle('has-blocks',s.lesson!==3);
     host.classList.toggle('is-timeline',s.lesson===1||s.lesson===2||s.lesson===5);
+    host.classList.toggle('is-variance',s.lesson===2);
+    host.classList.toggle('is-variance-few',s.lesson===2&&s.n<=4);
     if(s.lesson===3)return;
     if(s.lesson===0||s.lesson===4){
       const previous=s.n?s.values[s.n-1]:0;
@@ -82,20 +84,23 @@ if (renderer) {
       connect([1.05,1],[2.75,1],0x96763e);
       canvas.setAttribute('aria-label',`AR(1)方块图。上一刻 ${compact(previous)}，乘以 ${s.phi} 留下 ${compact(s.phi*previous)}，新冲击与常数合计 ${compact(shock+s.c)}，得到 ${compact(s.values[s.n])}。`);
     }else{
-      const pacf=s.lesson===5,defined=!pacf||(s.moments.stable&&s.sigma>0);
-      const times=pacf?[1,2,3,4,5,6,7]:s.lesson===1?[0,1,2,3,4,5,6]:[0,1,4,8,16,32,100];
-      const numbers=times.map(h=>pacf?(defined?s.moments.pacf[h]:0):s.lesson===1?s.phi**h:s.finiteVariances[h]);
+      const pacf=s.lesson===5,isVariance=s.lesson===2,defined=!pacf||(s.moments.stable&&s.sigma>0);
+      const contributions=isVariance?window.ARModel.varianceTerms(s.phi,s.sigma,s.n):[];
+      const times=pacf?[1,2,3,4,5,6,7]:isVariance?(contributions.length?contributions.map(v=>v.j):[0]):[0,1,2,3,4,5,6];
+      const numbers=times.map((h,i)=>pacf?(defined?s.moments.pacf[h]:0):isVariance?(contributions[i]?.contribution||0):s.phi**h);
       const bound=Math.max(1,...numbers.map(Math.abs));
       times.forEach((h,i)=>{
-        const value=numbers[i],x=(i-3)*1.8;
-        const visible=h<=s.n&&defined;
+        const spacing=isVariance?10.8/Math.max(1,times.length-1):1.8;
+        const value=numbers[i],x=(i-(times.length-1)/2)*spacing;
+        const visible=(isVariance||h<=s.n)&&defined;
         const color=visible?(value<0?0xd4a297:0xd0b77a):0xe7decb;
         cube(x,0,1.35,.16,1.3,0xe9dec4);
         const height=.04+Math.abs(value)/bound*1.8;
         cube(x,0,.82,height,.8,color,.18);
-        label(x,0,height+.54,(pacf?'k = ':s.lesson===1?'h = ':'t = ')+h,visible?(Math.abs(value)>=1000?value.toExponential(0):value.toFixed(2)):defined?'·':'未定义',(!visible?'future':value<0?'negative':'positive'));
+        const title=isVariance?(s.n===0?'尚未加入噪声':contributions[i]?.tail?'更早各项合计':`j = ${h} 的贡献`):(pacf?'k = ':'j = ')+h;
+        label(x,0,height+.54,title,visible?(isVariance?(value>=100?value.toExponential(1):value.toFixed(value>=10?2:4)):(Math.abs(value)>=1000?value.toExponential(0):value.toFixed(2))):defined?'·':'未定义',(!visible?'future':value<0?'negative':'positive'));
       });
-      canvas.setAttribute('aria-label',pacf?(defined?`总体 PACF，小方块展示 k = 1 到 7，前两阶为 ${s.moments.pacf[1]}、${s.moments.pacf[2]}，后续阶数为零。`:'当前参数下总体 PACF 未定义。'):s.lesson===1?`冲击响应小方块，已经走到 h = ${s.n}，影响为 phi 的 h 次幂；酒红色表示负值，方块高度表示绝对值。`:`方差累积小方块，展示 t = ${times.join('、')} 的理论方差；高度按本图最大值缩放。`);
+      canvas.setAttribute('aria-label',pacf?(defined?`总体 PACF，小方块展示 k = 1 到 7，前两阶为 ${s.moments.pacf[1]}、${s.moments.pacf[2]}，后续阶数为零。`:'当前参数下总体 PACF 未定义。'):s.lesson===1?`白噪声表示系数，已经展开到 j = ${s.n}，系数为 phi 的 j 次幂；酒红色表示负值，方块高度表示绝对值。`:`t = ${s.n} 时各期噪声的方差贡献；每项权重平方后乘冲击方差，总和 ${s.finiteVariances[s.n]}；高度按本图最大值缩放。`);
     }
     start=performance.now();resize();
     if(!reduced.matches&&(s.lesson===0||s.lesson===4)&&s.n>0)animate();

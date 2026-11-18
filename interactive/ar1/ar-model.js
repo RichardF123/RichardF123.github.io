@@ -16,6 +16,24 @@
   }
   function acf(x,maxLag=12){const mean=x.reduce((a,b)=>a+b,0)/x.length,d=x.map(v=>v-mean),den=d.reduce((a,b)=>a+b*b,0);if(den<1e-14)return[];return Array.from({length:Math.min(maxLag+1,x.length)},(_,k)=>{let sum=0;for(let t=k;t<x.length;t++)sum+=d[t]*d[t-k];return sum/den;});}
   function finiteVariances(phi,phi2,sigma,n=100){let sum=0;return[0,...impulse(phi,phi2,n-1).map(v=>{sum+=sigma*sigma*v*v;return sum;})];}
-  const api={innovations,simulate,impulse,moments,acf,finiteVariances};
+  function pairs(x,k){
+    if(!Number.isInteger(k)||k<0)throw new RangeError('lag must be a nonnegative integer');
+    const mean=x.reduce((a,b)=>a+b,0)/x.length,denominator=x.reduce((sum,v)=>sum+(v-mean)**2,0),items=[];
+    for(let t=k;t<x.length;t++){const a=x[t]-mean,b=x[t-k]-mean;items.push({t,current:x[t],past:x[t-k],a,b,product:a*b});}
+    const numerator=items.reduce((sum,p)=>sum+p.product,0);
+    return{mean,denominator,numerator,acf:denominator>1e-14&&items.length?numerator/denominator:null,items};
+  }
+  function ensemble(parameters,seed,t,count=80){
+    const outcomes=Array.from({length:count},(_,i)=>simulate(parameters,innovations(seed+7919*(i+1),t))[t]);
+    const mean=outcomes.reduce((a,b)=>a+b,0)/count;
+    const sampleVariance=outcomes.reduce((sum,v)=>sum+(v-mean)**2,0)/(count-1);
+    return{outcomes,mean,sampleVariance};
+  }
+  function varianceTerms(phi,sigma,t){
+    const items=Array.from({length:Math.min(t,5)},(_,j)=>({j,weight:phi**j,contribution:sigma*sigma*phi**(2*j)}));
+    if(t>5){const j=4;items[4]={j,tail:true,weight:null,contribution:sigma*sigma*Array.from({length:t-j},(_,i)=>phi**(2*(i+j))).reduce((a,b)=>a+b,0)};}
+    return items;
+  }
+  const api={innovations,simulate,impulse,moments,acf,finiteVariances,pairs,ensemble,varianceTerms};
   if(typeof module==='object'&&module.exports)module.exports=api;else root.ARModel=Object.freeze(api);
 })(typeof window==='undefined'?globalThis:window);
