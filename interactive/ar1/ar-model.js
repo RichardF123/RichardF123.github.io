@@ -34,6 +34,15 @@
     if(t>5){const j=4;items[4]={j,tail:true,weight:null,contribution:sigma*sigma*Array.from({length:t-j},(_,i)=>phi**(2*(i+j))).reduce((a,b)=>a+b,0)};}
     return items;
   }
-  const api={innovations,simulate,impulse,moments,acf,finiteVariances,pairs,ensemble,varianceTerms};
+  function discreteAR1({phi,c=0,sigma=1},t){
+    if(!Number.isInteger(t)||t<0||t>3)throw new RangeError('exact lesson supports t = 0, 1, 2, 3');
+    let paths=[{noise:[],values:[0],value:0,probability:1}];
+    for(let i=1;i<=t;i++)paths=paths.flatMap(path=>[-sigma,sigma].map(epsilon=>{const value=c+phi*path.value+epsilon;return{noise:[...path.noise,epsilon],values:[...path.values,value],value,probability:path.probability/2};}));
+    const mean=paths.reduce((sum,p)=>sum+p.probability*p.value,0);
+    const variance=paths.reduce((sum,p)=>sum+p.probability*(p.value-mean)**2,0);
+    const grouped=new Map();paths.forEach(p=>{p.deviation=p.value-mean;p.squaredDeviation=p.deviation**2;const key=Math.round(p.value*1e10)/1e10;grouped.set(key,(grouped.get(key)||0)+p.probability);});
+    return{t,paths,mean,variance,distribution:[...grouped].map(([value,probability])=>({value,probability})).sort((a,b)=>a.value-b.value)};
+  }
+  const api={innovations,simulate,impulse,moments,acf,finiteVariances,pairs,ensemble,varianceTerms,discreteAR1};
   if(typeof module==='object'&&module.exports)module.exports=api;else root.ARModel=Object.freeze(api);
 })(typeof window==='undefined'?globalThis:window);
