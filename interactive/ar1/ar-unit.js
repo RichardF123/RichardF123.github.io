@@ -11,7 +11,7 @@
   const moments=()=>M.moments(state.phi,params().phi2,state.sigma,state.c);
   const variances=()=>M.finiteVariances(state.phi,params().phi2,state.sigma);
   function typeset(tex,target){window.katex.render(tex,target,{throwOnError:false,output:'htmlAndMathml'});}
-  function prose(text,target){target.replaceChildren();text.split(/(σ²ε|σ ε)/).forEach(part=>{if(part==='σ²ε'||part==='σ ε'){const span=document.createElement('span');typeset(part==='σ²ε'?String.raw`\sigma_\varepsilon^2`:String.raw`\sigma_\varepsilon`,span);target.append(span);}else target.append(document.createTextNode(part));});}
+  function prose(text,target){target.replaceChildren();text.split(/(σ²|σ)/).forEach(part=>{if(part==='σ²'||part==='σ'){const span=document.createElement('span');typeset(part==='σ²'?String.raw`\sigma^2`:String.raw`\sigma`,span);target.append(span);}else target.append(document.createTextNode(part));});}
   function snapshot(){return{...params(),order:advanced()?2:1,values:[...values],innovations:[...noise],sampleACF:M.acf(values.slice(0,state.n+1)),finiteVariances:variances(),moments:moments()};}
   window.AR1Demo=Object.freeze({snapshot});
 
@@ -45,7 +45,7 @@
     $('previous-symbol').innerHTML=`X<sub>${Math.max(0,state.n-1)}</sub>`;$('result-symbol').innerHTML=`X<sub>${state.n}</sub>`;$('drift-value').textContent=`c = ${state.c.toFixed(2)}`;$('shock-time').textContent=state.n;
     const summaries=[
       `上一刻留下 ${fmt(state.phi*p)}，新冲击为 ${fmt(eps)}，加上 c = ${fmt(state.c)}，得到 ${fmt(values[state.n])}。`,
-      `j = ${state.n} 的白噪声项 εₜ₋ⱼ，系数是 φʲ = ${fmt(state.phi**state.n)}。${Math.abs(state.phi)<1?'更久以前的噪声权重逐渐消退。':'当前只展示有限项权重，不使用平稳无穷和结论。'}`,
+      `j = ${state.n} 的白噪声项 Zₜ₋ⱼ，系数是 φʲ = ${fmt(state.phi**state.n)}。${Math.abs(state.phi)<1?'更久以前的噪声权重逐渐消退。':'当前只展示有限项权重，不使用平稳无穷和结论。'}`,
       `t = ${state.n} 时，固定初始化的理论方差为 ${fmt(variances()[state.n])}；平稳解方差 γ(0) ${m.stable?'为 '+fmt(m.variance):'在当前因果设定下不适用'}。`,
       m.stable&&state.sigma>0?`理论 ρ(1) = ${fmt(m.rho[1])}，ρ(2) = ${fmt(m.rho[2])}。暗金色样本估计会有波动。`:'当前参数不绘制因果平稳理论 ACF。',
       m.stable&&state.sigma>0?`由总体 ρ(1) = ${fmt(m.rho[1])}、ρ(2) = ${fmt(m.rho[2])}，解得 φ₁ = ${fmt(m.yw[0])}、φ₂ = ${fmt(m.yw[1])}。`:'当前参数不显示总体 Yule–Walker 数值解；递推路径仍可观察。',

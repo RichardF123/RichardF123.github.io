@@ -9,14 +9,16 @@
   <title>AMA4650 · AR 模型交互课程 | RichardF</title>
   <link rel="stylesheet" href="./vendor/katex/katex.min.css">
   <link rel="stylesheet" href="./ar-moments.css?v=13">
+  <link rel="stylesheet" href="/interactive/ama4650/process-definitions.css?v=3">
   <script src="./vendor/katex/katex.min.js" defer></script>
   <script src="./ar-model.js?v=12" defer></script>
-  <script src="./ar-course-data.js?v=10" defer></script>
-  <script src="./ar-intuition.js?v=9" defer></script>
-  <script src="./ar-moments.js?v=8" defer></script>
-  <script src="./ar-advanced.js?v=10" defer></script>
-  <script src="./ar-unit.js?v=11" defer></script>
-  <script src="./blocks.js?v=13" type="module"></script>
+  <script src="./ar-course-data.js?v=16" defer></script>
+  <script src="./ar-intuition.js?v=16" defer></script>
+  <script src="./ar-moments.js?v=16" defer></script>
+  <script src="./ar-advanced.js?v=16" defer></script>
+  <script src="./ar-unit.js?v=16" defer></script>
+  <script src="/interactive/ama4650/process-definitions.js?v=3" defer></script>
+  <script src="./blocks.js?v=16" type="module"></script>
 </head>
 <body>
   <header class="site-header">
@@ -54,7 +56,7 @@
           <div id="moment-formula-main"></div>
           <section class="moment-exam" aria-labelledby="moment-exam-title">
             <h2 id="moment-exam-title">例题：同一个模型，两种问法</h2>
-            <p>已知 Xₜ = 2 + 0.5Xₜ₋₁ + εₜ，创新均值为 0、方差为 3，且与过去不相关。注意：3 是方差，不是标准差。</p>
+            <p>已知 Xₜ = 2 + 0.5Xₜ₋₁ + Zₜ，创新均值为 0、方差为 3，且与过去不相关。注意：3 是方差，不是标准差。</p>
             <h3>A · 给定 X₀ = 0，求 E[X₄] 与 Var(X₄)</h3>
             <p>先写 m₀ = 0、v₀ = 0，再代入有限步公式。这里的 4 是题目指定的时刻。</p>
             <div id="moment-exam-finite-mean" class="math-line"></div>
@@ -97,7 +99,7 @@
           <div id="acf-population-values" class="intuition-equation"></div><p id="acf-population-reading" aria-live="polite"></p>
           <p class="intuition-note">这里“衰减”指绝对值逐渐趋近 0。φ &lt; 0 时正负交替；φ ≠ 0 时，通常不会在某一阶后突然全部变成 0，这叫拖尾，不是每一阶都很大。</p>
           <div id="acf-formula-main"></div>
-          <section class="acf-exam"><h2>例题：ACF 与自协方差不能混用</h2><p>因果平稳模型 Xₜ = 2 − 0.5Xₜ₋₁ + εₜ，创新方差为 3。求均值、过程方差、第 2 阶自相关及自协方差。</p><div id="acf-exam-moments" class="math-line"></div><div id="acf-exam-correlation" class="math-line"></div><p>ρ(2) = 0.25 没有单位；γ(2) = 1 带有原变量单位的平方。常数 c 改变均值，创新方差改变协方差的尺度；但在这些条件下，它们都不改变 AR(1) 的 ACF 形状。</p></section>
+          <section class="acf-exam"><h2>例题：ACF 与自协方差不能混用</h2><p>因果平稳模型 Xₜ = 2 − 0.5Xₜ₋₁ + Zₜ，创新方差为 3。求均值、过程方差、第 2 阶自相关及自协方差。</p><div id="acf-exam-moments" class="math-line"></div><div id="acf-exam-correlation" class="math-line"></div><p>ρ(2) = 0.25 没有单位；γ(2) = 1 带有原变量单位的平方。常数 c 改变均值，创新方差改变协方差的尺度；但在这些条件下，它们都不改变 AR(1) 的 ACF 形状。</p></section>
           <details id="acf-sample-details" class="moment-enumeration"><summary>样本实践：一条实际序列怎样估计 ACF？</summary>
           <p>实际只有一条观测序列时，未知总体均值 μ，就用全样本均值 x̄ 中心化，再把各个时刻相隔 k 步的观测配对。下面使用固定 X₀ = 0 的模拟数据，不把有限样本估计当作总体定律。</p>
           <div class="lag-control"><label for="acf-sample-size">观测数 n</label><input id="acf-sample-size" type="range" min="2" max="101" step="1" value="33"><output id="acf-sample-size-value">33</output></div><button id="acf-resample" class="intuition-example" type="button">换一组模拟观测</button>
@@ -113,7 +115,7 @@
           <div id="process-diagram" class="process-diagram" role="img" aria-label="一次 AR(1) 递推的计算过程">
             <div class="previous-node"><span id="previous-caption">上一刻</span><strong id="previous-value">0.479</strong><small id="previous-symbol">X₃₁</small></div>
             <div class="memory-edge"><span id="memory-caption">× 0.65</span><div class="connector"></div><strong id="memory-value">0.311</strong><small>过去留下的部分</small></div>
-            <div class="addition-node"><div class="shock-node"><span>新的冲击 ε<span id="shock-time">₃₂</span></span><strong id="shock-value">−0.206</strong><small id="drift-value">常数 c = 0</small></div><div class="vertical-connector"></div><span class="sum-sign">+</span></div>
+            <div class="addition-node"><div class="shock-node"><span>新的冲击 Z<span id="shock-time">₃₂</span></span><strong id="shock-value">−0.206</strong><small id="drift-value">常数 c = 0</small></div><div class="vertical-connector"></div><span class="sum-sign">+</span></div>
             <div class="result-edge"><div class="connector"></div></div>
             <div class="result-node"><span>这一刻</span><strong id="result-value">0.105</strong><small id="result-symbol">X₃₂</small></div>
           </div>
@@ -134,7 +136,7 @@
           <fieldset class="presets"><legend>换一种记忆</legend><button type="button" data-phi="0">φ = 0</button><button type="button" data-phi="0.65" aria-pressed="true">φ = 0.65</button><button type="button" data-phi="-0.65">φ = −0.65</button><button type="button" data-phi="1">φ = 1</button><button type="button" data-phi="1.1">φ = 1.1</button></fieldset>
         </div>
         <div id="ar2-controls" class="parameters ar2-controls" hidden><label for="phi2"><span>第二阶 AR 系数 <b>φ<sub>2</sub></b><output id="phi2-value">0.20</output></span><input id="phi2" type="range" min="-0.8" max="0.8" step="0.05" value="0.2"></label></div>
-        <details class="extra-parameters"><summary>冲击大小与常数项</summary><div class="parameters"><label for="sigma"><span>冲击标准差 <b>σ<sub>ε</sub></b><output id="sigma-value">1.0</output></span><input id="sigma" type="range" min="0" max="2" step="0.1" value="1"></label><label for="constant"><span>常数项 <b>c</b><output id="constant-value">0.0</output></span><input id="constant" type="range" min="-1" max="1" step="0.1" value="0"></label></div></details>
+        <details class="extra-parameters"><summary>冲击大小与常数项</summary><div class="parameters"><label for="sigma"><span>冲击标准差 <b>σ</b><output id="sigma-value">1.0</output></span><input id="sigma" type="range" min="0" max="2" step="0.1" value="1"></label><label for="constant"><span>常数项 <b>c</b><output id="constant-value">0.0</output></span><input id="constant" type="range" min="-1" max="1" step="0.1" value="0"></label></div></details>
         <details class="evidence"><summary>样本序列与数值</summary>
         <div class="plots"><figure class="series-figure"><figcaption><span>刚才的每一步，连起来就是这条序列</span><span class="legend"><i></i>固定标准正态样本</span></figcaption><div class="plot-frame"><canvas id="series" role="img" aria-label="AR(1)模拟序列图"></canvas></div><p class="chart-note">X₀ = 0；纵轴自动缩放，比较幅度时请看刻度。</p></figure></div>
         <div class="metrics"><div><span>平稳解的均值 μ</span><strong id="mean"></strong></div><div><span>平稳解的方差 γ(0)</span><strong id="variance"></strong></div><div><span id="metric-label">当前观测 X₃₂</span><strong id="current"></strong></div></div>
@@ -144,7 +146,7 @@
           <p>上面的方块模拟当前一步：两份过去值分别乘 φ₁、φ₂，再加创新和常数得到 Xₜ。它展示递推，不负责证明平稳性。矩阵区则使用当前参数对应的平稳总体 ACF 反解系数，不是从这条短样本估出来的。</p>
           <p id="yw-live-reading"></p>
           <div id="yw-formula-main"></div>
-          <section class="advanced-example"><h2>完整例题：两个方向都算一遍</h2><p>以下例题固定为 Xₜ = 0.5Xₜ₋₁ + 0.2Xₜ₋₂ + εₜ，创新方差为 1。它与上方可调参数的演示分开，不随滑块改变。</p>
+          <section class="advanced-example"><h2>完整例题：两个方向都算一遍</h2><p>以下例题固定为 Xₜ = 0.5Xₜ₋₁ + 0.2Xₜ₋₂ + Zₜ，创新方差为 1。它与上方可调参数的演示分开，不随滑块改变。</p>
           <h3>A · 已知参数，求均值、ACF 和方差</h3><p>先检查因果平稳：|0.2| &lt; 1，0.5 + 0.2 &lt; 1，0.2 − 0.5 &lt; 1。常数 c = 0，故 μ = 0。依次计算 ρ(1)、ρ(2)，再求 ρ(3) 与 γ(0)。</p><div id="yw-example-forward" class="math-line"></div>
           <h3>B · 已知 ρ(1) = 0.625、ρ(2) = 0.5125，反解参数</h3><p>先解第二个系数，再代回第一个系数。这里输入的是总体相关，因此恰好还原真实参数。</p><div id="yw-example-inverse" class="math-line"></div>
           <h3>C · 如果给的是样本相关呢？</h3><p>例如样本估计为 ρ̂(1) = 0.6、ρ̂(2) = 0.45，使用同一套代数，但答案要戴帽子。它不会自动等于真实的 0.5 和 0.2。</p><div id="yw-example-sample" class="math-line"></div><p>实际写代码解线性方程即可，不必显式求矩阵逆；矩阵奇异时不能照常求解。得到参数估计后还应检查根条件与残差，不能只凭两项相关宣布模型正确。</p></section>
@@ -163,7 +165,7 @@
     <section class="understanding" aria-labelledby="question"><div><p class="eyebrow">停一下，想一想</p><h2 id="question"></h2></div><div class="answers"><div id="choices" role="group" aria-labelledby="question"></div><p id="feedback" aria-live="polite"></p></div></section>
     <span id="derivation-position" hidden></span><details class="derivation" open><summary>数学推导<span>从图回到公式</span></summary><div class="derivation-label"><h2 id="derivation-title"></h2></div><div id="derivation-body"></div><div class="lesson-detail" id="lesson-detail"></div></details>
     <details class="coding"><summary>Python 复现代码</summary><pre><code id="code-example"></code></pre></details>
-    <details class="notation"><summary>全课程记号约定</summary><dl><dt>Xₜ / xₜ</dt><dd>随机变量 / 实际观测值。</dd><dt>t / T</dt><dd>当前时刻 / 已观测样本的最后时刻。</dd><dt>k / h / s</dt><dd>相关的滞后阶数 / 预测或冲击响应步数 / 固定冲击时刻。</dd><dt>mₜ / vₜ</dt><dd>固定初始化下，第 t 个时刻的均值 E[Xₜ] / 方差 Var(Xₜ)。</dd><dt>c / μ</dt><dd>递推常数项 / 平稳过程均值；AR(p) 中 c = (1 − Σφᵢ)μ。</dd><dt>φ / φᵢ / φₖ,ⱼ</dt><dd>AR(1) 系数 / AR(p) 模型参数 / k 阶线性投影中第 j 个系数。</dd><dt>σ<sub>ε</sub>² / γ(0)</dt><dd>创新方差 / 平稳过程方差，不混用。</dd><dt>ρ(k) / ρ̂(k)</dt><dd>总体 ACF / 样本 ACF；PACF(k) = φₖ,ₖ。</dd></dl></details>
+    <details class="notation"><summary>全课程记号约定</summary><dl><dt>Xₜ / xₜ</dt><dd>随机变量 / 实际观测值。</dd><dt>t / T</dt><dd>当前时刻 / 已观测样本的最后时刻。</dd><dt>k / h / s</dt><dd>相关的滞后阶数 / 预测或冲击响应步数 / 固定冲击时刻。</dd><dt>mₜ / vₜ</dt><dd>固定初始化下，第 t 个时刻的均值 E[Xₜ] / 方差 Var(Xₜ)。</dd><dt>c / μ</dt><dd>递推常数项 / 平稳过程均值；AR(p) 中 c = (1 − Σφᵢ)μ。</dd><dt>φ / φᵢ / φₖ,ⱼ</dt><dd>AR(1) 系数 / AR(p) 模型参数 / k 阶线性投影中第 j 个系数。</dd><dt>σ² / γ(0)</dt><dd>创新方差 / 平稳过程方差，不混用。</dd><dt>ρ(k) / ρ̂(k)</dt><dd>总体 ACF / 样本 ACF；PACF(k) = φₖ,ₖ。</dd></dl></details>
     <div class="lesson-resources"><a href="/files/ama4650-time-series/chapter-04b-arima.pdf">AR 模型原讲义 PDF</a><a href="/files/ama4650-time-series/chapter-05-model-analysis.pdf">模型分析原讲义 PDF</a></div>
     </div>
     <aside class="guide-rail"><p class="guide-eyebrow">当前概念</p><h2 id="guide-title">一次递推</h2><div id="lesson-body" class="lesson-body"></div><div id="lesson-source" class="lesson-source" hidden></div><div class="scene-explanation" id="scene-explanation"></div><div class="takeaway"><span>关键点</span><p id="takeaway"></p></div><div class="lesson-navigation"><button id="previous" class="icon-button" aria-label="上一节" title="上一节"><img src="./icons/chevron-left.svg" alt=""></button><span id="lesson-progress">1 / 4</span><button id="next" class="next-button">下一节<img src="./icons/chevron-right.svg" alt=""></button></div></aside>

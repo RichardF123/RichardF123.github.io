@@ -79,7 +79,7 @@ if (renderer) {
       const shock=s.n?s.sigma*s.innovations[s.n-1]:0;
       node(-3.8,1,0xd7c392,s.lesson===4?'过去两刻':{text:'上一刻',tex:String.raw`X_{t-1}`},s.lesson===4?[`X${Math.max(0,s.n-1)}: ${compact(previous)}`,`X${Math.max(0,s.n-2)}: ${compact(previous2)}`]:s.n?compact(previous):'—','positive',s.lesson===4?'两阶滞后':`本次 t = ${s.n}`);
       node(0,1,0xc8b58b,s.lesson===4?'两份记忆相加':{text:'过去留下的部分',tex:String.raw`\phi X_{t-1}`},s.n?compact(s.phi*previous+(s.lesson===4?s.phi2*previous2:0)):'—','positive',s.lesson===4?'φ₁Xₜ₋₁ + φ₂Xₜ₋₂':`φ = ${s.phi.toFixed(2)}`);
-      node(0,-3.8,0xdba69a,s.lesson===4?'新冲击 + 常数':{text:'本期新噪声',tex:String.raw`\varepsilon_t`},s.n?compact(shock+(s.lesson===4?s.c:0)):'—','negative',s.lesson===4?`ε${s.n} + c`:`本次 t = ${s.n}`);
+      node(0,-3.8,0xdba69a,s.lesson===4?'新冲击 + 常数':{text:'本期新噪声',tex:String.raw`Z_t`},s.n?compact(shock+(s.lesson===4?s.c:0)):'—','negative',s.lesson===4?`Z${s.n} + c`:`本次 t = ${s.n}`);
       if(s.lesson===0){labelItems.at(-1).lift=56;labelItems.at(-1).el.classList.add('has-leader');}
       node(3.8,1,0xb9c2cf,s.lesson===4?'这一刻':{text:'这一刻',tex:String.raw`X_t`},compact(s.values[s.n]),'',s.lesson===4?`X${s.n}`:`本次 t = ${s.n}`);
       if(s.lesson===0){node(3.8,-3.8,0xd9c49a,{text:'单独的常数项',tex:'c'},compact(s.c),'','每一步相同');labelItems.at(-1).lift=56;labelItems.at(-1).el.classList.add('has-leader');connect([3.8,-2.8],[3.8,0],0x96763e);}

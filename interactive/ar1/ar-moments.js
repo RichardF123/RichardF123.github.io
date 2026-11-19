@@ -14,7 +14,7 @@
     exact=M.discreteAR1({phi:s.phi,c:s.c,sigma:1},s.n);selected=Math.min(selected,exact.paths.length-1);
     const count=exact.paths.length,probability=count===1?'1':`1/${count}`;
     $('moment-phi').value=s.phi;$('moment-phi-value').textContent=f(s.phi);$('moment-c').value=s.c;$('moment-c-value').textContent=f(s.c);
-    math(String.raw`X_0=0,\qquad X_i=${f(s.c)}+${s.phi<0?'('+f(s.phi)+')':f(s.phi)}X_{i-1}+\varepsilon_i`,$('moment-model'));
+    math(String.raw`X_0=0,\qquad X_i=${f(s.c)}+${s.phi<0?'('+f(s.phi)+')':f(s.phi)}X_{i-1}+Z_i`,$('moment-model'));
     $('moment-time-explanation').textContent=`现在固定看 t = ${s.n}：X${s.n} 是第 ${s.n} 步的随机变量。每一步有两种噪声选择，共有 2^${s.n} = ${count} 种等可能噪声组合；每一行的概率是 ${probability}。`+(s.n===1?'第一步中 φX₀ = 0，所以改变 φ 暂时不会改变结果；到第二步才会看出它的作用。':'不同噪声组合可能得到相同的结果；图中会把这些结果的概率合并。');
     document.querySelectorAll('[data-moment-time]').forEach(b=>b.setAttribute('aria-pressed',String(Number(b.dataset.momentTime)===s.n)));
     document.querySelectorAll('[data-moment-phase]').forEach(b=>Number(b.dataset.momentPhase)===phase?b.setAttribute('aria-current','step'):b.removeAttribute('aria-current'));
@@ -64,6 +64,6 @@
   math(String.raw`m_4=0.5^4\times0+\frac{2(1-0.5^4)}{1-0.5}=\frac{15}{4}=3.75`,$('moment-exam-finite-mean'));
   math(String.raw`v_4=\frac{3(1-0.5^8)}{1-0.5^2}=\frac{255}{64}=3.984375`,$('moment-exam-finite-variance'));
   math(String.raw`\mu=\frac{2}{1-0.5}=4,\qquad\gamma(0)=\frac{3}{1-0.5^2}=4`,$('moment-exam-stationary'));
-  math(String.raw`m_t=\phi^t m_0+c\sum_{j=0}^{t-1}\phi^j,\qquad v_t=\phi^{2t}v_0+\sigma_\varepsilon^2\sum_{j=0}^{t-1}\phi^{2j}`,$('moment-exam-random-initial'));
+  math(String.raw`m_t=\phi^t m_0+c\sum_{j=0}^{t-1}\phi^j,\qquad v_t=\phi^{2t}v_0+\sigma^2\sum_{j=0}^{t-1}\phi^{2j}`,$('moment-exam-random-initial'));
   window.ARMoments=Object.freeze({update,snapshot:()=>({phase,selected,exact})});
 })();
