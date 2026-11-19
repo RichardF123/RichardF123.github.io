@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>随机过程、平稳性与趋势 | AMA4650</title><link rel="stylesheet" href="/interactive/ar1/vendor/katex/katex.min.css"><link rel="stylesheet" href="../course-player.css?v=3"><link rel="stylesheet" href="lesson.css"><script defer src="/interactive/ar1/vendor/katex/katex.min.js"></script><script defer src="lesson.js"></script></head><body>
+<header class="site-header"><a class="wordmark" href="/">RichardF<span> / 课程笔记</span></a><a class="back-link" href="../">时间序列与预测</a></header>
+<main><aside class="course-rail"><p class="eyebrow">AMA4650 / 时间序列</p><div class="course-title">时间序列<br>与预测</div><nav class="unit-links" aria-label="课程单元"><a aria-current="page" href="./">01–03 · 随机过程、平稳性与趋势</a><a href="../smoothing/">04 · 指数平滑</a><a href="../ma/">05 · MA 模型</a><a href="../">06 · AR 模型</a></nav></aside>
+<article class="lesson-page"><p class="section-index">01–03 / 基础篇</p><h1>随机过程、平稳性与趋势</h1>
+<p>假设一家小店每天的订单数围绕 20 波动。每天抛一次公平硬币，正面多 2 单，反面少 2 单，各天独立。还没开店时，第 <code>t</code> 天的订单数 <code>X_t</code> 有两种可能；打烊后，账本上只会留下一个数 <code>x_t</code>。</p>
+<p>把各天的随机变量放在一起，就是<strong>随机过程</strong>；把连续 12 天实际得到的数连起来，就是这个过程的一条<strong>样本路径</strong>。换一组硬币结果，账本会变，生成账本的规则没变。</p>
+<section class="module-experiment"><h2>同一家店，三种看法</h2><p>先换一条记录，看哪条线不动。再保留这次的硬币结果，给每天的订单基准加上趋势，最后改看相邻两天的增量。</p>
+<div id="modes" role="group" aria-label="观察方式"><button aria-pressed="true">无趋势</button><button aria-pressed="false">加线性趋势</button><button aria-pressed="false">对趋势序列差分</button></div>
+<figure><figcaption id="legend"></figcaption><svg id="plot" viewBox="0 0 510 195" role="img" aria-labelledby="legend"></svg></figure>
+<button id="sample">换一条记录</button><p aria-live="polite" id="reading"></p></section>
+<section class="module-derivation"><h2>怎样判断平稳？先把时间平移一下</h2><p>回到第一幅图。今天和下周一都可能有 18 或 22 单，各占一半。两天的期望都是 20，方差都是 <code>(2^2+(-2)^2)/2=4</code>。相隔一天的两次抛币互不影响，所以第 2、3 天的协方差和第 8、9 天的协方差一样，都是零。</p>
+<p>课件说的<strong>弱平稳</strong>正是这三个检查：均值不随日期变，方差有限且不变，两期的协方差只取决于相隔多久。记间隔为 <code>k</code>，就可以写成 <code>\gamma(k)=\operatorname&#123;Cov&#125;(X_&#123;t+k&#125;,X_t)</code>，不必再标明从哪一天开始。平稳允许相邻两天相关，也不要求一条记录平平直直。</p>
+<h2>加了趋势，究竟是哪一条不满足？</h2><p>现在让店铺的基准每天增加 1 单。把可预测的基准记作 <code>m_t=\alpha+\beta t</code>，当天抛币带来的偏差记作 <code>\epsilon_t</code>。本例没有季节项，所以 <code>X_t=m_t+\epsilon_t</code>。取 <code>\alpha=20</code>、<code>\beta=1</code>，第 1 天的期望是 21，第 12 天则是 32。虽然围绕基准的波动仍然是上下 2 单，<strong>均值改变这一项就足以否定弱平稳</strong>。</p>
+<h2>差分去掉的是斜坡，不是全部波动</h2><p>课件用 <code>B</code> 表示往前取一期，即 <code>BX_t=X_&#123;t-1&#125;</code>。用今天减昨天，就是一阶差分 <code>\nabla=1-B</code>。把昨天和今天的订单分别代入：</p>
+<div class="eq"><code>\nabla X_t=X_t-X_&#123;t-1&#125;</code><code>\nabla X_t=\beta+\epsilon_t-\epsilon_&#123;t-1&#125;</code></div>
+<p>两天基准之差恒为 1，两项误差的期望都是零，所以增量的期望是 1，而不是 0。本例中增量的方差是 <code>4+4=8</code>。相邻增量共享一个误差，符号恰好相反，因此协方差是 −4；再隔远些就没有共享项，协方差为零。这三个结果都不依赖日期，<strong>本例的差分序列弱平稳，但不是白噪声</strong>。一次差分并不保证任意序列都平稳。</p></section>
+<section class="module-derivation"><h2>例题一：从模型算到 ACF</h2>
+<p>沿用小店模型，但不告诉你硬币的面值。设 <code>X_t=\alpha+\beta t+\epsilon_t</code>，误差是方差为 <code>\sigma^2&gt;0</code> 的零均值白噪声。题目问：当 <code>\beta\ne0</code> 时，原序列是否弱平稳？一阶差分后的 ACF 是多少？</p>
+<details open><summary>解题过程</summary><p><strong>先看原序列。</strong> 直接取期望得到 <code>E[X_t]=\alpha+\beta t</code>。均值依赖日期，写到这里就足以否定弱平稳，不必再计算原序列的 ACF。</p>
+<p><strong>再把需要比较的两期写出来。</strong> 令 <code>Y_t=\nabla X_t</code>。去掉均值后，今天和昨天的增量分别是：</p>
+<div class="eq"><code>Y_t-\beta=\epsilon_t-\epsilon_&#123;t-1&#125;</code><code>Y_&#123;t-1&#125;-\beta=\epsilon_&#123;t-1&#125;-\epsilon_&#123;t-2&#125;</code></div>
+<p>求同一期的方差时，两个不同期误差的协方差为零，两个系数要<strong>平方</strong>后相加。求相邻两期的协方差时，只剩共同的误差 <code>\epsilon_&#123;t-1&#125;</code>，这时要把它在两行的系数<strong>相乘</strong>：</p>
+<div class="eq"><code>\gamma_Y(0)=(1^2+(-1)^2)\sigma^2=2\sigma^2</code><code>\gamma_Y(1)=(-1)(1)\sigma^2=-\sigma^2</code></div>
+<p>间隔至少两期时，两行没有同一期误差，所以协方差为零。均值恒为 <code>\beta</code>，协方差只取决于间隔，故差分序列弱平稳。最后才除以方差：</p>
+<div class="eq"><code>\rho_Y(0)=1</code><code>\rho_Y(1)=\rho_Y(-1)=-1/2</code><code>\rho_Y(k)=0\quad (|k|\ge2)</code></div>
+<p><strong>核对：</strong>取实验里的 <code>\sigma^2=4</code>，方差是 8，相邻协方差是 −4。负号有直观含义：如果昨天订单意外偏高，它会抬高昨天的增量，却压低今天的增量。</p></details>
+<h2>例题二：两条上升的线，都能减去一条直线吗？</h2>
+<p>比较 <code>X_t=\beta t+\epsilon_t</code> 和 <code>R_t=R_&#123;t-1&#125;+\beta+\epsilon_t</code>，其中 <code>R_0=0</code>，误差条件同上。两者期望都是 <code>\beta t</code>。分别减去这条趋势后，剩下的序列都弱平稳吗？先试着写出第二个模型在第 3 期的值。</p>
+<details><summary>展开推导与判断</summary><p>第一个模型减去趋势，只剩当期误差。第二个是带漂移的随机游走：每次误差都进入下一期的起点。把递推式代回去：</p>
+<div class="eq"><code>R_3=3\beta+\epsilon_1+\epsilon_2+\epsilon_3</code><code>R_t-\beta t=\sum_&#123;j=1&#125;^t\epsilon_j</code></div>
+<p>减去直线后，两者均值都变成零，但第二个模型累积了 <code>t</code> 项不相关误差，其方差是 <code>t\sigma^2</code>，仍随时间增长，所以不是弱平稳。这个反例即使取 <code>\beta=0</code> 也成立。</p>
+<p>若对第二个模型做差分，就能消掉已经累积的误差：<code>\nabla R_t=\beta+\epsilon_t</code>。它在非零间隔的协方差都是零，而例一差分后相邻两期仍然负相关。<strong>看图只能提出趋势的猜测；考试里要用题设的生成规则判断该减趋势还是做差分。</strong></p></details></section>
+<details class="module-code"><summary>自测：把每天增加 1 单改成每天减少 2 单，会怎样？</summary><p>原序列仍不平稳，因为均值随日期下降。差分序列的均值变成 −2；硬币规则没变，所以增量方差仍是 8，相邻增量的协方差仍是 −4。</p></details>
+<nav class="module-navigation"><a href="../smoothing/">下一单元：指数平滑 →</a></nav></article><aside class="guide-rail"><p class="guide-eyebrow">课件对照</p><p><a href="/files/ama4650-time-series/chapter-01-introduction.pdf#page=2">第 1 章 · 从随机变量到过程</a></p><p><a href="/files/ama4650-time-series/chapter-02-stationarity-trend-seasonality.pdf#page=3">第 2 章 · 平稳性（第 3–5 页）</a></p><p><a href="/files/ama4650-time-series/chapter-02-stationarity-trend-seasonality.pdf#page=18">第 2 章 · 差分（第 18 页）</a></p></aside></main></body></html>
