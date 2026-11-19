@@ -1,0 +1,13 @@
+.course-rail.unified-rail {min-width:0;letter-spacing:0}
+.unified-rail .rail-heading {font:750 23px/1.35 system-ui,sans-serif;color:#4a302a;margin:5px 0 18px}
+.unified-rail .rail-label {font:700 12px/1.5 system-ui,sans-serif;color:#705642;margin:16px 0 6px}
+.rail-units {display:grid;gap:2px}
+.rail-units a {display:grid;grid-template-columns:3.1em 1fr;align-items:baseline;border-left:3px solid transparent;padding:6px 7px;color:#4b382e;font:600 14px/1.45 system-ui,sans-serif;text-decoration:none}
+.rail-units a span {font-size:12px;font-variant-numeric:tabular-nums;color:#78604b}
+.rail-units a:hover,.rail-units a:focus-visible {background:#f0e4d0}
+.rail-units a[aria-current=page] {border-color:#853f40;background:#f0dfce;color:#702f32}
+.unified-rail .chapters {margin:0;display:grid;gap:2px}
+.unified-rail .chapters button {padding:6px 7px;font-size:14px;min-height:32px}
+.unified-rail .chapters button small {display:none}
+@media(min-width:1101px){.course-rail.unified-rail {max-height:calc(100vh - 16px);overflow-y:auto;scrollbar-width:thin}}
+@media(max-width:760px){.rail-units,.unified-rail .chapters {grid-template-columns:repeat(2,minmax(0,1fr))}.rail-units a {grid-template-columns:auto 1fr;gap:6px}.unified-rail .rail-heading {margin-bottom:8px}}
