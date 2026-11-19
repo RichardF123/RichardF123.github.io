@@ -1,0 +1,5 @@
+.forecast-lab{margin:16px 0 24px;padding:16px;border:1px solid #bfaa87;border-left:3px solid #85463d;background:#fff7e7;color:#493529}
+.forecast-lab h3{margin:0 0 12px}.forecast-lab figure{margin:10px 0}.forecast-lab svg{width:100%;max-width:600px;display:block}.forecast-lab svg text{fill:#574335;font:12px system-ui,sans-serif}
+.forecast-lab figcaption{font-size:13px}.forecast-lab p{font-variant-numeric:tabular-nums;margin-bottom:0}
+.horizons{display:flex;gap:4px}.horizons button{background:none;border:1px solid #b8a282;padding:5px 14px;color:#563629;font:inherit;cursor:pointer}.horizons [aria-pressed=true]{background:#754238;color:#fff}
+.forecast-lab label{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px}.forecast-lab input{max-width:100%;accent-color:#754238}
