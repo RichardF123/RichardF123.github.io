@@ -96,7 +96,7 @@
     Array.from($('choices').children).forEach((b,i)=>prose(l.choices[i],b));
     if(write){const url=new URL(location.href);url.hash=l.id;history.pushState(null,'',url.href);}progress();update();
   }
-  const outline=$('course-outline');C.units.forEach(([id,title,count])=>{const row=document.createElement('div');row.className='outline-row';const label=document.createElement('span');label.textContent=`${id} ${title} · ${count} 课`;const status=document.createElement('small');status.textContent=id==='06'?'本单元':'待制作';row.append(label,status);outline.append(row);});
+  const outline=$('course-outline');C.units.forEach(([id,title,count])=>{const available=id==='04'||id==='05',row=document.createElement(available?'a':'div');row.className='outline-row';if(available){row.href=id==='04'?'/interactive/ama4650/smoothing/':'/interactive/ama4650/ma/';row.dataset.noPjax='true';}const label=document.createElement('span');label.textContent=`${id} ${title} · ${count} 课`;const status=document.createElement('small');status.textContent=id==='06'?'本单元':available?'进入课程':'待制作';row.append(label,status);outline.append(row);});
   $('choices').addEventListener('click',()=>prose($('feedback').textContent,$('feedback')));
   ['phi','sigma','constant','phi2'].forEach(id=>$(id).addEventListener('input',()=>{stop();state[id==='constant'?'c':id]=Number($(id).value);update();}));
   document.querySelectorAll('[data-phi]').forEach(b=>b.addEventListener('click',()=>{stop();state.phi=Number(b.dataset.phi);update();}));
