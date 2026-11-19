@@ -1,0 +1,20 @@
+body:is([data-unit="arma"],[data-unit="arima"],[data-unit="analysis"],[data-unit="forecast"],[data-unit="volatility"]) .lesson-page{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:#493429}
+.lesson-page>h1{font-size:30px;line-height:1.35;margin-bottom:20px}
+.lesson-page section>h2{font-size:22px;line-height:1.5;margin-top:30px}
+.lesson-page h3{font-size:18px;line-height:1.6}
+.lesson-page p,.lesson-page details{font-size:16px;line-height:1.9}
+.lesson-page summary{padding-block:8px;color:#713f34}
+.lesson-page .steps{margin:18px 0 22px;gap:9px}
+.lesson-page .steps code{padding-block:5px;line-height:1.9;overflow-y:hidden}
+.lesson-page .lab-formulas{gap:5px;margin:18px 0}
+.lesson-page .formula-label,.rec-params label,.forecast-lab label{font:650 14px/1.7 system-ui,sans-serif}
+.lesson-page .lab-equation{padding-block:6px}
+.rec-lab #rec-blocks small,.lab-terms small{font:600 13px/1.6 system-ui,sans-serif}
+.rec-lab figcaption,.forecast-lab figcaption,.model-block-scene figcaption{font-size:14px;line-height:1.75;color:#634b39;margin-top:10px}
+.rec-lab #rec-note{padding:8px 12px;background:#f4e8d1}
+.guide-rail .lesson-body p,.guide-rail .takeaway p{font-size:14px;line-height:1.85;color:#513c2e}
+.guide-rail h2{font-size:19px;line-height:1.55}
+.model-block-label small{line-height:1.5;font-weight:600}
+.model-block-label strong{font-size:15px;line-height:1.6;font-variant-numeric:tabular-nums}
+.model-block-label>div{line-height:1.6;padding-block:2px}
+@media(max-width:600px){.lesson-page>h1{font-size:25px}.lesson-page section>h2{font-size:20px}.lesson-page p,.lesson-page details{font-size:15px}.model-block-label small{font-size:10px}.model-block-label strong{font-size:13px}.model-block-label .katex{font-size:.78em}.rec-actions button{min-width:40px;min-height:38px}}

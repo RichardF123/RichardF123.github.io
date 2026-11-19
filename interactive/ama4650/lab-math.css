@@ -1,0 +1,10 @@
+.lab-formulas{border-left:3px solid #875044;background:#f3e6cc;padding:12px;margin:12px 0;display:grid;gap:8px;min-width:0}
+.lab-formulas .formula-label{margin:0;font-size:12px;color:#674535;font-weight:700}
+.lab-equation{min-width:0;max-width:100%;overflow-x:auto;overflow-y:hidden;padding-block:5px;line-height:1.8;text-align:left}
+.lab-equation .katex{font-size:1.08em;white-space:nowrap}
+.lab-terms{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin:12px 0}
+.lab-terms>div{min-width:0;background:#f5ead4;border-top:2px solid #b08c62;padding:8px}
+.lab-terms small{font-size:13px;color:#573d2d}.lab-stepper{display:flex;align-items:center;gap:12px;margin:12px 0}
+.lab-stepper button{background:#fff7e6;color:#643b31;border:1px solid #b99d77;min-width:34px;min-height:32px;cursor:pointer}
+.lab-stepper button:disabled{opacity:.4;cursor:default}
+@media(max-width:600px){.lab-terms,#rec-blocks{grid-template-columns:1fr}.lab-equation .katex{font-size:1em}}
