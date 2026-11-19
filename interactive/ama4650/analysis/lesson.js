@@ -8,6 +8,7 @@ for(const [id,fn] of [['lag',identify],['phi',estimate],['res',diagnose]]){$(id)
 const chapterButtons = [...document.querySelectorAll('.chapters [data-section]')];
 function showChapter() {
   const selected = chapterButtons.find(b => '#' + b.dataset.section === location.hash) || chapterButtons[0];
+  document.querySelectorAll('[data-guide]').forEach(el => { el.hidden = el.dataset.guide !== selected.dataset.section; });
   for (const button of chapterButtons) {
     const active = button === selected;
     document.getElementById(button.dataset.section).hidden = !active;

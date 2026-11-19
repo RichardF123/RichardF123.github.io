@@ -8,7 +8,7 @@ window.ARCourse = {
       core:String.raw`X_t=c+\color{#82612e}{\phi X_{t-1}}+\color{#8a3e3c}{Z_t}`,
       condition:'公式与方块统一使用 Xₜ、Xₜ₋₁、φXₜ₋₁、Zₜ、c。图中数字是当前模拟的取值；Zₜ 与 c 分开，不再合成一个名字。Zₜ 独立同分布，均值 0、方差 σ²；本页使用正态噪声，X₀ = 0。',
       derivationTitle:'递归替换，直到初始时刻',
-      steps:[['把上一时刻再展开一次。',String.raw`X_t=c(1+\phi)+\phi^2X_{t-2}+Z_t+\phiZ_{t-1}`],['一直替换到 X₀。两部分分别来自确定性的初始值与随机冲击。',String.raw`X_t=\phi^tX_0+c\sum_{j=0}^{t-1}\phi^j+\sum_{j=0}^{t-1}\phi^jZ_{t-j}`]],
+      steps:[['把上一时刻再展开一次。',String.raw`X_t=c(1+\phi)+\phi^2X_{t-2}+Z_t+\phi Z_{t-1}`],['一直替换到 X₀。两部分分别来自确定性的初始值与随机冲击。',String.raw`X_t=\phi^tX_0+c\sum_{j=0}^{t-1}\phi^j+\sum_{j=0}^{t-1}\phi^jZ_{t-j}`]],
       boundary:'φ = 0 时不再保留过去。在独立冲击假设下，各期观测也独立。固定初始化生成的路径，不等于从平稳分布初始化的路径。',
       question:'c = 2、φ = 0.5，若因果平稳解存在，均值 μ 是多少？',choices:['2','4','1'],correct:1,feedback:'对递推式取期望：μ = 2 + 0.5μ，因此 μ = 4，而不是 c = 2。',
       code:'x = [0.0]\nfor eps in innovations:\n    x.append(c + phi * x[-1] + eps)'
@@ -18,7 +18,7 @@ window.ARCourse = {
       takeaway:'先区分系数 φʲ 和随机项 φʲZₜ₋ⱼ。图中画系数，不把它当作白噪声实际取值。',
       core:String.raw`Y_t=X_t-\mu=\sum_{j=0}^{\infty}\phi^jZ_{t-j}`,
       condition:'因果平稳表示要求 |φ| < 1。讲义以 μ = 0 推导；这里先中心化 Yₜ = Xₜ − μ。讲义 Zₜ / ϵₜ 在本教程统一记为 Zₜ。',
-      derivationTitle:'对应讲义的 MA(∞) 展开',steps:[['去掉均值后，先替换一次 Yₜ₋₁。',String.raw`Y_t=Z_t+\phiZ_{t-1}+\phi^2Y_{t-2}`],['替换 m + 1 次，先保留余项，不能直接凭空写无穷和。',String.raw`Y_t=\sum_{j=0}^{m}\phi^jZ_{t-j}+\phi^{m+1}Y_{t-m-1}`],['在平稳、有限方差且 |φ| < 1 时，余项在均方意义下趋于零。',String.raw`\mathbb E[(\phi^{m+1}Y_{t-m-1})^2]=\phi^{2m+2}\gamma(0)\longrightarrow0`]],
+      derivationTitle:'对应讲义的 MA(∞) 展开',steps:[['去掉均值后，先替换一次 Yₜ₋₁。',String.raw`Y_t=Z_t+\phi Z_{t-1}+\phi^2Y_{t-2}`],['替换 m + 1 次，先保留余项，不能直接凭空写无穷和。',String.raw`Y_t=\sum_{j=0}^{m}\phi^jZ_{t-j}+\phi^{m+1}Y_{t-m-1}`],['在平稳、有限方差且 |φ| < 1 时，余项在均方意义下趋于零。',String.raw`\mathbb E[(\phi^{m+1}Y_{t-m-1})^2]=\phi^{2m+2}\gamma(0)\longrightarrow0`]],
       boundary:'“多加一次单位扰动，再比较两条路径”是对白噪声系数的补充解释，不是这份讲义中的独立冲击响应章节。|φ| ≥ 1 时仍可算有限项系数，但不能沿用这个因果平稳无穷表示。',
       sources:[['Chapter 4B · PDF 第 4 页（讲义 29/59）','chapter-04b-arima.pdf',4],['Chapter 4B · PDF 第 6 页（讲义 31/59）','chapter-04b-arima.pdf',6]],sourceNote:'对应指数衰减与白噪声表示。“冲击响应”是此前补充解释的名称，不作为讲义独立章节。',
       question:'φ = −0.5 时，今天的表示中 Zₜ₋₂ 的系数是多少？',choices:['−0.25','0.25','−0.5'],correct:1,feedback:'j = 2 时系数是 φ² = 0.25。只有系数已知，随机项还要乘上实际的 Zₜ₋₂。',code:'weights = np.array([phi**j for j in range(7)])\n# X_t - mu = sum_j weights[j] * epsilon_(t-j)\n# Above is a causal stationary infinite representation only for abs(phi) < 1.'
